@@ -31,7 +31,7 @@ class TrainingFormWithCSV(forms.ModelForm):
         queryset=Student.objects.exclude(medical_group__name='Medical checkup not passed'),
         error_messages={'invalid_choice': 'The student has not passed medical check-up yet!'},
         widget=AutocompleteSelectMultiple(
-            rel=AutocompleteStudent,
+            AutocompleteStudent,
             admin_site=site,
             attrs={'data-width': '50%'}
         ),

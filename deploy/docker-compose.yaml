@@ -18,7 +18,7 @@ services:
     build:
       context: ../adminpage
       args:
-        - PYTHON_VERSION=3.7
+        - PYTHON_VERSION=3.12
     #   Wait for postgres to startup before running server
     command: bash -c 'while !</dev/tcp/db/5432; do sleep 1; done; python manage.py runserver 0.0.0.0:8000'
     restart: unless-stopped
@@ -38,7 +38,7 @@ services:
 
   db:
     # See more: https://registry.hub.docker.com/_/postgres
-    image: "postgres:11-alpine"
+    image: "postgres:17.1-alpine"
     restart: unless-stopped
     ports:
       - "5432:5432"
