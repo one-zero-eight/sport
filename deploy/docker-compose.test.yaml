@@ -5,7 +5,7 @@ services:
     build:
       context: ../adminpage
       args:
-        PYTHON_VERSION: 3.7
+        PYTHON_VERSION: 3.12
     #   Wait for postgres to startup before running server
     command: bash -c 'while !</dev/tcp/db/5432; do sleep 1; done; python manage.py runserver 0.0.0.0:8000'
     restart: unless-stopped
@@ -13,9 +13,11 @@ services:
       - db
     env_file:
       - .env.test
+    ports:
+      - 8000:8000
 
   db:
-    image: postgres:11-alpine
+    image: postgres:17.1-alpine
     restart: unless-stopped
     env_file:
       - .env.test

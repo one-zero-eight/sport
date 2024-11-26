@@ -4,7 +4,7 @@ from typing import Iterable, Tuple, List
 from django.db.models import F, Value, BooleanField, Case, When, CharField, Sum, IntegerField, OuterRef
 from django.db.models.functions import Concat, Coalesce
 from django.db.models.expressions import Value, Case, When, Subquery, OuterRef, ExpressionWrapper
-from typing_extensions import TypedDict
+from typing import TypedDict
 
 from django.db import connection
 

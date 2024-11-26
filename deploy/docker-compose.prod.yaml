@@ -33,7 +33,7 @@ services:
 
   db:
     # See more: https://registry.hub.docker.com/_/postgres
-    image: "postgres:11-alpine"
+    image: "postgres:17.1-alpine"
     restart: always
     volumes:
       - "db-data:/var/lib/postgresql/data"

@@ -1,11 +1,10 @@
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 from typing import Tuple, Iterable, Optional
 
 import pytest
 from django.contrib.admin.helpers import ACTION_CHECKBOX_NAME
 from django.contrib.auth import get_user_model
 from django.urls import reverse
-from django.utils import timezone
 from rest_framework.test import APIClient
 
 from api.crud import mark_hours

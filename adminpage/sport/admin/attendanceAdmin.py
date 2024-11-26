@@ -10,7 +10,7 @@ from django.http import HttpResponse
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from openpyxl import Workbook
-from rangefilter.filter import DateRangeFilter
+from rangefilter.filters import DateRangeFilter
 
 from sport.admin.utils import cache_filter, cache_dependent_filter, custom_order_filter, DefaultFilterMixIn
 from sport.models import Attendance, Student, Semester
