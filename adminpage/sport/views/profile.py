@@ -1,10 +1,10 @@
+import datetime
+
 from django import forms
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
-from django.utils import timezone
-from rest_framework.decorators import api_view, permission_classes
-import datetime
+from rest_framework.decorators import permission_classes
 
 from api.crud import get_ongoing_semester, get_student_groups, \
     get_brief_hours, \
@@ -35,11 +35,10 @@ def profile_view(request, **kwargs):
     trainer = getattr(user, "trainer", None)  # type: Optional[Trainer]
 
     current_semester = get_ongoing_semester()
-    utc_date = timezone.localdate(timezone=timezone.utc)
     sports = get_sports(student=student)
 
     context = {
-        "now": datetime.datetime.utcnow(),
+        "now": datetime.datetime.now(tz=datetime.timezone.utc),
         "user": request.user,
         "common": {
             "semester_name": current_semester.name

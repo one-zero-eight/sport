@@ -188,7 +188,7 @@ def cache_dependent_filter(translation: Dict[str, str], order=None, select_relat
             self.no_output = any(map(lambda x: request.cache_filter[x] is None, translation))
             if self.no_output:
                 return []
-            additional_filter = {translation[k]: request.cache_filter[k] for k in translation}
+            additional_filter = {translation[k]: int(request.cache_filter[k][0]) for k in translation}
             ordering = order or self.field_admin_ordering(field, request, model_admin)
 
             # adapted from field.get_choices(...)
