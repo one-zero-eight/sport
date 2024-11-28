@@ -60,6 +60,7 @@ services:
     restart: unless-stopped
     volumes:
       - "./prometheus:/etc/prometheus"
+      - "prometheus-data:/prometheus"
     ports:
       - "9090:9090"
 
@@ -110,6 +111,7 @@ volumes:
   db-data:
   django-static:
   grafana-data:
+  prometheus-data:
   # required to preserve change to django.contrib.auth.models.Group class.
   # (verbose_name added)
   # since Innopolis adfs provides groupsid as universal identifier
