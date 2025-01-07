@@ -5,23 +5,26 @@
 
 The platform for conducting, tracking and checking students' sports activity at Innopolis University.
 
-## Requirements:
+## Development
 
-* Python 3.7
-* Docker and Docker Compose
+### Set up for development
 
-## How to start coding
-
-1. Install dependencies: `pip3 install -r ./adminpage/requirements.txt`
-2. Copy environment variables: `cp deploy/.env.example deploy/.env`
-3. Start services: `docker compose -f ./deploy/docker-compose.yaml up`
-4. Make migrations and create superuser:
+1. Install [Python 3.12](https://www.python.org/downloads/), [Poetry](https://python-poetry.org/docs/),
+   [Docker](https://docs.docker.com/engine/install/)
+2. Install project dependencies with [Poetry](https://python-poetry.org/docs/cli/#options-2).
+   ```bash
+   cd adminpage
+   poetry install
+   ```
+3. Copy environment variables: `cp deploy/.env.example deploy/.env`
+4. Start services: `docker compose -f ./deploy/docker-compose.yaml up`
+5. Make migrations and create superuser:
    - Enter shell: `docker compose -f ./deploy/docker-compose.yaml exec -it adminpanel bash`
    - Autocreate migration files: `python manage.py makemigrations`
    - Apply migrations to db: `python manage.py migrate`
      > If there are problems with migrations applying, try to run the same migrate command with `--fake` option.
    - Create a new superuser: `python manage.py createsuperuser`
-5. View admin panel at `http://localhost/admin`
+6. View admin panel at `http://localhost/admin`
 
 > [!NOTE]
 > Server supports auto-reload on code change in debug mode
@@ -30,7 +33,7 @@ API documentation:
 * Swagger is at http://localhost/api/swagger
 * Redoc is at http://localhost/api/redoc
 
-## Environment Variables
+### Environment Variables
 
 See `deploy/.env.example` for reference.
 
@@ -59,7 +62,7 @@ The project requires a file `deploy/.env` with the following environment variabl
 
 You can leave the default values for development.
 
-## Project structure
+### Project structure
 
 ```
 .
