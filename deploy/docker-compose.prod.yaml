@@ -19,15 +19,14 @@ services:
       context: ../adminpage
       args:
         - PYTHON_VERSION
-    #   Wait for postgres to startup before running server
-    command: bash -c 'while !</dev/tcp/db/5432; do sleep 1; done; uvicorn adminpage.asgi:application --host 0.0.0.0 --port 8000 --workers 4 --lifespan off --proxy-headers'
     restart: always
     volumes:
-      - "django-auth-preserve:/usr/local/lib/python${PYTHON_VERSION}/site-packages/django/contrib/auth/migrations/"
+      - "django-auth-preserve:/opt/pysetup/.venv/lib/python${PYTHON_VERSION}/site-packages/django/contrib/auth/migrations/"
       - "django-static:/static"
       - "/sport/media:/uploaded_media"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     env_file:
       - .env
 
@@ -39,6 +38,12 @@ services:
       - "db-data:/var/lib/postgresql/data"
     env_file:
       - .env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
 
   prometheus:
     # See more: https://registry.hub.docker.com/r/prom/prometheus

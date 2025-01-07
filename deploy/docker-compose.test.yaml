@@ -5,12 +5,13 @@ services:
     build:
       context: ../adminpage
       args:
-        PYTHON_VERSION: 3.12
-    #   Wait for postgres to startup before running server
-    command: bash -c 'while !</dev/tcp/db/5432; do sleep 1; done; python manage.py runserver 0.0.0.0:8000'
+        PYTHON_VERSION: "3.12"
+    # Run development server with hot reload
+    command: python manage.py runserver 0.0.0.0:8000
     restart: unless-stopped
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     env_file:
       - .env.test
     ports:
@@ -21,3 +22,9 @@ services:
     restart: unless-stopped
     env_file:
       - .env.test
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
