@@ -21,17 +21,13 @@ from .utils import cache_filter, cache_dependent_filter, cache_alternative_filte
 from .site import site
 
 
-class AutocompleteStudent:
-    model = Student
-
-
 class TrainingFormWithCSV(forms.ModelForm):
     attended_students = forms.ModelMultipleChoiceField(
         required=False,
         queryset=Student.objects.exclude(medical_group__name='Medical checkup not passed'),
         error_messages={'invalid_choice': 'The student has not passed medical check-up yet!'},
         widget=AutocompleteSelectMultiple(
-            AutocompleteStudent,
+            Attendance._meta.get_field('student'),
             admin_site=site,
             attrs={'data-width': '50%'}
         ),
