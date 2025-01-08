@@ -163,7 +163,11 @@ def cache_filter(cls, clear_list: List[str]):
 
             def get_query_string(new_params=None, remove=None):
                 # call prior version with additional 'remove' fields
-                return f(new_params=new_params, remove=clear_list if remove is None else (clear_list + remove))
+                if remove is None:
+                    return f(new_params=new_params, remove=clear_list)
+                if isinstance(remove, dict):
+                    remove = [key for key in remove]
+                return f(new_params=new_params, remove=clear_list + remove)
 
             # override get_query_string
             changelist.get_query_string = get_query_string
