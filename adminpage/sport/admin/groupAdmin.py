@@ -7,6 +7,7 @@ from django.forms import CheckboxSelectMultiple
 from django.forms import ModelForm
 from django.utils import timezone
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 
 from api.crud import get_ongoing_semester
 from sport.models import Group, Semester
@@ -40,7 +41,7 @@ class ListTextWidget(forms.NumberInput):
         for e in self._list:
             list_html += '<button type="button" onclick="clickButton(\'%s\', \'%s\');">%s</button>' % (name, e, e)
 
-        return script + '\n' + text_html + '\n' + list_html
+        return mark_safe(script + '\n' + text_html + '\n' + list_html)
 
 
 class TrainerTextFilter(AutocompleteFilter):
