@@ -48,28 +48,6 @@ def special_groups_create(sender, instance, created, **kwargs):
             }
         )
         sport_dep_user.groups.add(trainer_group)
-        sport_dep, _ = Trainer.objects.get_or_create(user=sport_dep_user)
-        kwargs = {
-            'is_club': False,
-            'sport': None,
-            'semester': instance,
-            'trainer': sport_dep
-        }
-        Group.objects.create(
-            name=settings.SELF_TRAINING_GROUP_NAME,
-            capacity=9999,
-            **kwargs
-        )
-        Group.objects.create(
-            name=settings.EXTRA_EVENTS_GROUP_NAME,
-            capacity=0,
-            **kwargs,
-        )
-        Group.objects.create(
-            name=settings.MEDICAL_LEAVE_GROUP_NAME,
-            capacity=0,
-            **kwargs
-        )
     # TODO: add logic for semester update
     # else:
     #     # if semester dates changed, recalculate all future related schedules
