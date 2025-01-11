@@ -12,7 +12,7 @@ from django import forms
 import datetime
 
 from api.crud import get_ongoing_semester
-from sport.models import Schedule
+from sport.models import Schedule, Semester, Group
 
 
 class DurationWidget(forms.TimeInput):
@@ -255,3 +255,33 @@ def has_free_places_filter():
             return queryset
 
     return Wrapper
+
+
+def copy_sport_groups_and_schedule_from_previous_semester(semester: Semester) -> None:
+    semester.save()
+    prev_semester = Semester.objects.filter(start__lt=semester.start).order_by('-start').first()
+    sport_groups = Group.objects.filter(semester__pk=prev_semester.pk).prefetch_related('trainers', 'allowed_medical_groups', 'schedule').select_related('trainer').order_by('pk')
+    new_sport_groups = []
+    for group in sport_groups:
+        new_group = Group(
+            semester=semester,
+            sport=group.sport,
+            name=group.name,
+            capacity=group.capacity,
+            is_club=group.is_club,
+            trainer=group.trainer,
+            accredited=group.accredited,
+            allowed_gender=group.allowed_gender,
+            allowed_qr=group.allowed_qr,
+        )
+        new_sport_groups.append(new_group)
+    Group.objects.bulk_create(new_sport_groups)
+
+    new_sport_groups = Group.objects.filter(semester__pk=semester.pk).order_by('pk')
+    for old_group, new_group in zip(sport_groups, new_sport_groups):
+        for trainer in old_group.trainers.all():
+            new_group.trainers.add(trainer)
+        for medical_group in old_group.allowed_medical_groups.all():
+            new_group.allowed_medical_groups.add(medical_group)
+        for schedule_obj in old_group.schedule.all():
+            new_group.schedule.add(schedule_obj)
