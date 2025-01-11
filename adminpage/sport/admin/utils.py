@@ -258,7 +258,7 @@ def has_free_places_filter():
 
 
 def copy_sport_groups_and_schedule_from_previous_semester(semester: Semester) -> None:
-    semester.save()
+    Semester.objects.bulk_create([semester])
     prev_semester = Semester.objects.filter(start__lt=semester.start).order_by('-start').first()
     sport_groups = Group.objects.filter(semester__pk=prev_semester.pk).prefetch_related('trainers', 'allowed_medical_groups', 'schedule').select_related('trainer').order_by('pk')
     new_sport_groups = []
