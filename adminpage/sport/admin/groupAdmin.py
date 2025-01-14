@@ -91,6 +91,7 @@ class GroupAdmin(DefaultFilterMixIn):
         "sport",
         # "trainer",
         'trainers',
+        'allowed_students',
     )
 
     list_filter = (
@@ -128,6 +129,7 @@ class GroupAdmin(DefaultFilterMixIn):
         "trainers",
         "allowed_medical_groups",
         "allowed_gender",
+        "allowed_students",
     )
 
     def get_changeform_initial_data(self, request):

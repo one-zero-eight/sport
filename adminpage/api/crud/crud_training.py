@@ -74,6 +74,7 @@ def can_check_in(
     )
     free_places = training.group.capacity - training.checkins.count()
     allowed_medical_groups = training.group.allowed_medical_groups.all()
+    allowed_students = training.group.allowed_students.all()
 
     # All conditions must be True for the student to be able to check in.
     result = (
@@ -81,7 +82,7 @@ def can_check_in(
         training.start < (time_now + _week_delta) and time_now < training.end and
         (total_hours + training.academic_duration) <= 4 and
         (same_type_hours + training.academic_duration) <= 2 and
-        student.medical_group in allowed_medical_groups and
+        (student.medical_group in allowed_medical_groups or student in allowed_students) and
         training.group.allowed_gender in (student.gender, -1)
     )
 
