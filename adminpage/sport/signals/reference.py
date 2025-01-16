@@ -2,9 +2,9 @@ from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
 
-from sport.models import Reference, Group, MedicalGroupReference, MedicalGroupReferenceImage
+from sport.models import Reference, Group, MedicalGroupReference
 from sport.signals.utils import create_attendance_record
-from sport.utils import format_submission_html, SubmissionType
+from sport.utils import format_submission_html
 
 
 @receiver(post_save, sender=Reference)
@@ -59,25 +59,22 @@ def medical_group_updated(
 ):
     if created or instance.resolved is None:
         return
-    submissions_urls = '\n'.join(
-        [
-            format_submission_html(SubmissionType.IMAGE, image.image.path)
-            for image in MedicalGroupReferenceImage.objects.filter(
-                reference_id=instance.pk
-            )
-        ]
-    )
+
     if instance.resolved:
         instance.student.notify(
             *settings.EMAIL_TEMPLATES['medical_group_success'],
             semester=instance.semester,
             medical_group=instance.student.medical_group.name,
-            submission=submissions_urls
+            submission=format_submission_html(
+                *instance.get_submission_url()
+            ),
         )
     else:
         instance.student.notify(
             *settings.EMAIL_TEMPLATES['medical_group_reject'],
             semester=instance.semester,
             comment=instance.comment,
-            submission=submissions_urls
+            submission=format_submission_html(
+                *instance.get_submission_url()
+            ),
         )

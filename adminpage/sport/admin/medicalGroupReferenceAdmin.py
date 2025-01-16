@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 
 from sport.admin import site
-from sport.models import MedicalGroupReference, MedicalGroupReferenceImage, MedicalGroup, MedicalGroupHistory
+from sport.models import MedicalGroupReference, MedicalGroup, MedicalGroups, MedicalGroupHistory
 
 
 class StudentTextFilter(AutocompleteFilter):
@@ -51,17 +51,13 @@ class MedicalGroupReferenceForm(forms.ModelForm):
         )
 
 
-class MedicalGroupReferenceAdminImage(admin.TabularInline):
-    model = MedicalGroupReferenceImage
-    extra = 0
-
-
 @admin.register(MedicalGroupReference, site=site)
 class MedicalGroupReferenceAdmin(admin.ModelAdmin):
     form = MedicalGroupReferenceForm
 
     list_display = (
         "student",
+        "image",
         "resolved",
     )
 
@@ -78,16 +74,15 @@ class MedicalGroupReferenceAdmin(admin.ModelAdmin):
     fields = (
         ("student", "uploaded"),
         ("medical_group", "comment"),
-        ("student_comment"),
+        ("student_comment", "reference_image"),
     )
 
     readonly_fields = (
         "student",
         "uploaded",
+        "reference_image",
         "student_comment",
     )
-
-    inlines = (MedicalGroupReferenceAdminImage,)
 
     def save_model(self, request, obj, form, change):
         if obj.resolved is None or 'comment' in form.changed_data or 'medical_group' in form.changed_data:
@@ -96,6 +91,12 @@ class MedicalGroupReferenceAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return False
+
+    def reference_image(self, obj):
+        return format_html('<a href="{}"><img style="width: 50%" src="{}" /></a>', obj.image.url, obj.image.url)
+
+    reference_image.short_description = 'Reference'
+    reference_image.allow_tags = True
 
     class Media:
         pass

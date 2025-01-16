@@ -29,11 +29,7 @@
                         Based on the reference you will be assigned a health group.
                     </p>
                     {% csrf_token %}
-                    <input type="file" name="references" multiple="" accept="image/*" required="" id="id_references">
-                    <p>
-                        {{ forms.medical_group_reference.student_comment.label }}
-                        {{ forms.medical_group_reference.student_comment }}
-                    </p>
+                    {{ forms.medical_group_reference.as_p }}
                 </div>
                 <div class="modal-footer">
                     <div class="container">
