@@ -13,6 +13,7 @@ import datetime
 
 from api.crud import get_ongoing_semester
 from sport.models import Schedule, Semester, Group
+from adminpage.settings import NOT_COPYABLE_GROUPS
 
 
 class DurationWidget(forms.TimeInput):
@@ -258,11 +259,13 @@ def has_free_places_filter():
 
 
 def copy_sport_groups_and_schedule_from_previous_semester(semester: Semester) -> None:
-    Semester.objects.bulk_create([semester])
+    semester.save()
     prev_semester = Semester.objects.filter(start__lt=semester.start).order_by('-start').first()
     sport_groups = Group.objects.filter(semester__pk=prev_semester.pk).prefetch_related('trainers', 'allowed_medical_groups', 'schedule').select_related('trainer').order_by('pk')
     new_sport_groups = []
     for group in sport_groups:
+        if group.name in NOT_COPYABLE_GROUPS:
+            continue
         new_group = Group(
             semester=semester,
             sport=group.sport,
