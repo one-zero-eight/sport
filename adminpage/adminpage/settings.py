@@ -439,3 +439,5 @@ LOGGING = {
         },
     },
 }
+
+NOT_COPYABLE_GROUPS = ['Medical leave', 'Extra sport events', 'Self training']
