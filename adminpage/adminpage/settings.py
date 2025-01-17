@@ -64,6 +64,8 @@ SELF_TRAINING_GROUP_NAME = "Self training"
 EXTRA_EVENTS_GROUP_NAME = "Extra sport events"
 MEDICAL_LEAVE_GROUP_NAME = "Medical leave"
 OTHER_SPORT_NAME = "Other"
+# Groups that should not be duplicated when copying all sport groups from previous semester
+NOT_COPYABLE_GROUPS = [SELF_TRAINING_GROUP_NAME, EXTRA_EVENTS_GROUP_NAME, MEDICAL_LEAVE_GROUP_NAME]
 
 TRAINING_EDITABLE_INTERVAL = timedelta(
     days=3
