@@ -49,15 +49,15 @@ class HoursFilter(admin.SimpleListFilter):
     def queryset(self, request, queryset):
         value = self.value()
         if value == 'less':
-            return queryset.filter(complex_hours__lt=-60)
+            return queryset.filter(hours__lt=-60)
         if value == '-31':
-            return queryset.filter(complex_hours__lt=-30).filter(complex_hours__gte=-60)
+            return queryset.filter(hours__lt=-30).filter(hours__gte=-60)
         if value == '-1':
-            return queryset.filter(complex_hours__lt=0).filter(complex_hours__gte=-30)
+            return queryset.filter(hours__lt=0).filter(hours__gte=-30)
         if value == '29':
-            return queryset.filter(complex_hours__lt=30).filter(complex_hours__gte=0)
+            return queryset.filter(hours__lt=30).filter(hours__gte=0)
         elif value == 'more':
-            return queryset.filter(complex_hours__gte=30)
+            return queryset.filter(hours__gte=30)
         return queryset
 
 
@@ -80,7 +80,7 @@ class StudentResource(resources.ModelResource):
         widget=ForeignKeyWidget(Sport, "name"),
     )
 
-    complex_hours = fields.Field(attribute='complex_hours', readonly=True)
+    hours = fields.Field(attribute='hours', readonly=True)
 
     def get_or_init_instance(self, instance_loader, row):
         student_group = get_or_create_student_group()
@@ -138,7 +138,7 @@ class StudentResource(resources.ModelResource):
             "student_status",
             "is_online",
             'sport',
-            'complex_hours',
+            'hours',
             "telegram",
         )
         import_id_fields = ("user",)
@@ -234,7 +234,7 @@ class StudentAdmin(HijackUserAdminMixin, ImportExportActionModelAdmin, DefaultFi
         "course",
         "medical_group",
         "sport",
-        "complex_hours",
+        "hours",
         "student_status",
         "write_to_telegram",
     )
@@ -251,9 +251,9 @@ class StudentAdmin(HijackUserAdminMixin, ImportExportActionModelAdmin, DefaultFi
                 obj.telegram
             )
 
-    def complex_hours(self, obj: Student):
-        return obj.complex_hours
-    complex_hours.admin_order_field = 'complex_hours'
+    def hours(self, obj: Student):
+        return obj.hours
+    hours.admin_order_field = 'hours'
 
     ordering = (
         "user__first_name",
@@ -278,24 +278,6 @@ class StudentAdmin(HijackUserAdminMixin, ImportExportActionModelAdmin, DefaultFi
                 self.inlines = (ViewAttendanceInline,)
         return super().change_view(request, object_id, form_url, extra_context)
 
-    def get_queryset(self, request):
-        qs = super().get_queryset(request)
-
-        qs = qs.annotate(_debt=Coalesce(
-            SumSubquery(Debt.objects.filter(semester_id=get_ongoing_semester().pk,
-                                            student_id=OuterRef("pk")), 'debt'),
-            0
-        ))
-        qs = qs.annotate(_ongoing_semester_hours=Coalesce(
-            SumSubquery(Attendance.objects.filter(
-                training__group__semester_id=get_ongoing_semester().pk, student_id=OuterRef("pk")), 'hours'),
-            0
-        ))
-        qs = qs.annotate(complex_hours=ExpressionWrapper(
-            F('_ongoing_semester_hours') - F('_debt'), output_field=IntegerField()
-        ))
-
-        return qs
 
     def get_hijack_user(self, obj):
         return obj.user
