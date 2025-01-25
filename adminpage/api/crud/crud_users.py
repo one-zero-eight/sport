@@ -43,9 +43,6 @@ def get_email_name_like_students(pattern: str, limit: int = 5, requirement=~Q(pk
 
 def get_email_name_like_students_filtered_by_group(pattern: str, limit: int = 5, group=None):
     group = Group.objects.get(id=group)
-
-    medical_group_condition = Q(pk=None)
-    for medical_group in group.allowed_medical_groups.all():
-        medical_group_condition = medical_group_condition | Q(medical_group__id=medical_group.id)
-
-    return get_email_name_like_students(pattern, limit, medical_group_condition)
+    not_banned_condition = ~Q(pk__in=group.banned_students.values_list('id', flat=True))
+    allowed_condition = Q(pk__in=group.allowed_students.values_list('id', flat=True)) | Q(medical_group__in=group.allowed_medical_groups.all())
+    return get_email_name_like_students(pattern, limit, not_banned_condition & allowed_condition)

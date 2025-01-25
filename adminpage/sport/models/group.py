@@ -26,7 +26,18 @@ class Group(models.Model):
         default=-1,
         verbose_name="Is a QR required?"
     )
-    allowed_students = models.ManyToManyField('Student', related_name='allowed_groups', blank=True)
+    allowed_students = models.ManyToManyField(
+        'Student',
+        related_name='allowed_groups',
+        blank=True,
+        help_text='List of students that are allowed to attend classes'
+    )
+    banned_students = models.ManyToManyField(
+        'Student',
+        related_name='banned_groups',
+        blank=True,
+        help_text='List of students that can not attent classes'
+    )
 
     class Meta:
         db_table = "group"

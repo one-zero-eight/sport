@@ -75,6 +75,7 @@ def can_check_in(
     free_places = training.group.capacity - training.checkins.count()
     allowed_medical_groups = training.group.allowed_medical_groups.all()
     allowed_students = training.group.allowed_students.all()
+    banned_students = training.group.banned_students.all()
 
     # All conditions must be True for the student to be able to check in.
     result = (
@@ -83,6 +84,7 @@ def can_check_in(
         (total_hours + training.academic_duration) <= 4 and
         (same_type_hours + training.academic_duration) <= 2 and
         (student.medical_group in allowed_medical_groups or student in allowed_students) and
+        student not in banned_students and
         training.group.allowed_gender in (student.gender, -1)
     )
 
@@ -101,8 +103,9 @@ def get_trainings_for_student(student: Student, start: datetime, end: datetime):
     trainings = Training.objects.filter(
         Q(start__range=(start, end)) | Q(end__range=(start, end)) | (Q(start__lte=start) & Q(end__gte=end)),
         ~Q(group__sport=None),
+        Q(group__allowed_medical_groups=student.medical_group) | Q(group__allowed_students=student.pk),
         group__semester=semester_id,
-    ).prefetch_related(
+    ).exclude(group__banned_students=student.pk).prefetch_related(
         group_prefetch,
         "training_class",
         "checkins",
