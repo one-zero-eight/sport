@@ -16,10 +16,15 @@ class Group(models.Model):
     accredited = models.BooleanField(default=True, null=False)
 
     # minimum_medical_group = models.ForeignKey('MedicalGroup', on_delete=models.DO_NOTHING, null=True, blank=True)
-    allowed_medical_groups = models.ManyToManyField('MedicalGroup', blank=True)
+    allowed_medical_groups = models.ManyToManyField(
+        'MedicalGroup',
+        blank=True,
+        help_text='Select medical groups required to attend the trainings. If this is empty, nobody will see the training (except students in "Allowed students" list, they always see the training).'
+    )
     allowed_gender = models.IntegerField(
         choices=GenderInFTGrading.choices,
         default=GenderInFTGrading.BOTH,
+        help_text='Select genders that are allowed to attend the trainings (works with "Allowed medical groups" filter).'
     )
     allowed_qr = models.IntegerField(
         choices=GroupQR.choices,
@@ -30,13 +35,13 @@ class Group(models.Model):
         'Student',
         related_name='allowed_groups',
         blank=True,
-        help_text='List of students that are allowed to attend classes'
+        help_text='List of students that are allowed to attend classes (in addition to "Allowed medical groups" filter).'
     )
     banned_students = models.ManyToManyField(
         'Student',
         related_name='banned_groups',
         blank=True,
-        help_text='List of students that can not attent classes'
+        help_text='List of students that can not attend classes. The students will not see the training, and the teacher will not be able to set hours for these students.'
     )
 
     class Meta:

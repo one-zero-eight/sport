@@ -79,13 +79,23 @@ def can_check_in(
 
     # All conditions must be True for the student to be able to check in.
     result = (
+        # The training must have free places left
         free_places > 0 and
+        # The training must not be finished yet, and you can check in only during 1 week before the training start
         training.start < (time_now + _week_delta) and time_now < training.end and
+        # The student can only get 4 hours at one day
         (total_hours + training.academic_duration) <= 4 and
+        # The student can only get 2 hours at one day for the same sport type
         (same_type_hours + training.academic_duration) <= 2 and
-        (student.medical_group in allowed_medical_groups or student in allowed_students) and
+        # Students in "Banned students" list are always prohibited
         student not in banned_students and
-        training.group.allowed_gender in (student.gender, -1)
+        (
+            # Students in "Allowed students" list can check in, no matter their medical group or gender
+            student in allowed_students or
+            # Other students must be of allowed medical groups and allowed gender
+            (student.medical_group in allowed_medical_groups and
+             training.group.allowed_gender in (student.gender, -1))
+        )
     )
 
     return result
@@ -100,15 +110,28 @@ def get_trainings_for_student(student: Student, start: datetime, end: datetime):
     # Assuming TrainingCheckIn model has a 'student' and 'training' foreign key.
     # And Training has a 'group' foreign key with an 'allowed_medical_groups' many-to-many field.
     semester_id = get_ongoing_semester().id
-    trainings = Training.objects.filter(
-        Q(start__range=(start, end)) | Q(end__range=(start, end)) | (Q(start__lte=start) & Q(end__gte=end)),
-        ~Q(group__sport=None),
-        Q(group__allowed_medical_groups=student.medical_group) | Q(group__allowed_students=student.pk),
-        group__semester=semester_id,
-    ).exclude(group__banned_students=student.pk).prefetch_related(
-        group_prefetch,
-        "training_class",
-        "checkins",
+    trainings = (
+        Training.objects.filter(
+            # Filter by requested time range
+            Q(start__range=(start, end))
+            | Q(end__range=(start, end))
+            | (Q(start__lte=start) & Q(end__gte=end)),
+            # Do not show 'Self training', 'Extra sport events', 'Medical leave', etc. trainings
+            ~Q(group__sport=None),
+            # The student must either have acceptable medical group
+            Q(group__allowed_medical_groups=student.medical_group)
+            # ... or be in 'Allowed students' list
+            | Q(group__allowed_students=student.pk),
+            # Show only for current semester
+            group__semester=semester_id,
+        )
+        # Do not show the training if a student is in 'Banned students' list
+        .exclude(group__banned_students=student.pk)
+        .prefetch_related(
+            group_prefetch,
+            "training_class",
+            "checkins",
+        )
     )
 
     # get all student check-ins for the given time range
