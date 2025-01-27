@@ -37,14 +37,13 @@ def get_email_name_like_students(pattern: str, limit: int = 5, requirement=~Q(pk
         'medical_group__name',
         'gender'
     )[:limit]
-
     return list(query)
 
 
 def get_email_name_like_students_filtered_by_group(pattern: str, limit: int = 5, group=None):
     group = Group.objects.get(id=group)
     # Don't suggest the student that is in 'Banned students' list
-    not_banned_condition = ~Q(pk__in=group.banned_students.values_list('id', flat=True))
+    not_banned_condition = ~Q(user_id__in=group.banned_students.values_list('user_id', flat=True))
     # The student must either be in 'Allowed students' list, or have acceptable medical group
-    allowed_condition = Q(pk__in=group.allowed_students.values_list('id', flat=True)) | Q(medical_group__in=group.allowed_medical_groups.all())
+    allowed_condition = Q(user_id__in=group.allowed_students.values_list('user_id', flat=True)) | Q(medical_group__in=group.allowed_medical_groups.all())
     return get_email_name_like_students(pattern, limit, not_banned_condition & allowed_condition)
