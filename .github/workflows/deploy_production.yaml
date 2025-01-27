@@ -30,7 +30,7 @@ jobs:
             docker compose -f docker-compose.prod.yaml down
             docker compose -f docker-compose.prod.yaml up -d
             docker compose -f docker-compose.prod.yaml exec -T adminpanel bash -c "while !</dev/tcp/db/5432; do sleep 1; done;"
-            docker compose -f docker-compose.prod.yaml exec -T adminpanel bash -c './manage.py collectstatic --noinput && ./manage.py migrate && ./manage.py createcachetable'
+            docker compose -f docker-compose.prod.yaml exec -T adminpanel bash -c 'python3 manage.py collectstatic --noinput && python3 manage.py migrate && python3 manage.py createcachetable'
             docker compose -f docker-compose.prod.yaml build nginx
             docker compose -f docker-compose.prod.yaml restart nginx
             python3 ${{ secrets.BACKUP_SCRIPT }}
