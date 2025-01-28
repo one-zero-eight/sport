@@ -1,3 +1,4 @@
+import pglock
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -59,20 +60,21 @@ def training_checkin(request, training_id, **kwargs):
         )
     student: Student = request.user.student
 
-    if not can_check_in(student, training):
-        return Response(
-            status=status.HTTP_400_BAD_REQUEST,
-            data=error_detail(2, "You cannot check in at this training")
-        )
+    with pglock.advisory("check-in-lock"):  # Handle race condition
+        if not can_check_in(student, training):
+            return Response(
+                status=status.HTTP_400_BAD_REQUEST,
+                data=error_detail(2, "You cannot check in at this training")
+            )
 
-    try:
-        TrainingCheckIn.objects.create(student=student, training_id=training_id)
-        return Response({})
-    except IntegrityError as e:
-        return Response(
-            status=status.HTTP_400_BAD_REQUEST,
-            data=error_detail(1, "You have already checked in at this training")
-        )
+        try:
+            TrainingCheckIn.objects.create(student=student, training_id=training_id)
+            return Response({})
+        except IntegrityError as e:
+            return Response(
+                status=status.HTTP_400_BAD_REQUEST,
+                data=error_detail(1, "You have already checked in at this training")
+            )
 
 
 @swagger_auto_schema(
