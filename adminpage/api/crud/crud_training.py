@@ -52,53 +52,59 @@ def can_check_in(
     student: Student, training: Training, student_checkins=None, time_now=None
 ):
     """Determines if a student can check into a training session based on several criteria."""
+    time_now = time_now or timezone.now()
+    t_date = training.start.date()
+
+    # The training must not be finished yet, and you can check in only during 1 week before the training start
+    if not (training.start < (time_now + _week_delta) and time_now < training.end):
+        return False
+
+    # The training must have free places left
+    free_places = training.group.capacity - training.checkins.count()
+    if free_places <= 0:
+        return False
 
     student_checkins = student_checkins or (
         TrainingCheckIn.objects.filter(
-            student=student, training__start__date=training.start.date()
+            student=student, training__start__date=t_date
         ).select_related("training", "training__group__sport")
     )
-    time_now = time_now or timezone.now()
 
-    t_date = training.start.date()
-    t_sport_id = training.group.sport.id if training.group.sport else None
+    # The student can only get 4 hours at one day
     total_hours = sum(
         c.training.academic_duration
         for c in student_checkins
         if c.training.start.date() == t_date
     )
+    if total_hours + training.academic_duration > 4:
+        return False
+
+    # The student can only get 2 hours at one day for the same sport type
+    t_sport_id = training.group.sport.id if training.group.sport else None
     same_type_hours = sum(
         c.training.academic_duration
         for c in student_checkins
         if c.training.group.sport.id == t_sport_id and c.training.start.date() == t_date
     )
-    free_places = training.group.capacity - training.checkins.count()
-    allowed_medical_groups = training.group.allowed_medical_groups.all()
-    allowed_students = training.group.allowed_students.all()
+    if same_type_hours + training.academic_duration > 2:
+        return False
+
+    # Students in "Banned students" list are always prohibited
     banned_students = training.group.banned_students.all()
+    if student in banned_students:
+        return False
 
-    # All conditions must be True for the student to be able to check in.
-    result = (
-        # The training must have free places left
-        free_places > 0 and
-        # The training must not be finished yet, and you can check in only during 1 week before the training start
-        training.start < (time_now + _week_delta) and time_now < training.end and
-        # The student can only get 4 hours at one day
-        (total_hours + training.academic_duration) <= 4 and
-        # The student can only get 2 hours at one day for the same sport type
-        (same_type_hours + training.academic_duration) <= 2 and
-        # Students in "Banned students" list are always prohibited
-        student not in banned_students and
-        (
-            # Students in "Allowed students" list can check in, no matter their medical group or gender
-            student in allowed_students or
-            # Other students must be of allowed medical groups and allowed gender
-            (student.medical_group in allowed_medical_groups and
-             training.group.allowed_gender in (student.gender, -1))
-        )
+    # Students in "Allowed students" list can check in, no matter their medical group or gender
+    allowed_students = training.group.allowed_students.all()
+    if student in allowed_students:
+        return True  # Allow
+
+    # Other students must be of allowed medical groups and allowed gender
+    allowed_medical_groups = training.group.allowed_medical_groups.all()
+    return (
+        student.medical_group in allowed_medical_groups and
+        training.group.allowed_gender in (student.gender, -1)
     )
-
-    return result
 
 
 def get_trainings_for_student(student: Student, start: datetime, end: datetime):
