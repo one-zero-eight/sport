@@ -17,13 +17,13 @@ The platform for conducting, tracking and checking students' sports activity at 
    poetry install
    ```
 3. Copy environment variables: `cp deploy/.env.example deploy/.env`
-4. Start services: `docker compose -f ./deploy/docker-compose.yaml up`
+4. Start services: `docker compose -f ./deploy/docker-compose.yaml up --build`
 5. Make migrations and create superuser:
    - Enter shell: `docker compose -f ./deploy/docker-compose.yaml exec -it adminpanel bash`
-   - Autocreate migration files: `python manage.py makemigrations`
-   - Apply migrations to db: `python manage.py migrate`
+   - Autocreate migration files: `python3 manage.py makemigrations`
+   - Apply migrations to db: `python3 manage.py migrate`
      > If there are problems with migrations applying, try to run the same migrate command with `--fake` option.
-   - Create a new superuser: `python manage.py createsuperuser`
+   - Create a new superuser: `python3 manage.py createsuperuser`
 6. View admin panel at `http://localhost/admin`
 
 > [!NOTE]
