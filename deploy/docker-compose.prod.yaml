@@ -57,7 +57,7 @@ services:
 
   prometheus-postgres:
     # See more: https://github.com/prometheus-community/postgres_exporter
-    image: "quay.io/prometheuscommunity/postgres-exporter:v0.16.0"
+    image: "quay.io/prometheuscommunity/postgres-exporter@sha256:32dad32981b95b0da1c7b2f6d5d02c1c28b293d3612c9dfbf3fd4b0f2853abd0"
     restart: always
     environment:
       DATA_SOURCE_URI: "${POSTGRES_SERVER}:5432/${POSTGRES_DB}?sslmode=disable"
