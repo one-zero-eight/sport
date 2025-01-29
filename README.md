@@ -16,7 +16,7 @@ The platform for conducting, tracking and checking students' sports activity at 
    cd adminpage
    poetry install
    ```
-3. Copy environment variables: `cp deploy/.env.example deploy/.env`
+3. Copy environment variables: `cp deploy/.env.example deploy/.env` (leave default values in development)
 4. Start services: `docker compose -f ./deploy/docker-compose.yaml up --build`
 5. Make migrations and create superuser:
    - Enter shell: `docker compose -f ./deploy/docker-compose.yaml exec -it adminpanel bash`
@@ -32,35 +32,6 @@ The platform for conducting, tracking and checking students' sports activity at 
 API documentation:
 * Swagger is at http://localhost/api/swagger
 * Redoc is at http://localhost/api/redoc
-
-### Environment Variables
-
-See `deploy/.env.example` for reference.
-
-The project requires a file `deploy/.env` with the following environment variables:
-
-* `POSTGRES_USER`- Username for the db
-* `POSTGRES_PASSWORD`- database password
-* `POSTGRES_DB` - database name
-* `POSTGRES_SERVER` - database hostname (`db` - by default)
-* `GRAFANA_DB_USER` - username for database user for grafana (will be created if not exists)
-* `GRAFANA_DB_PASSWORD` - password for database grafana user
-* `GF_SECURITY_ADMIN_PASSWORD` - admin password for Grafana Dashboard
-* `SECRET_KEY` - a secret key for token verifications
-* `PROJECT_NAME`- project title
-* `SCHEMA` - schema of a web page (prefer `https`)
-* `HOSTNAME` - hostname of a web page e.g: `example.com`
-* `PORT` - port over which web page is served
-* `PYTHON_VERSION` - which python version is to be used (specify exact version)
-* `DEBUG`- boolean flag for DEBUG mode ( `true` enables fake login and Django debug)
-* `oauth_appID` - application ID for oauth
-* `oauth_shared_secret` - application secret for ouath
-* `oauth_authorization_baseURL`- an URL for user auth
-* `oauth_get_infoURL`- tokeninfo URL
-* `oauth_tokenURL`- an URL to obtain token
-* `oauth_end_session_endpoint`- end oauth session endpoint
-
-You can leave the default values for development.
 
 ### Project structure
 
