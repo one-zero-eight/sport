@@ -15,6 +15,11 @@ jobs:
       - name: Run app in docker
         run: docker compose -f deploy/docker-compose.test.yaml up -d --wait
 
+      - name: Migrate auth
+        run: |
+          docker compose -f deploy/docker-compose.test.yaml exec -T adminpanel python manage.py makemigrations
+          docker compose -f deploy/docker-compose.test.yaml exec -T adminpanel python manage.py migrate auth
+
       - name: Run tests
         run: docker compose -f deploy/docker-compose.test.yaml exec -T adminpanel pytest
 
