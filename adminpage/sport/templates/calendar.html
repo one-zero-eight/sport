@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/timegrid/main.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css">
-    <link rel="stylesheet" href="{% static "sport/css/calendar.css" %}?v={{JS_VERSION}}">
+    <link rel="stylesheet" href="{% static "sport/css/calendar.css" %}">
     <script>
         const sport_name = "{{ sport.name }}";
     </script>
@@ -19,11 +19,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/timegrid/main.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.0/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
-    <script src="{% static "sport/js/modules/networking.mjs" %}?v={{JS_VERSION}}"></script>
-    <script src="{% static "sport/js/modules/calendar.mjs" %}?v={{JS_VERSION}}"></script>
-    <script src="{% static "sport/js/modules/enrollment.mjs" %}?v={{JS_VERSION}}"></script>
-    <script src="{% static "sport/js/modules/modals.mjs" %}?v={{JS_VERSION}}"></script>
-    <script src="{% static "sport/js/calendar.js" %}?v={{JS_VERSION}}"></script>
+    <script src="{% static "sport/js/modules/networking.mjs" %}"></script>
+    <script src="{% static "sport/js/modules/calendar.mjs" %}"></script>
+    <script src="{% static "sport/js/modules/enrollment.mjs" %}"></script>
+    <script src="{% static "sport/js/modules/modals.mjs" %}"></script>
+    <script src="{% static "sport/js/calendar.js" %}"></script>
 {% endblock %}
 
 {% block content %}

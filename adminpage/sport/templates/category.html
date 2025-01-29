@@ -10,19 +10,19 @@
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.0/css/bootstrap-reboot.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css">
-    <link rel="stylesheet" href="{% static "sport/css/bootstrap-tourist.css" %}?v={{JS_VERSION}}">
-    <link rel="stylesheet" href="{% static "sport/css/category.css" %}?v={{JS_VERSION}}">
+    <link rel="stylesheet" href="{% static "sport/css/bootstrap-tourist.css" %}">
+    <link rel="stylesheet" href="{% static "sport/css/category.css" %}">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.0/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
-    <script src="{% static "sport/js/bootstrap-tourist.js" %}?v={{JS_VERSION}}"></script>
-    <script src="{% static "sport/js/modules/networking.mjs" %}?v={{JS_VERSION}}"></script>
-    <script src="{% static "sport/js/modules/enrollment.mjs" %}?v={{JS_VERSION}}"></script>
-    <script src="{% static "sport/js/modules/modals.mjs" %}?v={{JS_VERSION}}"></script>
-    <script src="{% static "sport/js/modules/tour.mjs" %}?v={{JS_VERSION}}"></script>
-    <script src="{% static "sport/js/category.js" %}?v={{JS_VERSION}}"></script>
+    <script src="{% static "sport/js/bootstrap-tourist.js" %}"></script>
+    <script src="{% static "sport/js/modules/networking.mjs" %}"></script>
+    <script src="{% static "sport/js/modules/enrollment.mjs" %}"></script>
+    <script src="{% static "sport/js/modules/modals.mjs" %}"></script>
+    <script src="{% static "sport/js/modules/tour.mjs" %}"></script>
+    <script src="{% static "sport/js/category.js" %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -33,7 +33,7 @@
                 {% if student_sport_group|length == 0 %}
                     <div class="mb-3">
                         <div class="alert alert-success" role="alert">
-                            To choose a <span class="badge badge-dark">SPORT TYPE</span> and 
+                            To choose a <span class="badge badge-dark">SPORT TYPE</span> and
                             enroll to a <span class="badge badge-info">SPORT GROUP</span>, <strong>see the schedule</strong>.
                         </div>
                     </div>

@@ -118,10 +118,3 @@ You can leave the default values for development.
    You can create the tag via GitHub releases tab.
 4. Ask maintainer (@ArtemSBulgakov) to allow the deployment via GitHub Actions.
 5. Verify that changes work on the production server.
-
-### Changing JS or CSS
-
-When changing JS scripts or CSS styles,
-you also should update 'JS_VERSION' setting in `adminpage/adminpage/settings.py`.
-This is needed to update the cache in browsers.
-
