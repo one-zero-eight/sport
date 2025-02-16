@@ -383,13 +383,13 @@ def get_student_trainings_between_dates(request):
     return Response(
         data=[
             {
-                'training_id': attendance.training.pk,
                 'hours': attendance.hours,
+                'training_id': attendance.training.pk,
                 'date': attendance.training.start.strftime('%Y-%m-%d'),
-                'training_name': attendance.training.group.sport.name,
-                'sport_group_id': attendance.training.group.pk,
-                'trainers_emails': [trainer.user.email for trainer in attendance.training.group.trainers.all()],
                 'training_class': attendance.training.training_class.name if attendance.training.training_class else '',
+                'group_id': attendance.training.group.pk,
+                'group_name': attendance.training.group.to_frontend_name(),
+                'trainers_emails': [trainer.user.email for trainer in attendance.training.group.trainers.all()],
             } for attendance in objs
         ],
         status=status.HTTP_200_OK,
