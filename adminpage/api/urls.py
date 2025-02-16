@@ -36,6 +36,7 @@ urlpatterns = [
     path(r"profile/change_gender", profile.change_gender),
     path(r"profile/QR/toggle", profile.toggle_QR_presence),
     path(r"profile/history/<int:semester_id>", profile.get_history),
+    path(r"profile/history/by_date", attendance.get_student_trainings_between_dates),
     path(r"profile/history_with_self/<int:semester_id>", profile.get_history_with_self),
 
     # enroll
@@ -105,7 +106,7 @@ urlpatterns = [
 urlpatterns.extend([
     re_path(
         r'swagger(?P<format>\.json|\.yaml)$',
-        schema_view.without_ui(cache_timeout=0),
+        schema_view.with_ui(cache_timeout=0),
         name='schema-json'
     ),
     re_path(

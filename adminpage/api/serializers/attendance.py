@@ -83,3 +83,13 @@ class HoursInfoFullSerializer(serializers.Serializer):
 
 class BetterThanInfoSerializer(serializers.Serializer):
     better_than = serializers.FloatField()
+
+
+class AttendanceSerializer(serializers.Serializer):
+    training_id = serializers.IntegerField()
+    hours = serializers.IntegerField()
+    date = serializers.DateField()
+    training_name = serializers.CharField()
+    sport_group_id = serializers.IntegerField()
+    trainers_emails = serializers.ListField()
+    training_class = serializers.CharField()
