@@ -1,5 +1,6 @@
 import csv
 import enum
+from datetime import timedelta
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -375,7 +376,7 @@ def get_student_trainings_between_dates(request):
             )
         )
 
-    objs = Attendance.objects.filter(student__pk=student.pk, training__start__gte=date_start, training__start__lte=date_end).select_related(
+    objs = Attendance.objects.filter(student__pk=student.pk, training__start__gte=date_start, training__start__lte=date_end + timedelta(days=1)).select_related(
         'training', 'training__training_class', 'training__group', 'training__group__sport'
     ).only('training', 'hours', 'training__group__sport', 'training__training_class').prefetch_related(
         'training__group__trainers__user'
