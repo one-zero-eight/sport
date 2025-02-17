@@ -24,7 +24,7 @@ The platform for conducting, tracking and checking students' sports activity at 
    - Apply migrations to db: `python3 manage.py migrate`
      > If there are problems with migrations applying, try to run the same migrate command with `--fake` option.
    - Create a new superuser: `python3 manage.py createsuperuser`
-6. View Admin panel at `http://localhost/admin` and Swagger at http://localhost/api/swagger
+6. View Admin panel at http://localhost/admin and Swagger at http://localhost/api/swagger
 
 > [!NOTE]
 > Server supports auto-reload on code change in debug mode
