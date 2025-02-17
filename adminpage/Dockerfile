@@ -1,10 +1,8 @@
 # Based on https://github.com/svx/poetry-fastapi-docker/blob/main/Dockerfile
 
-ARG PYTHON_VERSION
-
 ###########################################################
 # Base Python image. Set shared environment variables.
-FROM python:${PYTHON_VERSION}-slim-bullseye AS base
+FROM python:3.12-slim-bullseye AS base
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=off \

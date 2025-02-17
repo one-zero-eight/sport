@@ -2,10 +2,7 @@ name: sport
 
 services:
   adminpanel:
-    build:
-      context: ../adminpage
-      args:
-        PYTHON_VERSION: "3.12"
+    build: ../adminpage
     # Run development server with hot reload
     command: python manage.py runserver 0.0.0.0:8000
     restart: unless-stopped
