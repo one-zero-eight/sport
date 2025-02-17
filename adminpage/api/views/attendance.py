@@ -1,29 +1,31 @@
 import csv
+import enum
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import PermissionDenied, NotFound
 from rest_framework.response import Response
 from django.views.decorators.cache import cache_page
+from django.utils.dateparse import parse_date
 
-from api.crud import get_email_name_like_students, Training, \
-    get_students_grades, mark_hours, get_student_last_attended_dates, get_detailed_hours, get_ongoing_semester, \
+from api.crud import Training, \
+    get_students_grades, mark_hours, get_student_last_attended_dates, \
     get_student_hours, get_negative_hours, better_than, get_email_name_like_students_filtered_by_group
 from api.permissions import IsStaff, IsStudent, IsTrainer
 from api.serializers import SuggestionQuerySerializer, SuggestionSerializer, \
     NotFoundSerializer, InbuiltErrorSerializer, \
     TrainingGradesSerializer, AttendanceMarkSerializer, error_detail, \
     BadGradeReportGradeSerializer, BadGradeReport, LastAttendedDatesSerializer, HoursInfoSerializer, \
-    HoursInfoFullSerializer
+    HoursInfoFullSerializer, AttendanceSerializer, ErrorSerializer
 from api.serializers.attendance import BetterThanInfoSerializer
-from sport.models import Group, Student, Semester, SelfSportReport, Attendance
+from sport.models import Group, Student, Attendance
 
 User = get_user_model()
 
@@ -35,6 +37,13 @@ class AttendanceErrors:
         f"{settings.TRAINING_EDITABLE_INTERVAL.days} days")
     OUTBOUND_GRADES = (
         3, "Some students received negative marks or more than maximum")
+
+
+class DateError(enum.Enum):
+    OUT_OF_RANGE = 1
+    INCORRECT_FORMAT = 2
+    BOTH_DATES_REQUIRED = 3
+    START_BEFORE_END = 4
 
 
 def is_training_group(group, trainer):
@@ -295,3 +304,93 @@ def mark_attendance(request, **kwargs):
                 hours_to_mark
             )
         ))
+
+
+@swagger_auto_schema(
+    method="GET",
+    responses={
+        status.HTTP_200_OK: AttendanceSerializer(many=True),
+        status.HTTP_400_BAD_REQUEST: ErrorSerializer(),
+    },
+    manual_parameters=[
+        openapi.Parameter(
+            name='date_start',
+            in_=openapi.IN_QUERY,
+            type=openapi.TYPE_STRING,
+            description='date in format YYYY-MM-DD',
+            required=True,
+        ),
+        openapi.Parameter(
+            name='date_end',
+            in_=openapi.IN_QUERY,
+            type=openapi.TYPE_STRING,
+            description='date in format YYYY-MM-DD',
+            required=True,
+        ),
+    ],
+)
+@api_view(["GET"])
+@permission_classes([IsStudent])
+def get_student_trainings_between_dates(request):
+    student: Student = request.user.student
+    date_start = request.GET.get('date_start')
+    date_end = request.GET.get('date_end')
+
+    if not date_start or not date_end:
+        return Response(
+            status=status.HTTP_400_BAD_REQUEST,
+            data=error_detail(
+                DateError.BOTH_DATES_REQUIRED.value,
+                "Both date_start and date_end are required"
+            )
+        )
+
+    try:
+        date_start = parse_date(date_start)
+        date_end = parse_date(date_end)
+    except ValueError:
+        return Response(
+            status=status.HTTP_400_BAD_REQUEST,
+            data=error_detail(
+                DateError.OUT_OF_RANGE.value,
+                "One of the dates can be out of range"
+            )
+        )
+
+    if date_end is None or date_start is None:
+        return Response(
+            status=status.HTTP_400_BAD_REQUEST,
+            data=error_detail(
+                DateError.INCORRECT_FORMAT.value,
+                "Invalid date format. Use YYYY-MM-DD"
+            )
+        )
+
+    if date_start > date_end:
+        return Response(
+            status=status.HTTP_400_BAD_REQUEST,
+            data=error_detail(
+                DateError.START_BEFORE_END.value,
+                "date_end should be greater than date_start"
+            )
+        )
+
+    objs = Attendance.objects.filter(student__pk=student.pk, training__start__gte=date_start, training__start__lte=date_end).select_related(
+        'training', 'training__training_class', 'training__group', 'training__group__sport'
+    ).only('training', 'hours', 'training__group__sport', 'training__training_class').prefetch_related(
+        'training__group__trainers__user'
+    )
+    return Response(
+        data=[
+            {
+                'hours': attendance.hours,
+                'training_id': attendance.training.pk,
+                'date': attendance.training.start.strftime('%Y-%m-%d'),
+                'training_class': attendance.training.training_class.name if attendance.training.training_class else '',
+                'group_id': attendance.training.group.pk,
+                'group_name': attendance.training.group.to_frontend_name(),
+                'trainers_emails': [trainer.user.email for trainer in attendance.training.group.trainers.all()],
+            } for attendance in objs
+        ],
+        status=status.HTTP_200_OK,
+    )
