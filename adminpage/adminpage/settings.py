@@ -106,6 +106,7 @@ if os.getenv('SCHEMA') == 'https':
 
 # Application definition
 INSTALLED_APPS = [
+    "corsheaders",
     'django.contrib.auth',
     'accounts',
     'revproxy',
@@ -135,6 +136,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django_prometheus.middleware.PrometheusBeforeMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -239,6 +241,17 @@ AUTH_INNOHASSLE = {
 
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "profile"
+
+# CORS
+# https://github.com/adamchainz/django-cors-headers
+
+CORS_URLS_REGEX = r"^/api/.*$"  # Add CORS Middleware only for API requests
+CORS_ALLOWED_ORIGIN_REGEXES=[
+    # Allow requests from InNoHassle frontends
+    r"^https://innohassle\.ru$",
+    r"^https://\w+\.innohassle\.ru$",
+    r"^https://local\.innohassle\.ru:3000$",
+]
 
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
