@@ -181,12 +181,12 @@ WSGI_APPLICATION = 'adminpage.wsgi.application'
 AUTH_USER_MODEL = 'accounts.User'
 
 # Authentication
-OAUTH_CLIENT_ID = os.getenv('oauth_appID')
-OAUTH_CLIENT_SECRET = os.getenv("oauth_shared_secret")
-OAUTH_AUTHORIZATION_BASEURL = os.getenv("oauth_authorization_baseURL")
-OAUTH_GET_INFO_URL = os.getenv("oauth_get_infoURL")
-OAUTH_TOKEN_URL = os.getenv("oauth_tokenURL")
-OAUTH_END_SESSION_URL = os.getenv("oauth_end_session_endpoint")
+OAUTH_CLIENT_ID = os.getenv("oauth_appID", "?")
+OAUTH_CLIENT_SECRET = os.getenv("oauth_shared_secret", "?")
+OAUTH_AUTHORIZATION_BASEURL = os.getenv("oauth_authorization_baseURL", "?")
+OAUTH_GET_INFO_URL = os.getenv("oauth_get_infoURL", "?")
+OAUTH_TOKEN_URL = os.getenv("oauth_tokenURL", "?")
+OAUTH_END_SESSION_URL = os.getenv("oauth_end_session_endpoint", "?")
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
