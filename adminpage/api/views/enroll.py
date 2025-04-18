@@ -1,9 +1,8 @@
 from django.db import transaction, InternalError, IntegrityError
 from django.shortcuts import get_object_or_404
-from drf_yasg.utils import swagger_auto_schema
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
 from api.crud import (
@@ -37,9 +36,9 @@ class EnrollErrors:
     QR_ERROR = (10, "Requested group has QR requirement")
 
 
-@swagger_auto_schema(
-    method="POST",
-    request_body=EnrollSerializer,
+@extend_schema(
+    methods=["POST"],
+    request=EnrollSerializer,
     responses={
         status.HTTP_200_OK: EmptySerializer,
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
@@ -128,9 +127,9 @@ def enroll(request, **kwargs):
     return Response({})
 
 
-@swagger_auto_schema(
-    method="POST",
-    request_body=EnrollSerializer,
+@extend_schema(
+    methods=["POST"],
+    request=EnrollSerializer,
     responses={
         status.HTTP_200_OK: EmptySerializer,
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
@@ -166,9 +165,9 @@ def unenroll(request, **kwargs):
     return Response({})
 
 
-@swagger_auto_schema(
-    method="POST",
-    request_body=UnenrollStudentSerializer,
+@extend_schema(
+    methods=["POST"],
+    request=UnenrollStudentSerializer,
     responses={
         status.HTTP_200_OK: EmptySerializer,
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,

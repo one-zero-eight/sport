@@ -3,7 +3,7 @@ from rest_framework import serializers
 from sport.models import Schedule
 
 
-class ScheduleSerializer(serializers.ModelSerializer):
+class ScheduleSerializer(serializers.ModelSerializer[Schedule]):
     class Meta:
         model = Schedule
         fields = (

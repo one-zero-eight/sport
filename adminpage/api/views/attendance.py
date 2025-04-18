@@ -7,8 +7,8 @@ from django.contrib.auth import get_user_model
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from drf_yasg.utils import swagger_auto_schema
-from drf_yasg import openapi
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import PermissionDenied, NotFound
@@ -61,9 +61,9 @@ def compose_bad_grade_report(email: str, hours: float) -> dict:
     }
 
 
-@swagger_auto_schema(
-    method="GET",
-    query_serializer=SuggestionQuerySerializer,
+@extend_schema(
+    methods=["GET"],
+    parameters=[SuggestionQuerySerializer],
     responses={
         status.HTTP_200_OK: SuggestionSerializer(many=True),
     }
@@ -91,8 +91,8 @@ def suggest_student(request, **kwargs):
     ])
 
 
-@swagger_auto_schema(
-    method="GET",
+@extend_schema(
+    methods=["GET"],
     responses={
         status.HTTP_200_OK: TrainingGradesSerializer,
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
@@ -121,10 +121,10 @@ def get_grades(request, training_id, **kwargs):
     })
 
 
-@swagger_auto_schema(
-    method="GET",
+@extend_schema(
+    methods=["GET"],
     responses={
-        status.HTTP_200_OK: "CSV file with grades",
+        (status.HTTP_200_OK, 'text/csv'): OpenApiTypes.BINARY,
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
         status.HTTP_403_FORBIDDEN: InbuiltErrorSerializer,
     }
@@ -158,8 +158,8 @@ def get_grades_csv(request, training_id, **kwargs):
     return response
 
 
-@swagger_auto_schema(
-    method="GET",
+@extend_schema(
+    methods=["GET"],
     responses={
         status.HTTP_200_OK: LastAttendedDatesSerializer,
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
@@ -180,8 +180,8 @@ def get_last_attended_dates(request, group_id, **kwargs):
     })
 
 
-@swagger_auto_schema(
-    method="GET",
+@extend_schema(
+    methods=["GET"],
     responses={
         status.HTTP_200_OK: HoursInfoFullSerializer,
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
@@ -194,8 +194,8 @@ def get_negative_hours_info(request, student_id, **kwargs):
     return Response({"final_hours": get_negative_hours(student_id)})
 
 
-@swagger_auto_schema(
-    method="GET",
+@extend_schema(
+    methods=["GET"],
     responses={
         status.HTTP_200_OK: HoursInfoSerializer,
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
@@ -208,8 +208,8 @@ def get_student_hours_info(request, student_id, **kwargs):
     return Response(get_student_hours(student_id))
 
 
-@swagger_auto_schema(
-    method="GET",
+@extend_schema(
+    methods=["GET"],
     responses={
         status.HTTP_200_OK: BetterThanInfoSerializer,
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
@@ -223,9 +223,9 @@ def get_better_than_info(request, student_id, **kwargs):
     return Response(better_than(student_id))
 
 
-@swagger_auto_schema(
-    method="POST",
-    request_body=AttendanceMarkSerializer,
+@extend_schema(
+    methods=["POST"],
+    request=AttendanceMarkSerializer,
     responses={
         status.HTTP_200_OK: BadGradeReportGradeSerializer(many=True),
         status.HTTP_400_BAD_REQUEST: BadGradeReport(),
@@ -307,24 +307,22 @@ def mark_attendance(request, **kwargs):
         ))
 
 
-@swagger_auto_schema(
-    method="GET",
+@extend_schema(
+    methods=["GET"],
     responses={
         status.HTTP_200_OK: AttendanceSerializer(many=True),
-        status.HTTP_400_BAD_REQUEST: ErrorSerializer(),
+        status.HTTP_400_BAD_REQUEST: ErrorSerializer,
     },
-    manual_parameters=[
-        openapi.Parameter(
+    parameters=[
+        OpenApiParameter(
             name='date_start',
-            in_=openapi.IN_QUERY,
-            type=openapi.TYPE_STRING,
+            type=OpenApiTypes.DATE,
             description='date in format YYYY-MM-DD',
             required=True,
         ),
-        openapi.Parameter(
+        OpenApiParameter(
             name='date_end',
-            in_=openapi.IN_QUERY,
-            type=openapi.TYPE_STRING,
+            type=OpenApiTypes.DATE,
             description='date in format YYYY-MM-DD',
             required=True,
         ),

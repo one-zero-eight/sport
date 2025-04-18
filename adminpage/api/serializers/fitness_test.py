@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from api.serializers.semester import SemesterSerializer
@@ -13,7 +14,7 @@ class FitnessTestExerciseSelectSerializer(serializers.ListSerializer):
         return data.split(',')
 
 
-class FitnessTestExerciseSerializer(serializers.ModelSerializer):
+class FitnessTestExerciseSerializer(serializers.ModelSerializer[FitnessTestExercise]):
     name = serializers.CharField(source='exercise_name')
     semester = SemesterSerializer()
     unit = serializers.CharField(source='value_unit')
@@ -24,7 +25,7 @@ class FitnessTestExerciseSerializer(serializers.ModelSerializer):
         fields = ('id', 'semester', 'name', 'unit', 'select')
 
 
-class FitnessTestResultSerializer(serializers.ModelSerializer):
+class FitnessTestResultSerializer(serializers.ModelSerializer[FitnessTestResult]):
     student = StudentSerializer()
 
     class Meta:
@@ -32,10 +33,15 @@ class FitnessTestResultSerializer(serializers.ModelSerializer):
         fields = ('student', 'value')
 
 
+@extend_schema_field(int | str)  # NOQA: UnionType is supported
+class FitnessTestValueSerializer(serializers.Field):
+    pass
+
+
 class FitnessTestDetail(serializers.Serializer):
     exercise = serializers.CharField()
     unit = serializers.CharField(allow_null=True)
-    value = serializers.Field()
+    value = FitnessTestValueSerializer()
     score = serializers.IntegerField()
     max_score = serializers.IntegerField()
 
@@ -64,7 +70,7 @@ class FitnessTestUpload(serializers.Serializer):
     results = serializers.ListField(child=FitnessTestUpdateEntry())
 
 
-class FitnessTestSessionSerializer(serializers.ModelSerializer):
+class FitnessTestSessionSerializer(serializers.ModelSerializer[FitnessTestSession]):
     semester = SemesterSerializer()
     retake = serializers.BooleanField()
     teacher = serializers.CharField(source='teacher.__str__')  # TODO: return object

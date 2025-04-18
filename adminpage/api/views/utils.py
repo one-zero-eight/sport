@@ -1,11 +1,4 @@
-from typing import Tuple, Optional
-
 from django.conf import settings
-from image_optimizer.utils import image_optimizer
-from rest_framework import status
-from rest_framework.response import Response
-
-from api.serializers import error_detail
 
 
 class ImageErrors:

@@ -1,5 +1,4 @@
 from rest_framework import permissions
-from sport.models import Student
 
 
 class IsStudent(permissions.BasePermission):

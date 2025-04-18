@@ -164,6 +164,7 @@ class SemesterHours(TypedDict):
     hours_self_not_debt: float
     hours_self_debt: float
     hours_sem_max: int
+    debt: int
 
 
 def get_student_hours(student_id, **kwargs) -> TypedDict('StudentHours',

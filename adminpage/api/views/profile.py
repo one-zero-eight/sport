@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from drf_yasg.utils import swagger_auto_schema
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -10,7 +10,7 @@ from api.crud.crud_attendance import (
     get_detailed_hours, get_detailed_hours_and_self,
 )
 from api.permissions import (
-    IsStudent, IsTrainer, IsStaff,
+    IsStudent, IsStaff,
 )
 from api.serializers import (
     get_error_serializer,
@@ -22,8 +22,8 @@ from api.serializers.student import StudentSerializer
 from sport.models import Semester, Student, Group
 
 
-@swagger_auto_schema(
-    method="GET",
+@extend_schema(
+    methods=["GET"],
     responses={
         status.HTTP_200_OK: StudentSerializer(),
     }
@@ -39,8 +39,9 @@ def get_student_info(request, **kwargs):
     return Response(serializer.data)
 
 
-@swagger_auto_schema(
-    method="POST",
+@extend_schema(
+    methods=["POST"],
+    request=None,
     responses={
         status.HTTP_200_OK: HasQRSerializer,
     }
@@ -57,9 +58,9 @@ def toggle_QR_presence(request, **kwargs):
     return Response(serializer.data)
 
 
-@swagger_auto_schema(
-    method="POST",
-    request_body=GenderSerializer,
+@extend_schema(
+    methods=["POST"],
+    request=GenderSerializer,
     responses={
         status.HTTP_200_OK: EmptySerializer,
     }
@@ -79,15 +80,18 @@ def change_gender(request, **kwargs):
     return Response({})
 
 
-@swagger_auto_schema(
-    method="GET",
+training_history404 = get_error_serializer(
+    "training_history",
+    error_code=404,
+    error_description="Not found",
+)
+
+
+@extend_schema(
+    methods=["GET"],
     responses={
         status.HTTP_200_OK: TrainingHourSerializer(many=True),
-        status.HTTP_404_NOT_FOUND: get_error_serializer(
-            "training_history",
-            error_code=404,
-            error_description="Not found",
-        )
+        status.HTTP_404_NOT_FOUND: training_history404,
     }
 )
 @api_view(["GET"])
@@ -109,15 +113,11 @@ def get_history(request, semester_id: int, **kwargs):
         ))
     })
 
-@swagger_auto_schema(
-    method="GET",
+@extend_schema(
+    methods=["GET"],
     responses={
         status.HTTP_200_OK: TrainingHourSerializer(many=True),
-        status.HTTP_404_NOT_FOUND: get_error_serializer(
-            "training_history",
-            error_code=404,
-            error_description="Not found",
-        )
+        status.HTTP_404_NOT_FOUND: training_history404,
     }
 )
 @api_view(["GET"])

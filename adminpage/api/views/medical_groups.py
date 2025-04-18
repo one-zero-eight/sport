@@ -1,14 +1,14 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from drf_yasg.utils import swagger_auto_schema
+from drf_spectacular.utils import extend_schema
 
 from api.serializers import MedicalGroupsSerializer, NotFoundSerializer
 from api.crud import get_medical_groups
 
 
-@swagger_auto_schema(
-    method="GET",
+@extend_schema(
+    methods=["GET"],
     responses={
         status.HTTP_200_OK: MedicalGroupsSerializer,
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,

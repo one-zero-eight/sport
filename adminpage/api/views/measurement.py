@@ -1,5 +1,5 @@
 import datetime
-from drf_yasg.utils import swagger_auto_schema
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -10,7 +10,6 @@ from api.permissions import IsStudent, IsTrainer
 
 from api.serializers import (
     MeasurementPostSerializer,
-    MeasurementSerializer as MeasurementSerializer,
     MeasurementResultsSerializer,
     NotFoundSerializer,
     ErrorSerializer
@@ -19,10 +18,10 @@ from api.serializers import (
 from sport.models import Measurement, MeasurementSession, MeasurementResult, Student
 
 
-@swagger_auto_schema(
-    method="GET",
+@extend_schema(
+    methods=["GET"],
     # TODO: Check
-    # query_serializer=MeasurementSerializer(many=True),
+    # parameters=[MeasurementSerializer(many=True)],
     responses={
         status.HTTP_200_OK: MeasurementResultsSerializer,
     }
@@ -36,10 +35,10 @@ def get_measurements(request, **kwargs):
     return Response(result)
 
 
-@swagger_auto_schema(
-    method="GET",
+@extend_schema(
+    methods=["GET"],
     # TODO: Check
-    # query_serializer=MeasurementResultsSerializer,
+    # parameters=[MeasurementResultsSerializer],
     responses={
         status.HTTP_200_OK: MeasurementResultsSerializer,
     }
@@ -71,9 +70,9 @@ def get_results(request, **kwargs):
     return Response([{"semester": key, "result": response[key]} for key in response.keys()])
 
 
-@swagger_auto_schema(
-    method="POST",
-    request_body=MeasurementPostSerializer,
+@extend_schema(
+    methods=["POST"],
+    request=MeasurementPostSerializer,
     responses={
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
         status.HTTP_400_BAD_REQUEST: ErrorSerializer,

@@ -2,7 +2,7 @@ from rest_framework import serializers
 from sport.models import Student
 
 
-class StudentSerializer(serializers.ModelSerializer):
+class StudentSerializer(serializers.ModelSerializer[Student]):
     id = serializers.CharField(source='user.id')
     name = serializers.CharField(source='full_name')
     email = serializers.EmailField(source='user.email')

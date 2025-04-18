@@ -3,7 +3,7 @@ from rest_framework import serializers
 from sport.models import SelfSportReport, SelfSportType
 
 
-class SelfSportTypes(serializers.ModelSerializer):
+class SelfSportTypes(serializers.ModelSerializer[SelfSportType]):
     class Meta:
         model = SelfSportType
         fields = (
@@ -13,7 +13,7 @@ class SelfSportTypes(serializers.ModelSerializer):
         )
 
 
-class SelfSportReportUploadSerializer(serializers.ModelSerializer):
+class SelfSportReportUploadSerializer(serializers.ModelSerializer[SelfSportReport]):
     # image = serializers.ImageField(allow_empty_file=False, required=False)
     link = serializers.URLField(required=True)
     training_type = serializers.PrimaryKeyRelatedField(
@@ -47,4 +47,3 @@ class ParsedStravaSerializer(serializers.Serializer):
     distance_km = serializers.IntegerField()
     hours = serializers.IntegerField()
     approved = serializers.BooleanField()
-    

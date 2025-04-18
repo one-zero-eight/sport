@@ -5,7 +5,7 @@ from api.serializers.semester import SemesterSerializer
 from sport.models import Training, Group, Trainer
 
 
-class NewTrainerSerializer(serializers.ModelSerializer):
+class NewTrainerSerializer(serializers.ModelSerializer[Trainer]):
     id = serializers.IntegerField(source='pk')
     email = serializers.CharField(source='user.email')
     first_name = serializers.CharField(source='user.first_name')
@@ -16,7 +16,7 @@ class NewTrainerSerializer(serializers.ModelSerializer):
         fields = ('id', 'first_name', 'last_name', 'email')
 
 
-class NewGroupSerializer(serializers.ModelSerializer):
+class NewGroupSerializer(serializers.ModelSerializer[Group]):
     name = serializers.CharField(source='to_frontend_name')
     sport = NewSportSerializer()
     semester = SemesterSerializer()
@@ -29,7 +29,7 @@ class NewGroupSerializer(serializers.ModelSerializer):
                   'semester', 'teachers', 'accredited')
 
 
-class NewTrainingInfoSerializer(serializers.ModelSerializer):
+class NewTrainingInfoSerializer(serializers.ModelSerializer[Training]):
     group = NewGroupSerializer()
     load = serializers.SerializerMethodField()
     place = serializers.CharField(source='training_class')

@@ -124,7 +124,6 @@ INSTALLED_APPS = [
     'admin_auto_filters',
     'rest_framework',
     'django_prometheus',
-    'drf_yasg',
     'sport.apps.SportConfig',
     'adminpage.apps.SportAdminConfig',
     'api',
@@ -132,6 +131,8 @@ INSTALLED_APPS = [
     'hijack',
     'hijack.contrib.admin',
     'tinymce',
+    'drf_spectacular',
+    'drf_spectacular_sidecar',
 ]
 
 MIDDLEWARE = [
@@ -195,17 +196,67 @@ REST_FRAMEWORK = {
         'adminpage.authentication.InNoHassleAuthentication',
         'django_auth_adfs.rest_framework.AdfsAccessTokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-    )
+    ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
-SWAGGER_SETTINGS = {
-    'SECURITY_DEFINITIONS': {
-        'adfs_token': {
-            'type': 'apiKey',
-            'in': 'header',
-            'name': 'Authorization'
-        }
+# OpenAPI settings
+# https://drf-spectacular.readthedocs.io/en/latest/settings.html
+
+SPECTACULAR_SETTINGS = {
+    # Metadata
+    'TITLE': 'InnoSport',
+    'DESCRIPTION': """
+### About this project
+
+This is the API for InnoSport platform at Innopolis University.
+
+Students check in for sport classes, instructors manage the schedule and collect attendance.
+
+Useful links:
+- [InnoSport source code](https://github.com/one-zero-eight/sport)
+- [InnoSport Website](https://sport.innopolis.university/)
+""",
+    'VERSION': 'v1',
+    'CONTACT': {
+        "name": "one-zero-eight (Telegram)",
+        "url": "https://t.me/one_zero_eight",
     },
+    'LICENSE': {
+        "name": "MIT License",
+        "identifier": "MIT",
+    },
+
+    # List of available servers to select. The selection won't work because of CORS
+    'SERVERS': [
+        {'url': "/api", 'description': 'Current'},
+        {'url': "https://sport.innopolis.university/api", 'description': 'Production'},
+        {'url': "https://stage.sport.innopolis.university/api", 'description': 'Staging'},
+    ],
+
+    # API url prefix config
+    'SCHEMA_PATH_PREFIX': "/api",
+    'SCHEMA_PATH_PREFIX_TRIM': True,
+
+    # Schema generation settings
+    'OAS_VERSION': '3.1.0',  # Use OpenAPI 3.1
+    'COMPONENT_SPLIT_REQUEST': True,
+    'COMPONENT_SPLIT_PATCH': True,
+    'SERVE_INCLUDE_SCHEMA': False,
+
+    # Use self-hosted swagger resources
+    'SWAGGER_UI_DIST': 'SIDECAR',
+    'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
+    'REDOC_DIST': 'SIDECAR',
+
+    # Swagger UI settings
+    'SWAGGER_UI_SETTINGS': {
+        "tryItOutEnabled": True,
+        "persistAuthorization": True,
+        "filter": True,
+    },
+
+    'AUTHENTICATION_WHITELIST': ["adminpage.authentication.InNoHassleAuthentication"],
 }
 
 AUTHENTICATION_BACKENDS = (

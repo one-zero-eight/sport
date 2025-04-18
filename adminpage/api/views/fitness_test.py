@@ -1,20 +1,17 @@
 from collections import defaultdict
 
 from django.db.models import Q
-from django.shortcuts import get_object_or_404
-from drf_yasg.utils import swagger_auto_schema
+from drf_spectacular.utils import extend_schema
 from rest_framework import status, serializers
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
-import api.crud
 from api.permissions import (
     IsTrainer, IsStudent,
 )
 from api.serializers import (
-    FitnessTestResults,
     NotFoundSerializer,
-    ErrorSerializer, SuggestionSerializer, EmptySerializer
+    ErrorSerializer, SuggestionSerializer,
 )
 
 from api.crud import get_exercises_crud, post_student_exercises_result_crud, \
@@ -26,11 +23,11 @@ from api.serializers.semester import SemesterInSerializer
 from sport.models import FitnessTestSession, FitnessTestResult, FitnessTestExercise, Semester, Student
 
 
-@swagger_auto_schema(
-    method="GET",
-    operation_description='Get all exercises by `semester_id`. If `semester_id` is not set, returns current semester '
+@extend_schema(
+    methods=["GET"],
+    description='Get all exercises by `semester_id`. If `semester_id` is not set, returns current semester '
                           'exercises.',
-    query_serializer=SemesterInSerializer(),
+    parameters=[SemesterInSerializer],
     responses={
         status.HTTP_200_OK: FitnessTestExerciseSerializer(many=True),
     }
@@ -48,10 +45,10 @@ def get_exercises(request, **kwargs):
     return Response(FitnessTestExerciseSerializer(exercises, many=True).data)
 
 
-@swagger_auto_schema(
-    method="GET",
-    operation_description='Get all sessions by `semester_id`. If `semester_id` is not set, returns all sessions.',
-    query_serializer=SemesterInSerializer(),
+@extend_schema(
+    methods=["GET"],
+    description='Get all sessions by `semester_id`. If `semester_id` is not set, returns all sessions.',
+    parameters=[SemesterInSerializer],
     responses={
         status.HTTP_200_OK: FitnessTestSessionSerializer(many=True)
     }
@@ -71,8 +68,8 @@ def get_sessions(request, **kwargs):
     return Response(FitnessTestSessionSerializer(sessions, many=True).data)
 
 
-@swagger_auto_schema(
-    method="GET",
+@extend_schema(
+    methods=["GET"],
     responses={
         status.HTTP_200_OK: FitnessTestStudentResult(many=True)
     }
@@ -125,8 +122,8 @@ def get_result(request, **kwargs):
     return Response(data=data, status=status.HTTP_200_OK)
 
 
-@swagger_auto_schema(
-    method="GET",
+@extend_schema(
+    methods=["GET"],
     responses={
         status.HTTP_200_OK: FitnessTestSessionWithResult()
     }
@@ -153,9 +150,9 @@ class PostStudentExerciseResult(serializers.Serializer):
     session_id = serializers.IntegerField()
 
 
-@swagger_auto_schema(
-    method="POST",
-    request_body=FitnessTestUpload(),
+@extend_schema(
+    methods=["POST"],
+    request=FitnessTestUpload(),
     responses={
         status.HTTP_200_OK: PostStudentExerciseResult(),
         status.HTTP_404_NOT_FOUND: NotFoundSerializer(),
@@ -189,9 +186,9 @@ def post_student_exercises_result(request, session_id=None, **kwargs):
 
 
 # TODO: Rewrite suggest to JSON
-@swagger_auto_schema(
-    method="GET",
-    query_serializer=SuggestionQueryFTSerializer,
+@extend_schema(
+    methods=["GET"],
+    parameters=[SuggestionQueryFTSerializer],
     responses={
         status.HTTP_200_OK: SuggestionSerializer(many=True),
     }

@@ -1,6 +1,6 @@
 from django.db import transaction
 from django.utils.timezone import make_naive
-from drf_yasg.utils import swagger_auto_schema
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes, \
     parser_classes
@@ -15,7 +15,6 @@ from api.serializers import (
     ErrorSerializer,
     error_detail,
 )
-# from api.views.utils import process_image
 from sport.models import Reference
 
 
@@ -26,9 +25,9 @@ class ReferenceErrors:
     )
 
 
-@swagger_auto_schema(
-    method="POST",
-    request_body=ReferenceUploadSerializer,
+@extend_schema(
+    methods=["POST"],
+    request=ReferenceUploadSerializer,
     responses={
         status.HTTP_200_OK: EmptySerializer,
         status.HTTP_400_BAD_REQUEST: ErrorSerializer,

@@ -1,23 +1,21 @@
-from drf_yasg.openapi import Parameter, IN_QUERY
-from drf_yasg.utils import swagger_auto_schema
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from api.crud import get_ongoing_semester, get_semester_crud
+from api.crud import get_semester_crud
 from api.serializers import NotFoundSerializer
 from api.serializers.semester import SemesterSerializer
 
-from sport.models import Semester
 
-
-@swagger_auto_schema(
-    method='GET',
+@extend_schema(
+    methods=["GET"],
     parameters=[
-        Parameter('current', IN_QUERY, required=False, type='bool'),
-        Parameter('with_ft_exercises', IN_QUERY, required=False, type='bool'),
+        OpenApiParameter(name='current', type=OpenApiTypes.BOOL),
+        OpenApiParameter(name='with_ft_exercises', type=OpenApiTypes.BOOL),
     ],
-    operation_description='Get semesters.',
+    description='Get semesters.',
     responses={
         status.HTTP_200_OK: SemesterSerializer(many=True),
         status.HTTP_404_NOT_FOUND: NotFoundSerializer(),

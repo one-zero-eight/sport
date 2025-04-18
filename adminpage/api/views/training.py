@@ -2,7 +2,7 @@ import pglock
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from drf_yasg.utils import swagger_auto_schema
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -14,8 +14,8 @@ from api.serializers.training import NewTrainingInfoStudentSerializer
 from sport.models import Training, Student, TrainingCheckIn, Attendance
 
 
-@swagger_auto_schema(
-    method="GET",
+@extend_schema(
+    methods=["GET"],
     responses={
         status.HTTP_200_OK: NewTrainingInfoStudentSerializer(),
         status.HTTP_404_NOT_FOUND: NotFoundSerializer(),
@@ -40,8 +40,9 @@ def training_info(request, training_id, **kwargs):
     }).data)
 
 
-@swagger_auto_schema(
-    method="POST",
+@extend_schema(
+    methods=["POST"],
+    request=None,
     responses={
         status.HTTP_200_OK: EmptySerializer(),
         status.HTTP_404_NOT_FOUND: NotFoundSerializer(),
@@ -77,8 +78,9 @@ def training_checkin(request, training_id, **kwargs):
             )
 
 
-@swagger_auto_schema(
-    method="POST",
+@extend_schema(
+    methods=["POST"],
+    request=None,
     responses={
         status.HTTP_200_OK: EmptySerializer(),
         status.HTTP_404_NOT_FOUND: NotFoundSerializer(),

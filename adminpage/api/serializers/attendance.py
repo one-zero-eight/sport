@@ -70,6 +70,7 @@ class HourInfoSemesterChildSerializer(serializers.Serializer):
     hours_self_not_debt = serializers.IntegerField()
     hours_self_debt = serializers.IntegerField()
     hours_sem_max = serializers.IntegerField()
+    debt = serializers.IntegerField()
 
 
 class HoursInfoSerializer(serializers.Serializer):

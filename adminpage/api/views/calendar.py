@@ -1,7 +1,7 @@
 from datetime import time
 
 from django.conf import settings
-from drf_yasg.utils import swagger_auto_schema
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -57,9 +57,9 @@ def convert_personal_training(t) -> dict:
     return r
 
 
-@swagger_auto_schema(
-    method="GET",
-    query_serializer=CalendarRequestSerializer,
+@extend_schema(
+    methods=["GET"],
+    parameters=[CalendarRequestSerializer],
     responses={
         status.HTTP_200_OK: CalendarSerializer,
     }
@@ -77,9 +77,9 @@ def get_schedule(request, sport_id, **kwargs):
     return Response(list(map(convert_training_schedule, trainings)))
 
 
-@swagger_auto_schema(
-    method="GET",
-    query_serializer=CalendarRequestSerializer,
+@extend_schema(
+    methods=["GET"],
+    parameters=[CalendarRequestSerializer],
     responses={
         status.HTTP_200_OK: CalendarSerializer,
     }

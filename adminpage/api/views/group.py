@@ -1,7 +1,6 @@
-from curses.ascii import SP
 from django.db import transaction
 from django.shortcuts import get_object_or_404
-from drf_yasg.utils import swagger_auto_schema
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -11,12 +10,10 @@ from api.permissions import IsStudent, IsTrainer
 from api.serializers import GroupInfoSerializer, NotFoundSerializer, SportsSerializer, EmptySerializer, ErrorSerializer
 from api.serializers.group import SportEnrollSerializer
 from sport.models import Group, Schedule, Student, Sport
-import csv
-import os
 
 
-@swagger_auto_schema(
-    method="GET",
+@extend_schema(
+    methods=["GET"],
     responses={
         status.HTTP_200_OK: GroupInfoSerializer,
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
@@ -34,8 +31,8 @@ def group_info_view(request, group_id, **kwargs):
     return Response(serializer.data)
 
 
-@swagger_auto_schema(
-    method="GET",
+@extend_schema(
+    methods=["GET"],
     responses={
         status.HTTP_200_OK: SportsSerializer,
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
@@ -48,9 +45,9 @@ def sports_view(request, **kwargs):
     return Response(serializer.data)
 
 
-@swagger_auto_schema(
-    method="POST",
-    request_body=SportEnrollSerializer,
+@extend_schema(
+    methods=["POST"],
+    request=SportEnrollSerializer,
     responses={
         status.HTTP_200_OK: EmptySerializer,
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
@@ -72,20 +69,4 @@ def select_sport(request, **kwargs):
     student.sport = sport
     student.save()
 
-    return Response({})
-
-
-@api_view(["GET"])
-@permission_classes([IsTrainer])
-def exportSportTypes(request, **kwargs):
-    file = open("./../test.csv")
-    reader = csv.reader(file)
-    for row in reader:
-        studentEmail = row[0]
-        studentSportType = row[8]
-        s = Student.objects.filter(user__email=studentEmail)
-        sport = Sport.objects.filter(name=studentSportType)
-        if len(s) == 1 and len(sport) == 1:
-            s[0].sport = sport[0]
-            s[0].save()
     return Response({})

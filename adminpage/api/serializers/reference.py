@@ -3,7 +3,7 @@ from rest_framework import serializers
 from sport.models import Reference
 
 
-class ReferenceUploadSerializer(serializers.ModelSerializer):
+class ReferenceUploadSerializer(serializers.ModelSerializer[Reference]):
     image = serializers.ImageField(allow_empty_file=False)
     start = serializers.DateField(allow_null=False)
     end = serializers.DateField(allow_null=False)

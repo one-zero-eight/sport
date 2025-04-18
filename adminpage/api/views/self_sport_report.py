@@ -1,5 +1,5 @@
 from django.conf import settings
-from drf_yasg.utils import swagger_auto_schema
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.decorators import (
     parser_classes,
@@ -18,7 +18,6 @@ from api.serializers import (
     error_detail,
 )
 from api.serializers.self_sport_report import SelfSportTypes, ParseStrava, ParsedStravaSerializer
-# from api.views.utils import process_image
 from sport.models import SelfSportType, SelfSportReport
 import requests
 from bs4 import BeautifulSoup, SoupStrainer
@@ -43,8 +42,8 @@ class SelfSportErrors:
     )
 
 
-@swagger_auto_schema(
-    method="Get",
+@extend_schema(
+    methods=["Get"],
     responses={
         status.HTTP_200_OK: SelfSportTypes(many=True),
     }
@@ -58,10 +57,10 @@ def get_self_sport_types(request, **kwargs):
     return Response(serializer.data)
 
 
-@swagger_auto_schema(
-    method="POST",
-    operation_description="One link to Strava required (begins with http(s)://)",
-    request_body=SelfSportReportUploadSerializer,
+@extend_schema(
+    methods=["POST"],
+    description="One link to Strava required (begins with http(s)://)",
+    request=SelfSportReportUploadSerializer,
     responses={
         status.HTTP_200_OK: EmptySerializer,
         status.HTTP_400_BAD_REQUEST: ErrorSerializer,
@@ -130,10 +129,10 @@ def self_sport_upload(request, **kwargs):
     return Response({})
 
 
-@swagger_auto_schema(
-    method="GET",
-    operation_description="Strava link parsing",
-    query_serializer=ParseStrava,
+@extend_schema(
+    methods=["GET"],
+    description="Strava link parsing",
+    parameters=[ParseStrava],
     responses={
         status.HTTP_200_OK: ParsedStravaSerializer,
         status.HTTP_400_BAD_REQUEST: ErrorSerializer,

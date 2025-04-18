@@ -1,8 +1,9 @@
-from adminpage.swagger import schema_view
+from django.views.generic import RedirectView
+
 from django.urls import path, re_path, register_converter
+from drf_spectacular.views import SpectacularSwaggerView, SpectacularJSONAPIView, SpectacularYAMLAPIView
 
 from api.views import (
-    tmp,
     profile,
     enroll,
     group,
@@ -93,9 +94,6 @@ urlpatterns = [
 
     path(r"semester", semester.get_semester),
 
-    #test
-    path(r"export_sport_types", group.exportSportTypes),
-
     # analytics
     path(r"analytics/attendance", analytics.attendance_analytics),
 
@@ -104,19 +102,30 @@ urlpatterns = [
 ]
 
 urlpatterns.extend([
+    # OpenAPI schema & Swagger UI
+    path('openapi.json', SpectacularJSONAPIView.as_view(), name='schema'),
+    path('openapi.yaml', SpectacularYAMLAPIView.as_view(), name='schema-yaml'),
+    path('docs', SpectacularSwaggerView.as_view(url_name='schema'), name='schema-swagger'),
+
+    # Redirect from deprecated paths
     re_path(
-        r'swagger(?P<format>\.json|\.yaml)$',
-        schema_view.without_ui(cache_timeout=0),
-        name='schema-json'
+        r'swagger(?P<format>\.json)$',
+        RedirectView.as_view(url="/api/openapi.json"),
+        name='redirect-to-schema'
+    ),
+    re_path(
+        r'swagger(?P<format>\.yaml)$',
+        RedirectView.as_view(url="/api/openapi.yaml"),
+        name='redirect-to-schema-yaml'
     ),
     re_path(
         r'swagger/$',
-        schema_view.with_ui('swagger', cache_timeout=0),
-        name='schema-swagger-ui'
+        RedirectView.as_view(url="/api/docs"),
+        name='redirect-to-schema-swagger'
     ),
     re_path(
         r'redoc/$',
-        schema_view.with_ui('redoc', cache_timeout=0),
-        name='schema-redoc'
+        RedirectView.as_view(url="/api/docs"),
+        name='redirect-to-schema-swagger-from-redoc'
     ),
 ])

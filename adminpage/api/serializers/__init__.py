@@ -46,9 +46,6 @@ from .reference import (
 from .self_sport_report import (
     SelfSportReportUploadSerializer,
 )
-from .tmp import (
-    TmpSerializer,
-)
 from .training import (
     TrainingInfoSerializer,
 )
