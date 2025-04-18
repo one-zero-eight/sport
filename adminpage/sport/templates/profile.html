@@ -163,23 +163,24 @@
                         </div>
                         <div id="ft-results-modals"></div>
                         <!-- Hours bars-->
-                        <h5 class="text-left ml-3">Current sport hours</h5>
-                        <!-- Debt bar-->
-                        <div id="debtor_bar" class="d-none">
-                            <div class="progress mt-3" style="width: 100%; height: 2rem;">
-                                <div class="progress-bar progress-bar-striped bg-light text-danger" style="width: 100%; height: 2rem;"><b>Debt</b></div>
-                            </div>
-                            <div class="progress mb-3" style="width: 100%; height: 2rem">
-                                <div class="progress-bar progress-bar-striped bg-danger" id="debt-subbar"></div>
-                            </div>
-                        </div>
-                        <!-- Self-sport + Sport group bar-->
+                        <h5 class="text-left ml-3">
+                            Current sport hours:
+                            {{ student.earned_hours }} out of {{ student.all_hours.hours_sem_max }}
+                            {% if student.init_debt_hours %}
+                            + {{ student.init_debt_hours }} (debt)
+                            {% endif %}
+                            hours
+                        </h5>
+                        <!-- Debt + Self-sport + Sport group bar-->
                         <div class="progress mt-3" style="width: 100%; height: 2rem;">
                             {% if student.is_online %}
                                 <div class="progress-bar bg-light text-primary" style="width: 100%; height: 2rem;"><b>Self-sport</b></div>
                             {% else %}
-                                <div class="progress-bar bg-light text-primary" style="width: 40%; height: 2rem;"><b>Self-sport</b></div>
-                                <div class="progress-bar bg-light text-info" style="width: 60%; height: 2rem;"><b>Sport group</b></div>
+                                {% if student.init_debt_hours %}
+                                <div class="progress-bar progress-bar-striped bg-light text-danger" id="bar-text-debt" style="width: 100%; height: 2rem; flex-direction: row; gap: 2px; align-items: center"><b>Debt</b> <span></span></div>
+                                {% endif %}
+                                <div class="progress-bar bg-light text-primary" id="bar-text-self-off" style="width: 100%; height: 2rem; flex-direction: row; gap: 2px; align-items: center"><b>Self-sport</b> <span></span></div>
+                                <div class="progress-bar bg-light text-info" id="bar-text-sport" style="width: 100%; height: 2rem; flex-direction: row; gap: 2px; align-items: center"><b>Sport group</b> <span></span></div>
                             {% endif %}
                         </div>
                         <div class="progress mb-3" style="width: 100%; height: 2rem">
@@ -188,9 +189,12 @@
                                     {{student.all_hours.hours_self_not_debt}}h
                                 </div>
                             {% else %}
-                                <div class="progress-bar bg-primary" id="subbar-self-off"></div>
-                                <div class="progress-bar bg-info" id="subbar-sport"></div>
+                                <div class="progress-bar bg-primary" id="subbar-self-off" style="height: 2rem"></div>
+                                <div class="progress-bar bg-info" id="subbar-sport" style="height: 2rem"></div>
+                                <div class="progress-bar progress-bar-striped bg-danger" id="subbar-debt" style="position: absolute; opacity: 0.25; height: 2rem"></div>
                             {% endif %}
+                        </div>
+                        <div id="block-hours-left">
                         </div>
                         <div id="medical-group-info-modal"></div>
                         {% if student.semesters|length > 0 %}
@@ -475,11 +479,11 @@
                     </div>
                     <div class="modal-footer">
                         <button class="btn btn-primary" onclick="choose_sport_type()" type="button">Choose sport type</button>
+                    </div>
                 </div>
             </div>
         </div>
-    {% endif %}
-    <script>
+        <script>
         $(window).on('load', function() {
             $('#choose-sport-type-modal').modal('show');
         });
@@ -520,21 +524,34 @@
                     toastr.error(`${error}`, 'Server error');
                 });
         }
+        </script>
+    {% endif %}
 
-        const interface_sport_group_hours = Math.max({{student.all_hours.hours_not_self}} - {{student.init_debt_hours}}, 0);
-        const sport_group_hours = interface_sport_group_hours * 100 / {{student.all_hours.hours_sem_max}};
-        const interface_debt_hours = Math.abs({{student.debt_hours}});
-        const debt_hours = interface_debt_hours * 100 / {{student.init_debt_hours}};
-        const self_hours = Math.floor({{student.all_hours.hours_self_not_debt}} * 100 / {{student.all_hours.hours_sem_max}});
-        const interface_self_hours = Math.floor({{student.all_hours.hours_self_not_debt}});
-        const debt_subbar = document.getElementById('debt-subbar');
-        const subbar_sport = document.getElementById('subbar-sport');
-        subbar_sport.setAttribute('style', `width: ${sport_group_hours}%; height: 2rem;`);
-        debt_subbar.setAttribute('style', `width: ${debt_hours}%; height: 2rem;`);
-        debt_subbar.textContent = `${interface_debt_hours}h`;
-        subbar_sport.textContent = `${interface_sport_group_hours}h`;
-        const subbar_self_off = document.getElementById('subbar-self-off');
-        subbar_self_off.setAttribute('style', `width: ${self_hours}%; height: 2rem;`);
-        subbar_self_off.textContent = `${interface_self_hours}h`;
+    <!-- Hours progress bar -->
+    <script>
+        const hours_not_self = {{ student.all_hours.hours_not_self }};
+        const hours_self_not_debt = {{ student.all_hours.hours_self_not_debt }};
+        const hours_self_debt = {{ student.all_hours.hours_self_debt }};
+        const earned_hours = {{ student.earned_hours }};
+
+        const hours_sem_max = {{ student.all_hours.hours_sem_max }};
+        const debt = {{ student.init_debt_hours }};
+        const total_hours_required = hours_sem_max + debt;
+
+        $("#subbar-debt")[0].style.width = `${(debt * 100) / total_hours_required}%`;
+        $("#subbar-self-off")[0].style.width = `${((hours_self_not_debt + hours_self_debt) * 100) / total_hours_required}%`;
+        $("#subbar-sport")[0].style.width = `${(hours_not_self * 100) / total_hours_required}%`;
+
+        $("#bar-text-self-off > span").text(`(${Math.floor(hours_self_not_debt + hours_self_debt)}h)`);
+        $("#bar-text-sport > span").text(`(${Math.floor(hours_not_self)}h)`);
+        $("#bar-text-debt > span").text(`(${Math.floor(debt)}h)`);
+
+        const left_hours = total_hours_required - earned_hours;
+        if (left_hours > 0) {
+            $("#block-hours-left").html(`To pass the sport course you must get <b>${total_hours_required - earned_hours} hours</b> more.`);
+        } else {
+            $("#block-hours-left").text(`You have enough sport hours to pass the course! Do not forget to come to the fitness test.`);
+        }
+
     </script>
 {% endblock %}

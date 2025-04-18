@@ -76,6 +76,7 @@ def profile_view(request, **kwargs):
             semester=current_semester,
             resolved=None,
         ).exists()
+        ongoing_semester = get_student_hours(student.pk)['ongoing_semester']
         context.update({
             "student": {
                 "student_id": student.pk,
@@ -94,7 +95,8 @@ def profile_view(request, **kwargs):
                 "sport": student.sport,
                 "init_debt_hours": student_debt.first().debt if student_debt.exists() else 0,
                 "debt_hours": get_negative_hours(student.pk),
-                "all_hours": get_student_hours(student.pk)['ongoing_semester'],
+                "all_hours": ongoing_semester,
+                "earned_hours": int(ongoing_semester["hours_not_self"] + ongoing_semester["hours_self_not_debt"] + ongoing_semester["hours_self_debt"]),
             },
             "faq": get_faq(),
         })
