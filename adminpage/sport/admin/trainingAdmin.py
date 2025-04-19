@@ -22,6 +22,8 @@ from .site import site
 
 
 class TrainingFormWithCSV(forms.ModelForm):
+    group = forms.ModelChoiceField(queryset=Group.objects.filter(semester__id=get_ongoing_semester().id))
+
     attended_students = forms.ModelMultipleChoiceField(
         required=False,
         queryset=Student.objects.exclude(medical_group__name='Medical checkup not passed'),
