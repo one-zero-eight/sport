@@ -1,7 +1,7 @@
 import datetime
 
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 from rest_framework import status
 
 from api.permissions import IsStaff
@@ -20,7 +20,18 @@ from sport.models import Attendance
     ],
     responses={
         status.HTTP_200_OK: dict[str, int],
-    }
+    },
+    description="Number of attendance records for each date during last 30 days for students with `medical_group_id` and sport `sport_id`",
+    examples=[
+        OpenApiExample(
+            name="Example 1",
+            value={
+                "2025-05-01": 2,
+                "2025-05-02": 1,
+            },
+            status_codes=[200]
+        ),
+    ]
 )
 @api_view(["GET"])
 @permission_classes([IsStaff])

@@ -103,6 +103,7 @@ class GroupAdmin(DefaultFilterMixIn):
     )
 
     list_display = (
+        "id",
         "__str__",
         "is_club",
         "teachers",  # check function below

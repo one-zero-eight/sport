@@ -4,6 +4,7 @@ from typing import Iterable, Tuple, List
 from django.db.models import F, Value, BooleanField, Case, When, CharField, Sum, IntegerField, OuterRef
 from django.db.models.functions import Concat, Coalesce
 from django.db.models.expressions import Value, Case, When, Subquery, OuterRef, ExpressionWrapper
+from django.shortcuts import get_object_or_404
 from typing import TypedDict
 
 from django.db import connection
@@ -170,7 +171,7 @@ class SemesterHours(TypedDict):
 def get_student_hours(student_id, **kwargs) -> TypedDict('StudentHours',
                                                          {'last_semesters_hours': List[SemesterHours],
                                                           'ongoing_semester': SemesterHours}):
-    student = Student.objects.get(user_id=student_id)
+    student = get_object_or_404(Student, user_id=student_id)
     sem_info_cur = {"id_sem": 0, "hours_not_self": 0.0, "hours_self_not_debt": 0.0,
                     "hours_self_debt": 0.0, "hours_sem_max": 0.0, "debt": 0.0}
 
@@ -249,7 +250,7 @@ def create_debt(last_semester, **kwargs):
     pass
 
 
-def better_than(student_id):
+def better_than(student_id: int) -> float:
     qs = Student.objects.all().annotate(_debt=Coalesce(
         SumSubquery(Debt.objects.filter(semester_id=get_ongoing_semester().pk,
                                         student_id=OuterRef("pk")), 'debt'),
@@ -266,7 +267,7 @@ def better_than(student_id):
         F('_ongoing_semester_hours') - F('_debt'), output_field=IntegerField()
     ))
 
-    student_hours = qs.get(pk=student_id).complex_hours
+    student_hours = get_object_or_404(qs, pk=student_id).complex_hours
     if student_hours <= 0:
         return 0
 

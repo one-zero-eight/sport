@@ -164,7 +164,8 @@ def get_grades_csv(request, training_id, **kwargs):
         status.HTTP_200_OK: LastAttendedDatesSerializer,
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
         status.HTTP_403_FORBIDDEN: InbuiltErrorSerializer,
-    }
+    },
+    description="List of students who enrolled sport group with `group_id` and their last attendance in this group"
 )
 @api_view(["GET"])
 @permission_classes([IsTrainer])
@@ -200,7 +201,8 @@ def get_negative_hours_info(request, student_id, **kwargs):
         status.HTTP_200_OK: HoursInfoSerializer,
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
         status.HTTP_403_FORBIDDEN: InbuiltErrorSerializer,
-    }
+    },
+    description="Student's `student_id` information about hours in current and previous semester"
 )
 @api_view(["GET"])
 @permission_classes([IsStudent | IsStaff])
@@ -214,7 +216,8 @@ def get_student_hours_info(request, student_id, **kwargs):
         status.HTTP_200_OK: BetterThanInfoSerializer,
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
         status.HTTP_403_FORBIDDEN: InbuiltErrorSerializer,
-    }
+    },
+    description="Ratio of students who has less sport hours than student `student_id`"
 )
 @api_view(["GET"])
 @permission_classes([IsStudent | IsStaff])
