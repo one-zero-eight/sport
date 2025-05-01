@@ -171,6 +171,7 @@ class TrainingAdmin(DefaultFilterMixIn):
     )
 
     list_display = (
+        "id",
         "group",
         "custom_name",
         "start",

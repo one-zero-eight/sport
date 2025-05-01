@@ -83,7 +83,7 @@ class HoursInfoFullSerializer(serializers.Serializer):
 
 
 class BetterThanInfoSerializer(serializers.Serializer):
-    better_than = serializers.FloatField()
+    better_than = serializers.IntegerField()
 
 
 class AttendanceSerializer(serializers.Serializer):

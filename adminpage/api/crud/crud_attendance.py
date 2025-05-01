@@ -174,15 +174,15 @@ def get_student_hours(student_id, **kwargs) -> TypedDict('StudentHours',
     student = get_object_or_404(Student, user_id=student_id)
     sem_info_cur = {"id_sem": 0, "hours_not_self": 0.0, "hours_self_not_debt": 0.0,
                     "hours_self_debt": 0.0, "hours_sem_max": 0.0, "debt": 0.0}
-
+    ongoing_semester = get_ongoing_semester()
     query_attend_current_semester = Attendance.objects.filter(student_id=student_id,
-                                                              training__group__semester=get_ongoing_semester())
-    sem_info_cur['id_sem'] = get_ongoing_semester().id
-    sem_info_cur['hours_sem_max'] = get_ongoing_semester().hours
+                                                              training__group__semester=ongoing_semester)
+    sem_info_cur['id_sem'] = ongoing_semester.id
+    sem_info_cur['hours_sem_max'] = ongoing_semester.hours
 
     try:
         sem_info_cur['debt'] = Debt.objects.get(
-            semester_id=get_ongoing_semester().id, student_id=student_id).debt
+            semester_id=ongoing_semester.id, student_id=student_id).debt
     except Debt.DoesNotExist:
         sem_info_cur['debt'] = 0
 
@@ -199,7 +199,7 @@ def get_student_hours(student_id, **kwargs) -> TypedDict('StudentHours',
     last_sem_info_arr = []
 
     last_semesters = Semester.objects.filter(
-        end__lt=get_ongoing_semester().start).order_by('-end')
+        end__lt=ongoing_semester.start).order_by('-end')
 
     for sem in last_semesters:
         if student in sem.academic_leave_students.all():
@@ -208,7 +208,7 @@ def get_student_hours(student_id, **kwargs) -> TypedDict('StudentHours',
             sem_info["id_sem"] = sem.id
             sem_info["hours_sem_max"] = sem.hours
             try:
-                sem_info['debt'] = Debt.objects.get(semester_id=get_ongoing_semester().id,
+                sem_info['debt'] = Debt.objects.get(semester_id=ongoing_semester.id,
                                                     student_id=student_id).debt
             except Debt.DoesNotExist:
                 sem_info['debt'] = 0
@@ -241,7 +241,6 @@ def get_negative_hours(student_id, hours_info=None, **kwargs):
         debt = 0
     res = sem_now['hours_self_debt'] + sem_now['hours_not_self'] + \
         sem_now['hours_self_not_debt'] - debt
-
     return res
 
 
@@ -251,15 +250,16 @@ def create_debt(last_semester, **kwargs):
 
 
 def better_than(student_id: int) -> float:
+    ongoing_semester = get_ongoing_semester()
     qs = Student.objects.all().annotate(_debt=Coalesce(
-        SumSubquery(Debt.objects.filter(semester_id=get_ongoing_semester().pk,
+        SumSubquery(Debt.objects.filter(semester_id=ongoing_semester.pk,
                                         student_id=OuterRef("pk")), 'debt'),
         0
     ))
 
     qs = qs.annotate(_ongoing_semester_hours=Coalesce(
         SumSubquery(Attendance.objects.filter(
-            training__group__semester_id=get_ongoing_semester().pk, student_id=OuterRef("pk")), 'hours'),
+            training__group__semester_id=ongoing_semester.pk, student_id=OuterRef("pk")), 'hours'),
         0
     ))
 

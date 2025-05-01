@@ -28,6 +28,7 @@ from api.serializers import SuggestionQuerySerializer, SuggestionSerializer, \
 from api.serializers.attendance import BetterThanInfoSerializer
 from sport.models import Group, Student, Attendance
 
+
 User = get_user_model()
 
 
@@ -66,7 +67,10 @@ def compose_bad_grade_report(email: str, hours: float) -> dict:
     parameters=[SuggestionQuerySerializer],
     responses={
         status.HTTP_200_OK: SuggestionSerializer(many=True),
-    }
+        status.HTTP_404_NOT_FOUND: NotFoundSerializer,
+    },
+    description="Search students that can be marked in sport group `group_id` by `term`",
+    summary="Search students in sport group by term",
 )
 @api_view(["GET"])
 @permission_classes([IsTrainer])
@@ -97,7 +101,9 @@ def suggest_student(request, **kwargs):
         status.HTTP_200_OK: TrainingGradesSerializer,
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
         status.HTTP_403_FORBIDDEN: InbuiltErrorSerializer,
-    }
+    },
+    description="Information about training and all attendances of it",
+    summary="Info about training"
 )
 @api_view(["GET"])
 @permission_classes([IsTrainer])
@@ -127,7 +133,9 @@ def get_grades(request, training_id, **kwargs):
         (status.HTTP_200_OK, 'text/csv'): OpenApiTypes.BINARY,
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
         status.HTTP_403_FORBIDDEN: InbuiltErrorSerializer,
-    }
+    },
+    description="List of attendances of training `training_id` in csv format",
+    summary="Attendace in csv",
 )
 @api_view(["GET"])
 @permission_classes([IsTrainer])
@@ -165,7 +173,8 @@ def get_grades_csv(request, training_id, **kwargs):
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
         status.HTTP_403_FORBIDDEN: InbuiltErrorSerializer,
     },
-    description="List of students who enrolled sport group with `group_id` and their last attendance in this group"
+    description="List of students who enrolled sport group with `group_id` and their last attendance in this group",
+    summary="Student's last attendances",
 )
 @api_view(["GET"])
 @permission_classes([IsTrainer])
@@ -187,7 +196,9 @@ def get_last_attended_dates(request, group_id, **kwargs):
         status.HTTP_200_OK: HoursInfoFullSerializer,
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
         status.HTTP_403_FORBIDDEN: InbuiltErrorSerializer,
-    }
+    },
+    description="Get number of debt hours (negative number)",
+    summary="Debt hours",
 )
 @api_view(["GET"])
 @permission_classes([IsStudent | IsStaff])
@@ -202,7 +213,8 @@ def get_negative_hours_info(request, student_id, **kwargs):
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
         status.HTTP_403_FORBIDDEN: InbuiltErrorSerializer,
     },
-    description="Student's `student_id` information about hours in current and previous semester"
+    description="Student's `student_id` information about hours in current and previous semester",
+    summary="Student's hours info"
 )
 @api_view(["GET"])
 @permission_classes([IsStudent | IsStaff])
@@ -217,7 +229,7 @@ def get_student_hours_info(request, student_id, **kwargs):
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
         status.HTTP_403_FORBIDDEN: InbuiltErrorSerializer,
     },
-    description="Ratio of students who has less sport hours than student `student_id`"
+    description="Percentage of students who have less sport hours than student `student_id`",
 )
 @api_view(["GET"])
 @permission_classes([IsStudent | IsStaff])
@@ -233,7 +245,10 @@ def get_better_than_info(request, student_id, **kwargs):
         status.HTTP_200_OK: BadGradeReportGradeSerializer(many=True),
         status.HTTP_400_BAD_REQUEST: BadGradeReport(),
         status.HTTP_403_FORBIDDEN: InbuiltErrorSerializer,
-    }
+        status.HTTP_404_NOT_FOUND: NotFoundSerializer,
+    },
+    description="Mark attendance for training `training_id` for list of students",
+    summary="Mark attendance for several students",
 )
 @api_view(["POST"])
 @permission_classes([IsTrainer])
@@ -268,7 +283,9 @@ def mark_attendance(request, **kwargs):
     ])
 
     max_hours = training.academic_duration
-    students = User.objects.filter(pk__in=id_to_hours.keys()).only("email")
+    students = Student.objects.filter(
+        user__pk__in=id_to_hours.keys(), student_status__name='Normal'
+    ).select_related('user').only('user__email')
 
     hours_to_mark = []
     negative_mark = []
@@ -278,15 +295,12 @@ def mark_attendance(request, **kwargs):
         hours_put = id_to_hours[student.pk]
         if hours_put < 0:
             negative_mark.append(
-                compose_bad_grade_report(student.email, hours_put)
+                compose_bad_grade_report(student.user.email, hours_put)
             )
         elif hours_put > max_hours:
             overflow_mark.append(
-                compose_bad_grade_report(student.email, hours_put)
+                compose_bad_grade_report(student.user.email, hours_put)
             )
-        elif str(Student.objects.filter(user=get_user_model().objects.filter(email=student.email)[0])[
-                     0].student_status) != 'Normal':
-            pass
         else:
             hours_to_mark.append((student, hours_put))
 
@@ -304,7 +318,7 @@ def mark_attendance(request, **kwargs):
         mark_hours(training, mark_data)
         return Response(list(
             map(
-                lambda x: compose_bad_grade_report(x[0].email, x[1]),
+                lambda x: compose_bad_grade_report(x[0].user.email, x[1]),
                 hours_to_mark
             )
         ))

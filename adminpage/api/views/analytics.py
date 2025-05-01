@@ -22,6 +22,7 @@ from sport.models import Attendance
         status.HTTP_200_OK: dict[str, int],
     },
     description="Number of attendance records for each date during last 30 days for students with `medical_group_id` and sport `sport_id`",
+    summary="Number of attendaces per day",
     examples=[
         OpenApiExample(
             name="Example 1",

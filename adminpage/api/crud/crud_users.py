@@ -3,6 +3,7 @@ from django.db.models import F
 from django.db.models import Q
 from django.db.models import Value
 from django.db.models.functions import Concat
+from django.shortcuts import get_object_or_404
 
 from api.crud.utils import dictfetchall
 from sport.models import Student, Group
@@ -41,7 +42,7 @@ def get_email_name_like_students(pattern: str, limit: int = 5, requirement=~Q(pk
 
 
 def get_email_name_like_students_filtered_by_group(pattern: str, limit: int = 5, group=None):
-    group = Group.objects.get(id=group)
+    group = get_object_or_404(Group, id=group)
     # Don't suggest the student that is in 'Banned students' list
     not_banned_condition = ~Q(user_id__in=group.banned_students.values_list('user_id', flat=True))
     # The student must either be in 'Allowed students' list, or have acceptable medical group
