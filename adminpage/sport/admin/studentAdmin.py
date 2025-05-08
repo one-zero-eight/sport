@@ -127,6 +127,7 @@ class StudentResource(resources.ModelResource):
             "is_online",
             "medical_group",
             "gender",
+            "student_status",
         )
         export_order = (
             "user",
@@ -182,6 +183,7 @@ class StudentResource(resources.ModelResource):
                 row.get('is_online'),
                 row.get('medical_group'),
                 row.get('gender'),
+                row.get('student_status'),
             ]
             # Add a column with the error message
             import_result.diff.append(mark_safe(
