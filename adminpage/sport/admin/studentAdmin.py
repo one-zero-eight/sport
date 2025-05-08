@@ -125,6 +125,8 @@ class StudentResource(resources.ModelResource):
             "has_QR",
             "telegram",
             "is_online",
+            "medical_group",
+            "gender",
         )
         export_order = (
             "user",
@@ -146,6 +148,22 @@ class StudentResource(resources.ModelResource):
         report_skipped = True
         raise_errors = False
 
+    def before_import(self, dataset, **kwargs):
+        if "user" not in dataset.headers:
+            # Add field for user id if not present
+            dataset.headers.append("user")
+        super().before_import(dataset, **kwargs)
+
+    def before_import_row(self, row, **kwargs):
+        if not row.get("user") and row.get("email"):
+            # Find student ID by email
+            user_model = get_user_model()
+            try:
+                user = user_model.objects.get(email=row.get("email"))
+                row["user"] = user.pk
+            except user_model.DoesNotExist:
+                pass
+
     def import_row(self, row, instance_loader, **kwargs):
         # overriding import_row to ignore errors and skip rows that fail to import
         # without failing the entire import
@@ -157,11 +175,13 @@ class StudentResource(resources.ModelResource):
                 row.get('email'),
                 row.get('first_name'),
                 row.get('last_name'),
-                row.get('medical_group'),
                 row.get('enrollment_year'),
                 row.get('course'),
                 row.get('has_QR'),
                 row.get('telegram'),
+                row.get('is_online'),
+                row.get('medical_group'),
+                row.get('gender'),
             ]
             # Add a column with the error message
             import_result.diff.append(mark_safe(
