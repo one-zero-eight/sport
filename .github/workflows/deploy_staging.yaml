@@ -9,25 +9,19 @@ on:
 jobs:
   deploy:
     name: Deploy to staging server
-    runs-on: [self-hosted, sport]
+    runs-on: [self-hosted, innosport]
     environment:
-      name: development
-      url: https://stage.sport.innopolis.university
+      name: stage
+      url: ${{ vars.DEPLOY_URL }}
     steps:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          password: ${{ secrets.PASSWORD }}
-          port: ${{ secrets.PORT }}
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          fingerprint: ${{ secrets.SSH_FINGERPRINT }}
+          command_timeout: 30m
           script: |
-            cd ${{ secrets.REPOSITORY_PATH }}/deploy
-            git reset --hard
-            git fetch
-            git checkout ${{ github.ref_name }}
-            git pull
-            docker compose -f docker-compose.prod.yaml pull
-            docker compose -f docker-compose.prod.yaml build --pull
-            docker compose -f docker-compose.prod.yaml down
-            docker compose -f docker-compose.prod.yaml up -d
+            cd "${{ secrets.DEPLOY_DIRECTORY }}"
+            bash "${{ secrets.DEPLOY_SCRIPT }}" "${{ github.ref_name }}"
