@@ -258,16 +258,13 @@ def has_free_places_filter():
     return Wrapper
 
 
-def copy_sport_groups_and_schedule_from_previous_semester(semester: Semester) -> None:
-    semester.save()
-    prev_semester = Semester.objects.filter(start__lt=semester.start).order_by('-start').first()
-    sport_groups = Group.objects.filter(semester__pk=prev_semester.pk).prefetch_related('trainers', 'allowed_medical_groups', 'schedule').select_related('trainer').order_by('pk')
+def get_new_sport_groups(new_semester: Semester, sport_groups: list[Group]) -> list[Group]:
     new_sport_groups = []
     for group in sport_groups:
         if group.name in NOT_COPYABLE_GROUPS:
             continue
         new_group = Group(
-            semester=semester,
+            semester=new_semester,
             sport=group.sport,
             name=group.name,
             capacity=group.capacity,
@@ -278,13 +275,36 @@ def copy_sport_groups_and_schedule_from_previous_semester(semester: Semester) ->
             allowed_qr=group.allowed_qr,
         )
         new_sport_groups.append(new_group)
+    return new_sport_groups
+
+
+def get_new_schedule_for_sport_group(sport_group: Group, new_sport_group: Group) -> list[Schedule]:
+    new_timeslots = []
+    for schedule_obj in sport_group.schedule.all():
+        timeslot = Schedule(
+            group=new_sport_group,
+            weekday=schedule_obj.weekday,
+            start=schedule_obj.start,
+            end=schedule_obj.end,
+            training_class=schedule_obj.training_class,
+        )
+        new_timeslots.append(timeslot)
+    return new_timeslots
+
+
+def copy_sport_groups_and_schedule_from_previous_semester(semester: Semester) -> None:
+    semester.save()
+    prev_semester = Semester.objects.filter(start__lt=semester.start).order_by('-start').first()
+    sport_groups = Group.objects.filter(semester__pk=prev_semester.pk).prefetch_related('trainers', 'allowed_medical_groups', 'schedule').select_related('trainer').order_by('pk')
+    new_sport_groups = get_new_sport_groups(semester, sport_groups)
     Group.objects.bulk_create(new_sport_groups)
 
+    new_schedule_timeslots = []
     new_sport_groups = Group.objects.filter(semester__pk=semester.pk).order_by('pk')
     for old_group, new_group in zip(sport_groups, new_sport_groups):
         for trainer in old_group.trainers.all():
             new_group.trainers.add(trainer)
         for medical_group in old_group.allowed_medical_groups.all():
             new_group.allowed_medical_groups.add(medical_group)
-        for schedule_obj in old_group.schedule.all():
-            new_group.schedule.add(schedule_obj)
+        new_schedule_timeslots.extend(get_new_schedule_for_sport_group(old_group, new_group))
+    Schedule.objects.bulk_create(new_schedule_timeslots)
