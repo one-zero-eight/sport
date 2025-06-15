@@ -4,6 +4,7 @@ __pycache__/
 
 .env
 .env.local
+.sql
 
 .coverage
 .coveragerc

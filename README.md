@@ -29,6 +29,23 @@ The platform for conducting, tracking and checking students' sports activity at 
 > [!NOTE]
 > Server supports auto-reload on code change in debug mode
 
+### Commands
+
+- Dump database
+  ```bash
+  docker compose -f ./deploy/docker-compose.yaml exec -t db pg_dumpall -c -U user > ./sport_dump.sql
+  ```
+- Drop database (**dangerous!**)
+  ```bash
+  docker compose -f ./deploy/docker-compose.yaml down
+  # Dangerous!!! - immediately removes all database data
+  docker volume rm sport_db-data
+  ```
+- Setup database from dump and apply migrations
+  ```bash
+  sh scripts/setup_sport_database.sh ./sport_dump.sql
+  ```
+
 ### Project structure
 
 ```
