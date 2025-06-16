@@ -7,7 +7,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
 from api.permissions import (
-    IsTrainer, IsStudent,
+    IsTrainer, IsStudent, IsSuperUser,
 )
 from api.serializers import (
     NotFoundSerializer,
@@ -54,7 +54,7 @@ def get_exercises(request, **kwargs):
     }
 )
 @api_view(["GET"])
-@permission_classes([IsTrainer])
+@permission_classes([IsTrainer | IsSuperUser])
 def get_sessions(request, **kwargs):
     serializer = SemesterInSerializer(data=request.GET)
     serializer.is_valid(raise_exception=True)
@@ -129,7 +129,7 @@ def get_result(request, **kwargs):
     }
 )
 @api_view(["GET"])
-@permission_classes([IsTrainer])
+@permission_classes([IsTrainer | IsSuperUser])
 def get_session_info(request, session_id, **kwargs):
     results_dict = defaultdict(list)
     for result in FitnessTestResult.objects.filter(session_id=session_id):
@@ -160,10 +160,10 @@ class PostStudentExerciseResult(serializers.Serializer):
     },
 )
 @api_view(["POST"])
-@permission_classes([IsTrainer])
+@permission_classes([IsTrainer | IsSuperUser])
 def post_student_exercises_result(request, session_id=None, **kwargs):
     trainer = request.user
-    if not trainer.has_perm('sport.change_fitness_test'):
+    if not trainer.is_superuser and not trainer.has_perm('sport.change_fitness_test'):
         return Response(
             status=status.HTTP_400_BAD_REQUEST,
         )
@@ -194,7 +194,7 @@ def post_student_exercises_result(request, session_id=None, **kwargs):
     }
 )
 @api_view(["GET"])
-@permission_classes([IsTrainer])
+@permission_classes([IsTrainer | IsSuperUser])
 def suggest_fitness_test_student(request, **kwargs):
     serializer = SuggestionQueryFTSerializer(data=request.GET)
     serializer.is_valid(raise_exception=True)

@@ -4,7 +4,7 @@ from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import status
 
-from api.permissions import IsStaff
+from api.permissions import IsStaff, IsSuperUser
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -23,7 +23,7 @@ from sport.models import Attendance
     }
 )
 @api_view(["GET"])
-@permission_classes([IsStaff])
+@permission_classes([IsStaff | IsSuperUser])
 def attendance_analytics(request, **kwargs):
     sport_id, medical_group_id = request.GET.get("sport_id"), request.GET.get("medical_group_id")
     time_period = datetime.datetime.now() - datetime.timedelta(days=30)

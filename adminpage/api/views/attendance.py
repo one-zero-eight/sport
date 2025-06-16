@@ -19,7 +19,7 @@ from django.utils.dateparse import parse_date
 from api.crud import Training, \
     get_students_grades, mark_hours, get_student_last_attended_dates, \
     get_student_hours, get_negative_hours, better_than, get_email_name_like_students_filtered_by_group
-from api.permissions import IsStaff, IsStudent, IsTrainer
+from api.permissions import IsStaff, IsStudent, IsTrainer, IsSuperUser
 from api.serializers import SuggestionQuerySerializer, SuggestionSerializer, \
     NotFoundSerializer, InbuiltErrorSerializer, \
     TrainingGradesSerializer, AttendanceMarkSerializer, error_detail, \
@@ -69,7 +69,7 @@ def compose_bad_grade_report(email: str, hours: float) -> dict:
     }
 )
 @api_view(["GET"])
-@permission_classes([IsTrainer])
+@permission_classes([IsTrainer | IsSuperUser])
 def suggest_student(request, **kwargs):
     serializer = SuggestionQuerySerializer(data=request.GET)
     serializer.is_valid(raise_exception=True)
@@ -100,7 +100,7 @@ def suggest_student(request, **kwargs):
     }
 )
 @api_view(["GET"])
-@permission_classes([IsTrainer])
+@permission_classes([IsTrainer | IsSuperUser])
 def get_grades(request, training_id, **kwargs):
     trainer = request.user  # trainer.pk == trainer.user.pk
     try:
@@ -110,7 +110,8 @@ def get_grades(request, training_id, **kwargs):
     except Training.DoesNotExist:
         raise NotFound()
 
-    is_training_group(training.group, trainer)
+    if not trainer.is_superuser:
+        is_training_group(training.group, trainer)
 
     return Response({
         "group_id": training.group_id,
@@ -130,7 +131,7 @@ def get_grades(request, training_id, **kwargs):
     }
 )
 @api_view(["GET"])
-@permission_classes([IsTrainer])
+@permission_classes([IsTrainer | IsSuperUser])
 def get_grades_csv(request, training_id, **kwargs):
     trainer = request.user  # trainer.pk == trainer.user.pk
     try:
@@ -140,7 +141,8 @@ def get_grades_csv(request, training_id, **kwargs):
     except Training.DoesNotExist:
         raise NotFound()
 
-    is_training_group(training.group, trainer)
+    if not trainer.is_superuser:
+        is_training_group(training.group, trainer)
 
     # Prepare data for CSV
     grades = get_students_grades(training_id)  # List of dictionaries or objects
@@ -167,13 +169,14 @@ def get_grades_csv(request, training_id, **kwargs):
     }
 )
 @api_view(["GET"])
-@permission_classes([IsTrainer])
+@permission_classes([IsTrainer | IsSuperUser])
 def get_last_attended_dates(request, group_id, **kwargs):
     trainer = request.user  # trainer.pk == trainer.user.pk
 
     group = get_object_or_404(Group, pk=group_id)
 
-    is_training_group(group, trainer)
+    if not trainer.is_superuser:
+        is_training_group(group, trainer)
 
     return Response({
         "last_attended_dates": get_student_last_attended_dates(group_id)
@@ -189,7 +192,7 @@ def get_last_attended_dates(request, group_id, **kwargs):
     }
 )
 @api_view(["GET"])
-@permission_classes([IsStudent | IsStaff])
+@permission_classes([IsStudent | IsStaff | IsSuperUser])
 def get_negative_hours_info(request, student_id, **kwargs):
     return Response({"final_hours": get_negative_hours(student_id)})
 
@@ -203,7 +206,7 @@ def get_negative_hours_info(request, student_id, **kwargs):
     }
 )
 @api_view(["GET"])
-@permission_classes([IsStudent | IsStaff])
+@permission_classes([IsStudent | IsStaff | IsSuperUser])
 def get_student_hours_info(request, student_id, **kwargs):
     return Response(get_student_hours(student_id))
 
@@ -217,7 +220,7 @@ def get_student_hours_info(request, student_id, **kwargs):
     }
 )
 @api_view(["GET"])
-@permission_classes([IsStudent | IsStaff])
+@permission_classes([IsStudent | IsStaff | IsSuperUser])
 @cache_page(60 * 60 * 24)
 def get_better_than_info(request, student_id, **kwargs):
     return Response(better_than(student_id))
@@ -233,7 +236,7 @@ def get_better_than_info(request, student_id, **kwargs):
     }
 )
 @api_view(["POST"])
-@permission_classes([IsTrainer])
+@permission_classes([IsTrainer | IsSuperUser])
 def mark_attendance(request, **kwargs):
     serializer = AttendanceMarkSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
@@ -249,7 +252,8 @@ def mark_attendance(request, **kwargs):
     except Training.DoesNotExist:
         raise NotFound()
 
-    is_training_group(training.group, trainer)
+    if not trainer.is_superuser:
+        is_training_group(training.group, trainer)
 
     now = timezone.now()
     if not training.start <= now <= training.start + \
