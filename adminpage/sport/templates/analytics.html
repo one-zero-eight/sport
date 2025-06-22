@@ -1,0 +1,71 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Analytics</title>
+    <link rel="stylesheet" href="{% static "analytics/css/global_styles.css" %}">
+    <link rel="stylesheet" href="{% static "analytics/css/media.css" %}">
+    <link rel="stylesheet" href="{% static "analytics/fonts/Heebo/stylesheet.css" %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment"></script>
+</head>
+<body>
+
+<header class="header">
+
+    <div class="logo">
+        <img src="{% static "analytics/images/logo.png" %}" alt="logo">
+    </div>
+
+    <div class="user">
+        <span class="username">{{ current_user_full_name }}</span>
+        <a href="{% url 'django_auth_adfs:logout' %}" class="log-out">Log Out</a>
+    </div>
+</header>
+
+<div class="container">
+
+    <div class="first-coach-block">
+
+        <div class="child-coach-block">
+            <h1>Attendance</h1>
+
+            <div class="drop-down-bar">
+
+                <div class="drop-down-flexbox">
+                    <button id="disciplinesButton">Disciplines</button>
+                    <div class="drop-down-content" id="dropDownContentDisciplines">
+                        <ul class="drop-down-list" id="disciplinesList">
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="drop-down-flexbox">
+                    <button id="groupButton">Group</button>
+                    <div class="drop-down-content" id="dropDownContentGroup">
+                        <ul class="drop-down-list" id="groupList">
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="table-block">
+                <canvas id="attendanceChart"></canvas>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+
+<script type="module" src="{% static "analytics/js/attendance.js" %}"></script>
+<script type="module" src="{% static "analytics/js/disciplines.js" %}"></script>
+<script type="module" src="{% static "analytics/js/group.js" %}"></script>
+<script type="module" src="{% static "analytics/js/dropDownEmail.js" %}"></script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+{% load static %} {% block content %}
+<div
+    class="modal fade"
+    id="selfsport-modal"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="selfsport-modal"
+    aria-hidden="true"
+>
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <form action="#" onsubmit="return false;">
+                <div class="modal-header">
+                    <h5 class="modal-title">Self Sport Upload</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body text-left">
+                    <p>
+                        Please submit <strong>a link</strong> to your
+                        <a href="https://www.strava.com/" target="_blank" rel="noopener noreferrer">Strava</a>
+                        or
+                        <a href="https://www.trainingpeaks.com/" target="_blank" rel="noopener noreferrer"
+                            >TrainingPeaks</a
+                        >
+                        activity.
+                    </p>
+                    <div class="alert alert-info" role="alert" style="text-align: center">
+                        Checking your workouts <b>can take up to 2 weeks</b>.
+                    </div>
+                    <div class="form-group">
+                        <select name="training_type" class="form-control" id="self-sport-type">
+                            <option disabled selected>Loading...</option>
+                        </select>
+                        <small id="self-sport-type-help" class="form-text text-muted"></small>
+                        <input
+                            name="link"
+                            type="url"
+                            class="form-control mt-3"
+                            maxlength="100"
+                            placeholder="Activity link"
+                            pattern="^(http|https):\/\/.*"
+                            title='The link must start with "http://" or "https://"'
+                            id="self-sport-text-input"
+                            onchange="getStravaActivityInfo(this)"
+                        />
+                    </div>
+                    <p id="description-ok">
+                        System <b>automatically set the number of hours</b> you have accumulated during the training.
+                        <i>Change it if something went wrong</i>.
+                    </p>
+                    <p id="description-error" class="d-none">
+                        <b>An error has occured</b>. Please <b>specify the number of hours</b> you have accumulated
+                        during the training.
+                    </p>
+                    <div class="form-group mt-3">
+                        <input
+                            type="number"
+                            class="form-control"
+                            maxlength="10"
+                            placeholder="Waiting for the activity link"
+                            title="The number format: N (integer)"
+                            id="self-sport-number-input"
+                            disabled
+                        />
+                        <textarea
+                            class="form-control mt-3"
+                            placeholder="Leave comments here (optional)"
+                            id="student-comment-field"
+                            style="height: 75px"
+                            name="student_comment"
+                        ></textarea>
+                    </div>
+                    <button
+                        class="btn btn-sm btn-secondary"
+                        type="button"
+                        data-toggle="collapse"
+                        data-target="#collapseExample"
+                        aria-expanded="false"
+                        aria-controls="collapseExample"
+                        style="width: 100%"
+                    >
+                        How do we calculate the number of hours?
+                    </button>
+                    <div class="collapse mt-2" id="collapseExample">
+                        <script
+                            async
+                            src="https://telegram.org/js/telegram-widget.js?15"
+                            data-telegram-post="sportinIU/286"
+                            data-width="100%"
+                        ></script>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="container">
+                        <div class="row justify-content-end">
+                            <input
+                                type="submit"
+                                value="Submit"
+                                class="btn btn-primary"
+                                id="submit-self-sport-btn"
+                                onclick="submit_self_sport()"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

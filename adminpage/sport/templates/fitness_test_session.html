@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Fitness test session{% endblock %}
+
+{% block extrahead %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/core/main.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/daygrid/main.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/timegrid/main.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/list/main.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css">
+    <link rel="stylesheet" href="{% static "sport/css/bootstrap-tourist.css" %}">
+    <link rel="stylesheet" href="{% static "sport/css/profile.css" %}">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/core/main.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/daygrid/main.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/timegrid/main.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/list/main.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+    <script src="{% static "sport/js/bootstrap-tourist.js" %}"></script>
+    <script src="{% static "sport/js/modules/networking.mjs" %}"></script>
+    <script src="{% static "sport/js/modules/enrollment.mjs" %}"></script>
+    <script src="{% static "sport/js/modules/modals.mjs" %}"></script>
+    <script src="{% static "sport/js/modules/tour.mjs" %}"></script>
+    <script src="{% static "sport/js/category.js" %}"></script>
+    <script src="https://cdn.jsdelivr.net/gh/digitalBush/jquery.maskedinput/dist/jquery.maskedinput.min.js" type="text/javascript"></script>
+    <script src="{% static "sport/js/fitness_test_session.js" %}"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <div class="card-body">
+            <div class="container-xl">
+                <h1 class="mb-3">Fitness test session</h1>
+                <h3 class="mb-1" id="session-info-semester"></h3>
+                <h5 class="mb-3">
+                    <span id="session-info-date" class="badge badge-pill badge-light"></span>
+                    <span id="session-info-teacher" class="badge badge-pill badge-light"></span>
+                </h5>
+                <form class="student_email_suggestor" onsubmit="return false;" autocomplete="off">
+                    <div class="container">
+                        <div class="row d-flex justify-content-between">
+                            <div class="col-sm-6 col-12 col-lg-6 mb-3">
+                                <input id="student_emails" class="form-control w-100 trainer-editable"
+                                    size="30" placeholder="Enter student name or email" >
+                            </div>
+                            <div class="col-sm-6 col-12 col-lg-6 mb-3">
+                                <button id="ft-session-save" class="btn btn-primary form-control w-100 trainer-editable" onclick="save_table()" disabled>
+                                    Save
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <!-- Results & Exercises -->
+                <ul id="exercise-tabs" class="nav nav-tabs">
+<!--                     <li class="nav-item"> -->
+<!--                         <a class="nav-link" href="#results-table"><b>Results table</b></a> -->
+<!--                     </li>  -->
+                </ul>
+                <!-- Table of students & results -->
+                <div id="student-exercise-table" class="tab-content">
+                </div>
+                <div class="modal fade" id="gender-modal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Choose gender for <span id="gender-modal-name"></span></h5>
+                            </div>
+                            <div class="modal-body">
+                                <p class="d-flex">
+                                    <button id="ft-session-save" class="btn btn-primary btn-lg w-100 mx-2 d-inline" onclick="save_gender(0)">
+                                        Male
+                                    </button>
+                                    <button id="ft-session-save" class="btn btn-danger btn-lg mx-2 w-100 d-inline" onclick="save_gender(1)">
+                                        Female
+                                    </button>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,11 @@
+apiVersion: 1
+
+providers:
+  - name: 'localProvider'
+    orgId: 1
+    type: file
+    folder: ''
+    disableDeletion: true
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards

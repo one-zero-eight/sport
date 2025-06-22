@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Fitness test{% endblock %}
+
+{% block extrahead %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/core/main.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/daygrid/main.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/timegrid/main.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/list/main.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css">
+    <link rel="stylesheet" href="{% static "sport/css/bootstrap-tourist.css" %}">
+    <link rel="stylesheet" href="{% static "sport/css/profile.css" %}">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/core/main.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/daygrid/main.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/timegrid/main.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/list/main.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+    <script src="{% static "sport/js/bootstrap-tourist.js" %}"></script>
+    <script src="{% static "sport/js/modules/networking.mjs" %}"></script>
+    <script src="{% static "sport/js/modules/enrollment.mjs" %}"></script>
+    <script src="{% static "sport/js/modules/modals.mjs" %}"></script>
+    <script src="{% static "sport/js/modules/tour.mjs" %}"></script>
+    <script src="{% static "sport/js/category.js" %}"></script>
+    <script src="{% static "sport/js/fitness_test.js" %}"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <div class="card-body">
+            <div class="container-xl">
+                <h1 class="mb-3">Fitness test</h1>
+                <h2 class="mb-3">Sessions</h2>
+                <div class="container d-flex flex-row flex-wrap align-items-baseline justify-content-md-start justify-content-center align-content-between mb-3">
+                    <a href="/fitness_test/new" class="btn btn-success mr-3" id="fitness-test-session-btn">
+                        Conduct a new fitness test session
+                    </a>
+                    <div class="fitness-test-semester d-inline-flex flex-row align-items-baseline mt-3">
+                        <select class="fitness-test-semester-select custom-select" id="fitness-test-semester-choose" style="width: inherit;"
+                                onchange="change_semester()">
+                        </select>
+                        <label class="ml-2" for="fitness-test-semester-choose">semester</label>
+                    </div>
+                </div>
+                <!-- Table of sessions -->
+                <div id="ft-sessions-table" class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th scope="col">Semester</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Teacher</th>
+                        </tr>
+                        </thead>
+                        <tbody id="ft-session-table-body">
+                        </tbody>
+                    </table>
+                </div>
+{% endblock %}

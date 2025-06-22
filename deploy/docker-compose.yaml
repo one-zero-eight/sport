@@ -1,0 +1,63 @@
+name: sport
+
+services:
+  nginx:
+    # See more: https://registry.hub.docker.com/_/nginx
+    image: "nginx:1.27"
+    restart: unless-stopped
+    ports: [ "80:80" ]
+    depends_on:
+      - adminpanel
+    volumes:
+      - "./nginx-conf/dev.conf:/etc/nginx/conf.d/default.conf:ro"
+      - "./nginx-logs:/var/log/nginx"
+      - django-static:/static
+      - uploaded_media:/media:ro
+
+  adminpanel:
+    build: ../adminpage
+    # Run development server with hot reload
+    command: python manage.py runserver 0.0.0.0:8000
+    restart: unless-stopped
+    volumes:
+      - "../adminpage:/code"
+      - "django-auth-preserve:/opt/pysetup/.venv/lib/python3.12/site-packages/django/contrib/auth/migrations/"
+      - "django-static:/static"
+      - "uploaded_media:/uploaded_media"
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      DEBUG: 'true'
+
+  db:
+    # See more: https://registry.hub.docker.com/_/postgres
+    image: "postgres:17.1-alpine"
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    volumes:
+      - "db-data:/var/lib/postgresql/data"
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      start_interval: 1s
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+volumes:
+  db-data:
+  django-static:
+  # required to preserve change to django.contrib.auth.models.Group class.
+  # (verbose_name added)
+  # since Innopolis adfs provides groupsid as universal identifier
+  # (group - can be either in Russian or English)
+  django-auth-preserve:
+  uploaded_media:

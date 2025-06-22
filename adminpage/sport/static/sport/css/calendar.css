@@ -1,0 +1,47 @@
+.fc-title {
+    font-weight: bold;
+}
+
+.fc-event {
+    font-size: 1em;
+}
+
+.fc-event .fc-content {
+    color: #fff;
+}
+
+#sport-badge {
+    font-size: 1.75rem;
+}
+
+#choose-btn {
+    font-size: 1.5rem;
+}
+
+#chosen-btn {
+    font-size: 1.5rem;
+}
+
+@media only screen and (min-width: 577px) and (max-width: 992px) {
+    #sport-badge {
+        font-size: 2rem;
+    }
+    #choose-btn {
+        font-size: 1.75rem;
+    }
+    #chosen-btn {
+        font-size: 1.75rem;
+    }
+}
+
+@media only screen and (min-width: 993px) {
+    #sport-badge {
+        font-size: 2.5rem;
+    }
+    #choose-btn {
+        font-size: 2rem;
+    }
+    #chosen-btn {
+        font-size: 2rem;
+    }
+}

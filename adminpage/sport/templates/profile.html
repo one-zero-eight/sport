@@ -1,0 +1,557 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Profile{% endblock %}
+
+{% block extrahead %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/core/main.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/daygrid/main.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/timegrid/main.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/list/main.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css">
+    <link rel="stylesheet" href="{% static "sport/css/bootstrap-tourist.css" %}">
+    <link rel="stylesheet" href="{% static "sport/css/profile.css" %}">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/core/main.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/daygrid/main.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/timegrid/main.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/list/main.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+    <script src="{% static "sport/js/csv.min.js" %}"></script>
+    <script src="{% static "sport/js/bootstrap-tourist.js" %}"></script>
+    <script src="{% static "sport/js/modules/networking.mjs" %}"></script>
+    <script src="{% static "sport/js/modules/enrollment.mjs" %}"></script>
+    <script src="{% static "sport/js/modules/calendar.mjs" %}"></script>
+    <script src="{% static "sport/js/modules/modals.mjs" %}"></script>
+    <script src="{% static "sport/js/modules/tour.mjs" %}"></script>
+    <script src="{% static "sport/js/self_sport_reference.js" %}"></script>
+    <script src="{% static "sport/js/swipeCalendar.min.js" %}"></script>
+    <script src="{% static "sport/js/profile.js" %}"></script>
+{% endblock %}
+
+{% block content %}
+    {% if notify %}
+        <script>
+            toastr["{{ notify.type }}"]("{{ notify.msg }}")
+        </script>
+    {% endif %}
+    <div class="container-fluid">
+        <div class="card text-center">
+            <div class="card-body">
+                <h1 class="card-title">{{ user.get_full_name }}</h1>
+                {% if now.day == 13 %}
+                <span style="font-size: 10px;">IBC-fOr-5omE0ne-__-I5-TO0-mucH</span>
+                {% endif %}
+                <hr style="margin-bottom: 4px;">
+                {% if trainer.sport_groups is not None  %}
+                    <span class="badge badge-pill badge-primary text-uppercase mx-1 my-1">
+                            Teacher
+                    </span>
+                    <h3>Work — <span class="badge badge-light text-uppercase">{{ common.semester_name }}</span> semester</h3>
+                    {% if trainer.sport_groups|length > 0 %}
+                        <p class="d-flex justify-content-center align-content-between flex-wrap" id="trainer-list">
+                            Teaching groups:
+                            {% for group in trainer.sport_groups %}
+                                <span class="badge badge-info text-uppercase mx-1 my-1" id="trainer-span">
+                                      {{ group.name }}
+                                </span>
+                            {% endfor %}
+                        </p>
+                    {% else %}
+                        <p id="trainer-list">
+                            <h4><span class="badge badge-warning">You are not teaching in the current semester</span></h4>
+                        </p>
+                    {% endif %}
+                {% endif %}
+
+                {% if student %}
+                    {% if student.obj.student_status.id != 0 %}
+                        <h5>
+                            <span class="badge badge-pill bg-{% if student.obj.student_status.id == 1 %}danger
+                                                    {% elif student.obj.student_status.id == 2 %}primary
+                                                    {% else %}success
+                                                    {% endif %}text-light">
+                                {{ student.obj.student_status.description }}
+                            </span>
+                        </h5>
+                        <p>
+                            If your status is incorrect, please contact <a href="https://t.me/edikrvrs">Eduard Shaymardanov</a>
+                        </p>
+                    {% endif %}
+                    {% if student.obj.student_status.id == 0 %}
+                        <p class="d-flex justify-content-center align-content-between flex-wrap">
+                            <script type="text/javascript">
+                                const student_id = "{{ student.student_id }}";
+                                const apiUrl = `/api/attendance/${student_id}/negative_hours`;
+                                fetch(apiUrl).then(response => {
+                                return response.json();
+                                    }).then(data => {
+                                        d_span = document.getElementById('debtor_status');
+                                        d_alert = document.getElementById('debtor_alert');
+                                        d_bar = document.getElementById('debtor_bar');
+                                        if (data['final_hours'] < 0) {
+                                            d_span.classList.remove('d-none');
+                                            d_alert.classList.remove('d-none');
+                                            d_bar.classList.remove('d-none');
+                                        }
+                                    }).catch(err => {
+                                    });
+                            </script>
+                            <span id="debtor_status" class="d-none badge badge-pill badge-danger mx-1 my-1">DEBTOR</span>
+                            {% if student.obj.medical_group.id != -2 %}
+                                <span id="medical-group" class="badge badge-pill badge-success text-uppercase my-1 mx-1"
+                                    onclick="openMedicalInfoModal(
+                                            `{{ student.obj.medical_group.name }}`,
+                                            `{{ student.obj.medical_group.description }}`
+                                            )"
+                                    style="cursor: pointer;">
+                                    {{ student.obj.medical_group.name }} medical group
+                                </span>
+                            {% endif %}
+                        </p>
+                        <div id="debtor_alert" class="d-none alert alert-danger" role="alert">
+                            <h5>Dear student!</h5>
+                            <p><b>To remove</b> the <span class="badge badge-pill badge-danger">DEBTOR</span> status you should clear the debt bar,
+                            attending <b>on trainings</b>.
+                            <br>
+                            Closing the debt is <b>required to pass the sport course</b>.</p>
+                        </div>
+                        <h3>Progress</h3>
+                        <!-- Better than percantage-->
+                        <script type="text/javascript">
+                            fetch(`/api/attendance/${student_id}/better_than`, {
+                                method: 'GET',
+                                'X-CSRFToken': csrf_token,
+                            })
+                                .then((response) => {
+                                    if (response.ok) {
+                                        return response.json();
+                                    }
+                                    throw new Error('Something went wrong.');
+                                })
+                                .then((data) => {
+                                    if (data >= 30) {
+                                        document.getElementById('better-than').innerHTML = `You are better than ${data}% of the students!`;
+                                    }
+                                })
+                                .catch(() => {});
+                        </script>
+                        <span id="better-than"></span>
+                        <!-- Fitness test results -->
+                        <div class="d-none" id="ft-student-results">
+                            <h5 class="text-left ml-3">Fitness test</h5>
+                            <div id="ft-student-results-table" class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Semester</th>
+                                            <th scope="col">Total grade</th>
+                                            <th scope="col">Grade</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="ft-student-results-table-body">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div id="ft-results-modals"></div>
+                        <!-- Hours bars-->
+                        <h5 class="text-left ml-3">
+                            Current sport hours:
+                            {{ student.earned_hours }} out of {{ student.all_hours.hours_sem_max }}
+                            {% if student.init_debt_hours %}
+                            + {{ student.init_debt_hours }} (debt)
+                            {% endif %}
+                            hours
+                        </h5>
+                        <!-- Debt + Self-sport + Sport group bar-->
+                        <div class="progress mt-3" style="width: 100%; height: 2rem;">
+                            {% if student.is_online %}
+                                <div class="progress-bar bg-light text-primary" style="width: 100%; height: 2rem;"><b>Self-sport</b></div>
+                            {% else %}
+                                {% if student.init_debt_hours %}
+                                <div class="progress-bar progress-bar-striped bg-light text-danger" id="bar-text-debt" style="width: 100%; height: 2rem; flex-direction: row; gap: 2px; align-items: center"><b>Debt</b> <span></span></div>
+                                {% endif %}
+                                <div class="progress-bar bg-light text-primary" id="bar-text-self-off" style="width: 100%; height: 2rem; flex-direction: row; gap: 2px; align-items: center"><b>Self-sport</b> <span></span></div>
+                                <div class="progress-bar bg-light text-info" id="bar-text-sport" style="width: 100%; height: 2rem; flex-direction: row; gap: 2px; align-items: center"><b>Sport group</b> <span></span></div>
+                            {% endif %}
+                        </div>
+                        <div class="progress mb-3" style="width: 100%; height: 2rem">
+                            {% if student.is_online %}
+                                <div class="progress-bar bg-primary" id="subbar-self-on" style="width: calc({{student.all_hours.hours_self_not_debt}}% * 100 / {{student.all_hours.hours_sem_max}});height: 2rem;">
+                                    {{student.all_hours.hours_self_not_debt}}h
+                                </div>
+                            {% else %}
+                                <div class="progress-bar bg-primary" id="subbar-self-off" style="height: 2rem"></div>
+                                <div class="progress-bar bg-info" id="subbar-sport" style="height: 2rem"></div>
+                                <div class="progress-bar progress-bar-striped bg-danger" id="subbar-debt" style="position: absolute; opacity: 0.25; height: 2rem"></div>
+                            {% endif %}
+                        </div>
+                        <div id="block-hours-left">
+                        </div>
+                        <div id="medical-group-info-modal"></div>
+                        {% if student.semesters|length > 0 %}
+                        <h5 class="text-left ml-3">Overall sport hours</h5>
+                            <div class="container" id="semester-hours">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Semester</th>
+                                            <th scope="col">Start</th>
+                                            <th scope="col">End</th>
+                                            <th scope="col">Hours</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for sem in student.semesters %}
+                                        {% if student.obj.student_status.id == 0 %}
+                                            <tr style="cursor: pointer" data-semester-id="{{ sem.semester_id }}"
+                                                onclick="fetch_detailed_hours(this)" data-toggle="modal"
+                                                data-target="#hours-modal-{{ sem.semester_id }}">
+                                                <th scope="row">
+                                                    <span class="text-uppercase">{{ sem.semester_name }}</span>
+                                                </th>
+                                                <td>{{ sem.semester_start }}</td>
+                                                <td>{{ sem.semester_end }}</td>
+                                                <td>{{ sem.hours }}</td>
+                                            </tr>
+                                        {% elif sem.semester_name != common.semester_name %}
+                                            <tr style="cursor: pointer" data-semester-id="{{ sem.semester_id }}"
+                                                onclick="fetch_detailed_hours(this)" data-toggle="modal"
+                                                data-target="#hours-modal-{{ sem.semester_id }}">
+                                                <th scope="row" class="text-uppercase">{{ sem.semester_name }}</th>
+                                                <td>{{ sem.semester_start }}</td>
+                                                <td>{{ sem.semester_end }}</td>
+                                                <td>{{ sem.hours }}</td>
+                                            </tr>
+                                        {% endif %}
+                                        <!-- Detailed semester modal -->
+                                        <div class="modal fade" id="hours-modal-{{ sem.semester_id }}" tabindex="-1"
+                                            role="dialog"
+                                            aria-labelledby="hours-modal-{{ sem.semester_id }}" aria-hidden="true">
+                                            <div class="modal-dialog" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title"
+                                                            id="hours-modal-{{ sem.semester_id }}-title">
+                                                            Detailed statistics for the
+                                                            <span class="badge badge-light text-uppercase">{{ sem.semester_name }}</span>
+                                                            semester
+                                                            </h5>
+                                                        <button type="button" class="close" data-dismiss="modal"
+                                                                aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="spinner-border" role="status"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% endif %}
+                        <hr>
+                        <div class="d-flex justify-content-around align-content-between flex-wrap">
+                            <div class="my-2 mx-2">
+                                {% if student.obj.medical_group.id == -2 and not student.has_unresolved_med_group_submission %}
+                                    <button type="button" class="btn btn-danger"
+                                        onclick="open_med_group_modal()"
+                                        style="cursor: pointer;">
+                                        Submit medical group reference
+                                    </button>
+                                {% elif student.obj.medical_group.id == -2 and student.has_unresolved_med_group_submission %}
+                                    <button type="button" class="btn btn-warning" disabled style="cursor: default; opacity: 1;">
+                                        Awaiting medical group reference approval
+                                    </button>
+                                {% else %}
+                                    <button type="button" class="btn btn-primary" onclick="open_selfsport_modal()">
+                                        Self-sport upload
+                                    </button>
+                                {% endif %}
+                            </div>
+                            {% if student.obj.medical_group.id != -2 and not student.has_unresolved_med_group_submission %}
+                            <div class="my-2 mx-2">
+                                <button type="button" class="btn btn-secondary"
+                                    onclick="open_med_group_modal()"
+                                    style="cursor: pointer;">
+                                    Change medical group
+                                </button>
+                            </div>
+                            {% elif student.obj.medical_group.id != -2 and student.has_unresolved_med_group_submission %}
+                            <div class="my-2 mx-2">
+                                <button type="button" class="btn btn-warning" disabled style="cursor: default; opacity: 1;">
+                                    Awaiting medical group reference approval
+                                </button>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="d-flex justify-content-center align-content-center flex-wrap">
+                            <div class="my-2 mx-2 align-self-center">
+                                <i>Could not do sports for a while?</i>
+                            </div>
+                            <div class="my-2 mx-2 align-self-center">
+                                <button type="button" class="btn btn-secondary" onclick="open_recovered_modal()">
+                                    Submit medical reference
+                                </button>
+                            </div>
+                        </div>
+                    {% endif %}
+                    {% include "reference.html" %}
+                    {% include "med_group_reference.html" %}
+                    {% include "self_sport_reference.html" %}
+                {% endif %}
+
+                <!-- FAQ -->
+                {% if student and faq|length != 0%}
+                <hr>
+                <h2>FAQ</h2>
+                <div class="accordion" id="accordion-faq">
+                    <p class="d-flex justify-content-center align-content-between flex-wrap">
+                        {% for category in faq %}
+                            <button class="btn btn-sm btn-outline-dark m-1" type="button" data-toggle="collapse"
+                                    data-target="#category_{{forloop.counter0}}" aria-expanded="false" aria-controls="category_{{forloop.counter0}}">
+                            {{category.name}}
+                            </button>
+                        {% endfor %}
+                    </p>
+                    {% for category in faq %}
+                        <div class="collapse" id="category_{{forloop.counter0}}" data-parent="#accordion-faq">
+                            {% for element in category.values %}
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">
+                                        <h4 class="btn btn-link btn-block text-left text-reset" type="button" data-toggle="collapse"
+                                            data-target="#a_{{element.id}}" aria-expanded="false" aria-controls="a_{{element.id}}">
+                                            <b>{{element.question}}</b>
+                                        </h4>
+                                        <div id="a_{{element.id}}" class="collapse my-3 text-left">
+                                            {{element.answer|safe}}
+                                        </div>
+                                    </li>
+                                </ul>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+                    {% if student.obj.course is not None and student.obj.course != 4 %}
+                        <p>
+                            <b>Any other questions?</b> Please contact your course curator
+                            {% if student.obj.course == 1 %}
+                                <a href="https://t.me/yana_bogdanovich">Yana Bogdanovich</a>
+                            {% elif student.obj.course == 2 %}
+                                <a href="https://t.me/Littlehunterrr">Anastasia Koroleva</a>
+                            {% elif student.obj.course == 3 %}
+                                <a href="https://t.me/edikrvrs">Eduard Shaymardanov</a>
+                            {% endif %}
+                        </p>
+                    {% endif %}
+                {% endif %}
+
+                <hr>
+                <h2>Sport bot in Telegram 🔥</h2>
+                <p>
+                    Check out a new sport bot <b><a href="https://t.me/IUSportBot">@IUSportBot</a></b>
+                    integrated with <a href="https://innohassle.ru/sport">InNoHassle</a>.
+                </p>
+                <p>
+                    This bot will help you to check in to your favorite groups,
+                    quickly view schedule of sport activities and check sport hours.
+                </p>
+
+            </div>
+        {% if student.obj.student_status.id == 0 or trainer.sport_groups %}
+            <div class='container'>
+                <hr>
+                <h2>Schedule</h2>
+                <div id='calendar'></div>
+            </div>
+        {% endif %}
+        </div>
+    </div>
+    <div class="modal fade" id="grading-modal" tabindex="-1" role="dialog" aria-labelledby="grading-modal"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="grading-modal-title">
+                        Marking hours for
+                        <span  class="badge badge-info text-uppercase" id="grading-group-name"></span>
+                        at
+                        <span id="grading-date"></span>
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form class="student_email_suggestor" onsubmit="return false;">
+                        <div class="container">
+                        <div class="row align-items-center">
+                                <div class="col-lg-6 col-sm-12 mb-3">
+                                    <input id="student_emails" class="form-control w-100 trainer-editable"
+                                        size="30" placeholder="Enter student name or email">
+                                </div>
+                                <div class="col-lg-6 col-sm-12 mb-3">
+                                    <div class="custom-file">
+                                        <label for="csv-file-input" class="custom-file-label">Upload moodle CSV attendance</label>
+                                        <input name="image" type="file" class="custom-file-input form-control-file trainer-editable"
+                                            accept=".csv"
+                                            id="csv-file-input"
+                                            onchange="csv_upload(this)">
+                                    </div>
+                                </div>
+                        </div>
+                        </div>
+                    </form>
+                    <div class="mb-3">Marked students: <span class="badge badge-dark" id="marked-students">0/0</span></div>
+                    <div class="modal-body-table">
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="container">
+                        <div class="row justify-content-between">
+                            <div>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            </div>
+                            <div class="alert alert-danger" id="hours-alert" role="alert"
+                                 style="visibility: hidden">
+                            </div>
+                            <div>
+                                <a class="btn btn-secondary"
+                                        id="export-csv-btn" href="#">Export csv
+                                </a>
+                                <button type="button" class="btn btn-success"
+                                        id="put-default-hours-btn" onclick="mark_all(this)">Mark all (<span
+                                        id="mark-all-hours-value"></span> h.)
+                                </button>
+                                <button class="btn btn-primary" id="save-hours-btn" onclick="save_hours()"
+                                        type="button">Save
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="medical-group-info-modal"></div>
+    <div id="group-info-modal"></div>
+    <!-- Choose sport type modal-->
+    {% if student.obj.student_status.id == 0 and student.obj.medical_group.id > -1 and not student.sport %}
+        <div class="modal fade" id="choose-sport-type-modal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="choose-sport-type-modal-title">Choosing a
+                            <span class="badge badge-dark text-uppercase">sport type</span></h5>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container">
+                            <div class="alert alert-primary d-flex align-items-center" role="alert">
+                                <div>
+                                    Please select the sport you plan to specialize in this semester.
+                                    You can still do any kind of sport (i.e., attend any class).
+                                </div>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <select class="custom-select" id="sport-type-select">
+                                <option value="-1" selected>Choose...</option>
+                                {% for sport in sports %}
+                                    {% if sport.visible %}
+                                        <option value="{{sport.id}}">{{sport.name}}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" onclick="choose_sport_type()" type="button">Choose sport type</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+        $(window).on('load', function() {
+            $('#choose-sport-type-modal').modal('show');
+        });
+        function choose_sport_type() {
+            const selected_sport_type_id = $('#sport-type-select').val();
+            if (selected_sport_type_id == -1) {
+                toastr.error('Please select a sport type.');
+                return;
+            }
+            fetch('/api/select_sport', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrf_token,
+                },
+                body: JSON.stringify({
+                    'sport_id': selected_sport_type_id,
+                }),
+            })
+                .then((response) => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Something went wrong.');
+                })
+                .then((response) => {
+                    $('#ft-session-save').attr('disabled', '');
+                    toastr.success(
+                        'The sport type has been successfuly chosen',
+                        'Chosen',
+                        1500
+                    );
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                })
+                .catch(function (error) {
+                    toastr.error(`${error}`, 'Server error');
+                });
+        }
+        </script>
+    {% endif %}
+
+    <!-- Hours progress bar -->
+    <script>
+        const hours_not_self = {{ student.all_hours.hours_not_self }};
+        const hours_self_not_debt = {{ student.all_hours.hours_self_not_debt }};
+        const hours_self_debt = {{ student.all_hours.hours_self_debt }};
+        const earned_hours = {{ student.earned_hours }};
+
+        const hours_sem_max = {{ student.all_hours.hours_sem_max }};
+        const debt = {{ student.init_debt_hours }};
+        const total_hours_required = hours_sem_max + debt;
+
+        $("#subbar-debt")[0].style.width = `${(debt * 100) / total_hours_required}%`;
+        $("#subbar-self-off")[0].style.width = `${((hours_self_not_debt + hours_self_debt) * 100) / total_hours_required}%`;
+        $("#subbar-sport")[0].style.width = `${(hours_not_self * 100) / total_hours_required}%`;
+
+        $("#bar-text-self-off > span").text(`(${Math.floor(hours_self_not_debt + hours_self_debt)}h)`);
+        $("#bar-text-sport > span").text(`(${Math.floor(hours_not_self)}h)`);
+        $("#bar-text-debt > span").text(`(${Math.floor(debt)}h)`);
+
+        const left_hours = total_hours_required - earned_hours;
+        if (left_hours > 0) {
+            $("#block-hours-left").html(`To pass the sport course you must get <b>${total_hours_required - earned_hours} hours</b> more.`);
+        } else {
+            $("#block-hours-left").text(`You have enough sport hours to pass the course!`);
+        }
+
+    </script>
+{% endblock %}

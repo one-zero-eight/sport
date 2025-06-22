@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    {% block head %}
+    <title>{{ title|default:"Swagger" }}</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% if favicon_href %}<link rel="icon" href="{{ favicon_href }}">{% endif %}
+    <link rel="stylesheet" href="{{ swagger_ui_css }}">
+    <style>
+      html { box-sizing: border-box; overflow-y: scroll; }
+      *, *:after, *:before { box-sizing: inherit; }
+    </style>
+    {% endblock head %}
+  </head>
+  <body>
+    {% block body %}
+    <div id="swagger-ui"></div>
+    <script src="{{ swagger_ui_bundle }}"></script>
+    <script src="{{ swagger_ui_standalone }}"></script>
+    {% if script_url %}
+    <script src="{{ script_url }}"></script>
+    {% else %}
+    <script>
+    {% include template_name_js %}
+    </script>
+    {% endif %}
+    {% endblock %}
+
+    <script>
+        setTimeout(()=> {
+            {% if request.user.is_authenticated %}
+                const user_email_div = document.createElement("div");
+                user_email_div.style = "align-content: center; padding: 4px";
+                user_email_div.innerText = "{{ request.user.email }}";
+
+                document.querySelector(".auth-wrapper").insertBefore(
+                    user_email_div,
+                    document.querySelector(".auth-wrapper .authorize"),
+                );
+            {% else %}
+                const login_button = document.createElement("a");
+                login_button.style = "align-content: center; padding: 4px; margin-right: 4px; border: 2px solid #49cc90; color: #49cc90; text-decoration: none";
+                login_button.innerText = "Login";
+                login_button.href = "/";
+
+                document.querySelector(".auth-wrapper").insertBefore(
+                    login_button,
+                    document.querySelector(".auth-wrapper .authorize"),
+                );
+            {% endif %}
+        }, 500);
+    </script>
+  </body>
+</html>

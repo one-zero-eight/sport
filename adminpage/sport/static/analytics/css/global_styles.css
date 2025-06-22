@@ -1,0 +1,202 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    border: 0;
+    font-family: Heebo, sans-serif;
+    text-decoration: none;
+    list-style-type: none;
+    outline: none;
+}
+
+:root {
+    --White: #FFFFFF;
+    --Pink: #E03166;
+    --DarkBlue: #7C8DB5;
+    --LightBlue: #E6EFFF;
+    --LightestGreen: #D8F5E8;
+
+    --Header: 100;
+    --DropDown: 50;
+}
+
+.header{
+    font-size: 25px;
+    height: 12vh;
+    width: 100%;
+    top: 0;
+    left: 0;
+    display: flex;
+    margin-bottom: 30px;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30px;
+    border-bottom: 2px solid var(--LightBlue);
+    background-color: var(--White);
+    position: fixed;
+    z-index: var(--Header);
+}
+
+.logo{
+    height: 50px;
+    width: 50px;
+}
+
+.user {
+    margin-left: auto;
+    margin-right: 10px;
+    font-weight: 500;
+}
+
+.log-out{
+    margin-left: 30px;
+    color: var(--Pink);
+}
+
+.container{
+    width: 95%;
+    height: fit-content;
+    margin: 0 auto;
+}
+
+.first-coach-block{
+    height: fit-content;
+    margin-top: 20vh;
+    margin-bottom: 10vh;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.child-coach-block{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    justify-items: center;
+    align-items: center;
+}
+
+h1{
+    font-size: 35px;
+    font-weight: bold;
+}
+
+button, input{
+    width: fit-content;
+    padding: 5px 20px;
+    height: fit-content;
+    margin: 5px;
+    background-color: var(--White) ;
+    color: var(--DarkBlue);
+    font-size: 15px;
+    font-weight: 500;
+    border-radius: 15px;
+    border: 2px solid var(--LightBlue);
+}
+
+button:hover{
+    background-color: var(--LightBlue);
+}
+
+.drop-down-bar{
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    justify-items: center;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.drop-down-flexbox{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.drop-down-content{
+    font-weight: 500;
+    font-size: 15px;
+    color: var(--DarkBlue);
+    margin-top: 2px;
+    display: none;
+    z-index: var(--DropDown);
+    height: 20vh;
+    width: fit-content;
+    overflow: auto;
+}
+
+.drop-down-content.show {
+    display: block;
+}
+
+.drop-down-list{
+    position: relative;
+    overflow: auto;
+    z-index: var(--DropDown);
+    background-color: var(--White);
+    display: block;
+    border: 2px solid var(--LightBlue);
+    border-radius: 15px;
+    padding: 5px;
+
+}
+
+.drop-down-item{
+    position: relative;
+    display: block;
+    margin: 1px 0;
+    cursor: pointer;
+}
+
+.drop-down-item:hover{
+    color: var(--Pink);
+}
+
+#studentList {
+    display: none;
+    border: 1px solid #ccc;
+    border-radius: 15px;
+    background-color: var(--LightBlue);
+}
+
+#studentList li {
+    padding: 5px;
+    cursor: pointer;
+}
+
+#studentList li:hover {
+    background-color: #f4f4f4;
+    display: flex;
+}
+
+.table-block{
+    width: 100%;
+    height: 60vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.drop-down-student-progress {
+    margin-top: 30px;
+    height: fit-content;
+    width: 100%;
+    background-color: var(--LightBlue);
+    flex-direction: column;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+input {
+    margin: 3vh;
+    border: 2px solid var(--DarkBlue);
+    text-align: center;
+    height: 35px;
+    width: 40%;
+}
+
+

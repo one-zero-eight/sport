@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ sport.name }} schedule{% endblock %}
+
+{% block extrahead %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/core/main.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/daygrid/main.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/timegrid/main.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css">
+    <link rel="stylesheet" href="{% static "sport/css/calendar.css" %}">
+    <script>
+        const sport_name = "{{ sport.name }}";
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/core/main.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/daygrid/main.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/timegrid/main.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+    <script src="{% static "sport/js/modules/networking.mjs" %}"></script>
+    <script src="{% static "sport/js/modules/calendar.mjs" %}"></script>
+    <script src="{% static "sport/js/modules/enrollment.mjs" %}"></script>
+    <script src="{% static "sport/js/modules/modals.mjs" %}"></script>
+    <script src="{% static "sport/js/calendar.js" %}"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <div class="card-body">
+            <div class="container-xl">
+                <h1 id="sport-badge"><span class="badge badge-dark text-uppercase">{{ sport.name }}</span></h1>
+                {% if not student.sport %}
+                    <button type="button" class="btn btn-danger w-100 mt-1"  id="choose-btn" data-toggle="modal" data-target="#submission">
+                        <strong>CHOOSE</strong>
+                    </button>
+                    <div class="modal fade" id="submission" tabindex="-1" aria-labelledby="submitModal" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="submitModalTitle">Submission</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"> <span aria-hidden="true">&times;</span></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>You are choosing <span class="badge badge-dark text-uppercase">{{ sport.name }}</span> as your
+                                sport type.</p>
+                                <p>Remember that <strong>it can't be changed</strong> during the semester.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-success" data-dismiss="modal" onclick="submit_sport_type()">Submit</button>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                {% elif sport.id == student.sport.id %}
+                    <h2 id="chosen-btn"><span class="badge badge-primary w-100">CHOSEN</span></h2>
+                {% endif %}
+                {% if not student.sport %}
+                    <div class="my-3">
+                        <div class="alert alert-danger" role="alert">
+                        <strong>Be careful!</strong> You can choose <strong>only one</strong> <span class="badge badge-dark">SPORT TYPE</span>
+                        for the whole semester. It also <strong>can't be changed</strong> during the semester.
+                        <hr>
+                        <p class="mb-0"><strong>To enroll to</strong> a <span class="badge badge-info">SPORT GROUP</span> you need to select
+                        the <span class="badge badge-dark">SPORT TYPE</span> first.</p>
+                        </div>
+                    </div>
+                {% elif sport.id == student.sport.id %}
+                    <div class="my-3">
+                        <div class="alert alert-success" role="alert">
+                            <h5 class="alert-heading">Remember!</h5>
+                            <p>In order to <strong>keep students distributed</strong> among <span class="badge badge-info">SPORT GROUPS</span>,
+                            it is advisable to <strong>attend the group you have chosen</strong> throughout the semester.</p>
+                            <hr>
+                            <p>However it is <strong>always possible to change</strong> the <span class="badge badge-info">SPORT GROUP</span> during the semester.</p>
+                        </div>
+                    </div>
+                {% endif %}
+                <hr>
+                <div id='calendar' data-sport={{ sport.id }}></div>
+                <div class="container">
+                    <div id="group-info-modal"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

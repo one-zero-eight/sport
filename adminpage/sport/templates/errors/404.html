@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}404{% endblock %}
+
+{%block extrahead %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.0/css/bootstrap.css">
+<link rel="stylesheet" href="{% static "sport/css/404.css" %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid landscape pl-0">
+    <div class="row fill">
+        <div class="col-6 no-float">
+            <img src="{% static "sport/images/errors/404.png" %}">
+        </div>
+        <div class="col-6 col-right">
+            <div class="header">
+                <h1 class="display-1 text-center hdr">404</h1>
+            </div>
+            <div class="body">
+                <p class="display-4 text-center msg">I am glad to see you here, but this page does not exist</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid portrait pl-0 pr-0">
+    <div class="col">
+        <div class="row justify-content-center">
+            <h1 class="display-1 text-center">404</h1>
+            <p class="display-4 text-center">I am glad to see you here, but this page does not exist</p>
+        </div>
+        <div class="row">
+            <img class="align-center" src="{% static "sport/images/errors/404.png" %}">
+        </div>
+    </div>
+</div>
+{% endblock %}

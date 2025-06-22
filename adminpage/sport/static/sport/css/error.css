@@ -1,0 +1,96 @@
+body {
+    overflow: hidden;
+}
+
+div.traceback {
+    border: none;
+    padding: 5px;
+    height: 40vh;
+    overflow: scroll;
+}
+
+details {
+    text-align: center;
+}
+
+summary {
+    font-size: 1.5rem;
+}
+
+@media only screen and (max-width: 992px) {
+    img {
+        display: block;
+        align: center;
+        width: 100%;
+        height: auto;
+    }
+
+    .landscape {
+        display: none;
+    }
+
+    .portrait {
+        display: block;
+    }
+}
+
+@media only screen and (min-width: 993px) {
+    html, body, .container-fluid {
+        height: 100%;
+    }
+
+    .container-fluid {
+        display: table-row;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .fill {
+        height: 100%;
+    }
+
+    .col-6 .no-float {
+        display: table-cell;
+        float: none;
+        position: relative;
+    }
+
+    img {
+        display: block;
+        width: 100%;
+        height: auto;
+        position: absolute;
+        bottom: 0;
+    }
+
+    .header {
+        display: flex;
+        position: absolute;
+        top: 0;
+        width: 100%;
+        height: 25%;
+        align-items: center;
+    }
+
+    .hdr {
+        width: 100%;
+    }
+
+    .body {
+        display: flex;
+        position: absolute;
+        top: 25%;
+        bottom: 25%;
+        width: 100%;
+        align-items: center;
+    }
+
+
+    .landscape {
+        display: block;
+    }
+
+    .portrait {
+        display: none;
+    }
+}

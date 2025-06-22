@@ -1,0 +1,48 @@
+
+@media (min-width: 768px) and (max-width: 1200px),(max-width: 14.5cm){
+    .child-coach-block {
+        width: 75%;
+        margin: 10px;
+    }
+
+    .first-coach-block {
+        margin-top: 100px;
+    }
+
+    .table-block {
+        height: 400px;
+    }
+    .first-coach-block{
+        height: 1200px;
+    }
+    .button{
+        width: 160px;
+        height: 80px;
+        margin: 15px;
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 767px) {
+    .child-coach-block {
+        width: 80%;
+        margin: 10px 0;
+    }
+
+    .first-coach-block {
+        margin-top: 90px;
+    }
+
+    .table-block {
+        height: 300px;
+    }
+    .first-coach-block{
+        height: 1000px;
+    }
+    .button{
+        width: 160px;
+        height: 80px;
+        margin: 15px;
+        font-size: 20px;
+    }
+}

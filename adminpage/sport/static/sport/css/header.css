@@ -1,0 +1,38 @@
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+header.head {
+    background-color: rgb(128, 188, 39);
+
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+
+    height: fit-content;
+    padding: 4px 0;
+}
+
+header img.head {
+    width: 50px;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+header a.head {
+    color: white;
+    font-size: 20px;
+}
+
+header div.head {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 20px;
+}
+
+@media screen and (min-width: 480px) {
+    header div > a:last-child {
+        margin-left: 24px;
+    }
+}

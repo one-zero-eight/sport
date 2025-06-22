@@ -1,0 +1,40 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %} {% endblock %}</title>
+    <link rel="stylesheet" href="{% static "sport/css/header.css" %}">
+    <script src="{% static "sport/js/header.js" %}"></script>
+    {% block extrahead %} {% endblock %}
+</head>
+<body>
+<header class="head">
+    <div>
+        <a class="head" href="/profile"><img class="head" src="{% static "sport/images/Inno.png" %}" alt="IU logo"></a>
+        {% if user.is_staff or user.is_superuser %}
+            <a href="{% url 'admin:index' %}" class="btn btn-outline-light">Admin panel</a>
+        {% endif %}
+        {% if user.is_staff %} <!-- Add good condition for teacher user-->
+            <a href="{% url 'fitness_test' %}" class="btn btn-outline-light">Fitness test</a>
+        {% endif %}
+        {% if user.is_staff %} <!-- Add good condition for teacher user-->
+            <a href="{% url 'analytics' %}" class="btn btn-outline-light">Analytics</a>
+        {% endif %}
+    </div>
+    <div>
+        {% if user.is_authenticated %}
+            <a class="head" href="/profile">{{ user.first_name }} {{ user.last_name }}</a>
+            <a href="{% url 'django_auth_adfs:logout' %}" class="btn btn-outline-light" id="logout-btn">Log out</a>
+        {% else %}
+            <a href="{% url 'django_auth_adfs:login' %}" class="btn btn-outline-light">Log in</a>
+        {% endif %}
+    </div>
+</header>
+
+{% block content %}
+{% endblock %}
+</body>
+
+</html>

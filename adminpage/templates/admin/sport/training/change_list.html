@@ -1,0 +1,26 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls %}
+{% block object-tools-items %}
+
+    {% if has_add_permission %}
+{#        <li>#}
+{#            <a href="{{ model.admin_url }}add-extra/" class="addlink">#}
+{#                {% blocktrans with cl.opts.verbose_name as name %}Add extra {{ name }}{% endblocktrans %}#}
+{#            </a>#}
+{#        </li>#}
+{##}
+{#        <li>#}
+{#            <a href="{{ model.admin_url }}add-extra-multi/" class="addlink">#}
+{#                {% blocktrans with cl.opts.verbose_name as name %}Add multiple extra {{ name }}s{% endblocktrans %}#}
+{#            </a>#}
+{#        </li>#}
+
+        <li>
+            {% url cl.opts|admin_urlname:'add' as add_url %}
+            <a href="{% add_preserved_filters add_url is_popup to_field %}" class="addlink">
+                {% blocktrans with cl.opts.verbose_name as name %}Add {{ name }}{% endblocktrans %}
+            </a>
+        </li>
+    {% endif %}
+
+{% endblock %}

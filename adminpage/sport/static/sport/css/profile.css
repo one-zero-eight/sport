@@ -1,0 +1,206 @@
+body.profile {
+    font-family: sans-serif;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #f0f0f0;
+}
+
+/*img.profile {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 50%;
+    width: 25%;
+    height: auto;
+}*/
+
+.studentHourField {
+    width: 50px;
+}
+
+.navbar-inverse {
+    background: #00802b;
+}
+
+.navbar-brand {
+    color: #ffffff;
+}
+
+.navbar-nav {
+    color: #ffffff;
+}
+
+/* z-index needs to be more than 1113 to be shown above tour-backdrop */
+.tooltip {
+    z-index: 2000;
+}
+
+.fc-title {
+    font-weight: bold;
+}
+
+.fc-event .fc-content {
+    color: #fff;
+}
+
+.fc-event-dot {
+    visibility: hidden;
+}
+
+.fc-time {
+    font-size: 0.78em;
+}
+
+.alert {
+    padding: 6px 12px; /* The same padding as buttons has */
+}
+
+.toast-top-center {
+    top: 12px;
+}
+
+.btn.disabled, .btn:disabled {
+    cursor: default;
+}
+
+/* z-index needs to be more than 1113 to be shown above tour-backdrop */
+#medical-group-info-modal {
+    z-index: 2000;
+}
+
+/* z-index needs to be more than 1113 to be shown above tour-backdrop */
+#group-info-modal {
+    z-index: 2000;
+}
+
+/* z-index needs to be more than 1113 to be shown above tour-backdrop */
+#grading-modal {
+    z-index: 2000;
+}
+
+/* z-index needs to be more than 1113 to be shown above tour-backdrop */
+#med-group-modal {
+    z-index: 2000;
+}
+
+/* z-index needs to be more than 1113 to be shown above tour-backdrop */
+#recovered-modal {
+    z-index: 2000;
+}
+
+a.help-link {
+    z-index: 1000;
+    cursor: pointer;
+    position: fixed;
+    bottom: 3%;
+    right: 3%;
+}
+
+/* Calendar */
+.fc-toolbar.fc-header-toolbar {
+    margin-bottom: 0;
+}
+
+.fc-list-item {
+    color: white;
+    font-weight: bold;
+}
+
+.faq {
+    margin: 0;
+}
+
+@media only screen and (max-width: 576px) {
+    .card {
+        margin: 1%;
+    }
+
+    .card-body {
+        padding-left: 1%;
+        padding-right: 1%;
+    }
+
+    .row {
+        margin-top: 1%;
+    }
+}
+
+@media only screen and (min-width: 577px) and (max-width: 768px) {
+    .card {
+        margin: 1% 10%;
+    }
+
+    .row {
+        margin-top: 1%;
+    }
+}
+
+@media only screen and (min-width: 769px) and (max-width: 992px) {
+    .card {
+        margin: 1% 10%;
+    }
+
+    .col-left {
+        text-align: right;
+    }
+
+    .col-right {
+        text-align: left;
+    }
+}
+
+@media only screen and (min-width: 993px) and (max-width: 1200px) {
+    .card {
+        margin: 1% 10%;
+    }
+
+    .col-left {
+        text-align: right;
+    }
+
+    .col-right {
+        text-align: left;
+    }
+}
+
+@media only screen and (min-width: 1201px) {
+    .card {
+        margin: 1% 20%;
+    }
+
+    .col-left {
+        text-align: right;
+    }
+
+    .col-right {
+        text-align: left;
+    }
+}
+
+@media only screen and (max-width: 992px) {
+    /* Hide student email and correct columns within trainers' table */
+    .trainer-table-width {
+        width: 100%;
+    }
+
+    .show-name-in-trainer-table {
+        display: table-cell;
+    }
+
+    .hide-name-in-trainer-table {
+        display: none;
+    }
+
+    .show-email-in-trainer-table {
+        display: table-cell;
+    }
+
+    .hide-email-in-trainer-table {
+        display: none;
+    }
+
+    .hours-in-trainer-table-right {
+        text-align: right;
+    }
+}

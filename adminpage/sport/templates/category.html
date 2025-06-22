@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sports{% endblock %} {# Sport type choose #}
+
+{% block extrahead %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.0/css/bootstrap-grid.min.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.0/css/bootstrap-reboot.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css">
+    <link rel="stylesheet" href="{% static "sport/css/bootstrap-tourist.css" %}">
+    <link rel="stylesheet" href="{% static "sport/css/category.css" %}">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+    <script src="{% static "sport/js/bootstrap-tourist.js" %}"></script>
+    <script src="{% static "sport/js/modules/networking.mjs" %}"></script>
+    <script src="{% static "sport/js/modules/enrollment.mjs" %}"></script>
+    <script src="{% static "sport/js/modules/modals.mjs" %}"></script>
+    <script src="{% static "sport/js/modules/tour.mjs" %}"></script>
+    <script src="{% static "sport/js/category.js" %}"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <div class="card-body">
+            <div class="container-xl">
+                <h1 class="mb-3">Sports & Clubs</h1>
+                {% if student_sport_group|length == 0 %}
+                    <div class="mb-3">
+                        <div class="alert alert-success" role="alert">
+                            To choose a <span class="badge badge-dark">SPORT TYPE</span> and
+                            enroll to a <span class="badge badge-info">SPORT GROUP</span>, <strong>see the schedule</strong>.
+                        </div>
+                    </div>
+                {% endif %}
+                {% if student.medical_group.id != -2 %}
+                    <div class="table-responsive-xl">
+                        <table class="table table-hover text-center">
+                            <thead>
+                            <tr>
+                                <th scope="col">Sport type | Club</th>
+                                <th scope="col" width=50%>Teacher(s)</th>
+                                <th scope="col">Free places</th>
+                                <th scope="col"># of sport groups</th>
+                                <th scope="col">Schedule</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for sport in sports %}
+                                <tr style="cursor: pointer" onclick="location.href='{% url "sport_schedule_calendar" sport.id %}'"
+                                {% if student.sport.id == sport.id %}class="table-primary"{% endif %}>
+                                    <th scope="row" class="align-middle">
+                                        <span class="badge badge-dark text-uppercase">
+                                        {{ sport.name }}
+                                        </span>
+                                    </th>
+                                    <td class="align-middle">
+                                        <div class="d-flex justify-content-center align-content-between flex-wrap">
+                                            {% if sport.trainers %}
+                                                {% for teacher in sport.trainers %}
+                                                     <span class="badge badge-pill badge-light my-1 mx-1">{{ teacher }}</span>
+                                                {% endfor %}
+                                            {% else %}
+                                                <span class="badge badge-warning">No teachers yet</span>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td class="align-middle">{{ sport.free_places }}</td>
+                                    <td class="align-middle">{{ sport.num_of_groups }}</td>
+                                    <td class="align-middle">
+                                        <a href="{% url "sport_schedule_calendar" sport.id %}" class="btn btn-outline-dark">
+                                            >
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            {% comment %} Row for Extra Sport Activities {% endcomment %}
+                                <tr style="cursor: pointer" onclick="location.href='{% url "extrasport_schedule_calendar" %}'"
+                                class="table-primary">
+                                    <th scope="row" class="align-middle">
+                                        <span class="badge badge-dark text-uppercase">
+                                        Extra Sport
+                                        </span>
+                                    </th>
+                                    <td class="align-middle">
+                                        <div class="d-flex justify-content-center align-content-between flex-wrap">
+                                        {% comment %} Need to change for iterating over groups without sport
+                                            {% if sport.trainers %}
+                                                {% for teacher in sport.trainers %}
+                                                     <span class="badge badge-pill badge-light my-1 mx-1">{{ teacher }}</span>
+                                                {% endfor %}
+                                            {% else %}
+                                                <span class="badge badge-warning">No teachers yet</span>
+                                            {% endif %} {% endcomment %}
+                                        </div>
+                                    </td>
+                                    <td class="align-middle">available</td>
+                                    <td class="align-middle"><!--{{ sport.num_of_groups }}--></td>
+                                    <td class="align-middle">
+                                        <a href="{% url "extrasport_schedule_calendar" %}" class="btn btn-outline-dark">
+                                            >
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                <div class="text-center">
+                    <h4><span class="badge badge-warning">No sport types are available</span></h4>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

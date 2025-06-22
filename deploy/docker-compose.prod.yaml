@@ -1,0 +1,99 @@
+name: sport
+
+services:
+  nginx:
+    # See more: https://registry.hub.docker.com/_/nginx
+    image: "nginx:1.27"
+    restart: always
+    ports: [ "80:80" ]
+    depends_on:
+      - adminpanel
+    volumes:
+      - "./nginx-conf/prod.conf:/etc/nginx/conf.d/default.conf:ro"
+      - "./nginx-logs:/var/log/nginx"
+      - "django-static:/static"
+      - "/sport/media:/media:ro"
+
+  adminpanel:
+    build: ../adminpage
+    restart: always
+    volumes:
+      - "django-auth-preserve:/opt/pysetup/.venv/lib/python3.12/site-packages/django/contrib/auth/migrations/"
+      - "django-static:/static"
+      - "/sport/media:/uploaded_media"
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+
+  db:
+    # See more: https://registry.hub.docker.com/_/postgres
+    image: "postgres:17.1-alpine"
+    restart: always
+    volumes:
+      - "db-data:/var/lib/postgresql/data"
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+  prometheus:
+    # See more: https://registry.hub.docker.com/r/prom/prometheus
+    image: "prom/prometheus:v2.55.1"
+    restart: always
+    volumes:
+      - "./prometheus:/etc/prometheus"
+      - "prometheus-data:/prometheus"
+    ports:
+      - "127.0.0.1:9090:9090"
+
+  prometheus-postgres:
+    # See more: https://github.com/prometheus-community/postgres_exporter
+    image: "quay.io/prometheuscommunity/postgres-exporter:v0.17.1"
+    restart: always
+    environment:
+      DATA_SOURCE_URI: "${POSTGRES_SERVER}:5432/${POSTGRES_DB}?sslmode=disable"
+      DATA_SOURCE_USER: "${POSTGRES_USER}"
+      DATA_SOURCE_PASS: "${POSTGRES_PASSWORD}"
+    ports:
+      - "127.0.0.1:9187:9187"
+    depends_on:
+      - db
+
+  grafana:
+    # See more: https://registry.hub.docker.com/r/grafana/grafana
+    image: "grafana/grafana:11.3.1"
+    restart: always
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      GF_SERVER_SERVE_FROM_SUB_PATH: "true"
+      GF_SERVER_ROOT_URL: "%(protocol)s://%(domain)s/grafana"
+      GF_AUTH_PROXY_ENABLED: "true"
+      GF_AUTH_PROXY_HEADER_NAME: "X-WEBAUTH-EMAIL"
+      GF_AUTH_PROXY_HEADER_PROPERTY: "email"
+      GF_AUTH_PROXY_HEADERS: "Name:X-WEBAUTH-NAME"
+      GF_AUTH_PROXY_AUTO_SIGN_UP: "true"
+      GF_AUTH_PROXY_SYNC_TTL: "0"
+    env_file:
+      - .env
+    volumes:
+      - "grafana-data:/var/lib/grafana"
+      - "./grafana-provisioning:/etc/grafana/provisioning/"
+
+
+volumes:
+  db-data:
+  django-static:
+  grafana-data:
+  prometheus-data:
+  # required to preserve change to django.contrib.auth.models.Group class.
+  # (verbose_name added)
+  # since Innopolis adfs provides groupsid as universal identifier
+  # (group - can be either in Russian or English)
+  django-auth-preserve:

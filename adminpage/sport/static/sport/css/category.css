@@ -1,0 +1,84 @@
+body {
+    background-color: #fff; /* Цвет фона веб-страницы */
+}
+
+a.help-link {
+    z-index: 1000;
+    cursor: pointer;
+    position: fixed;
+    bottom: 3%;
+    right: 3%;
+}
+
+/*
+    Properties for different screen sizes
+*/
+@media only screen and (max-width: 767px) {
+
+    h1 {
+        font-size: 150%;
+    }
+
+    .landscape {
+        display: none;
+    }
+
+    .portrait {
+        display: block;
+    }
+
+    .grid-container {
+        display: grid;
+        grid-template-columns: 1fr
+    }
+
+    .grid-item {
+        margin-bottom: 1rem;
+    }
+
+    .col {
+        margin-bottom: 1rem;
+    }
+
+}
+
+@media only screen and (min-width: 768px) and (max-width: 1200px) {
+
+    h1 {
+        font-size: 150%;
+    }
+
+    .card {
+        margin-top: 5%;
+    }
+
+    .landscape {
+        display: flex
+    }
+
+    .portrait {
+        display: none;
+    }
+
+    .grid-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+
+}
+
+@media only screen and (min-width: 1201px) {
+
+    .landscape {
+        display: flex;
+    }
+
+    .portrait {
+        display: none;
+    }
+
+    .grid-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+}
