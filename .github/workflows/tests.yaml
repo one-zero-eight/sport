@@ -23,6 +23,26 @@ jobs:
       - name: Run tests
         run: docker compose -f deploy/docker-compose.test.yaml exec -T adminpanel pytest
 
+      - name: Run flake8 linter
+        run: |
+          docker compose -f deploy/docker-compose.test.yaml exec -T adminpanel sh -c "flake8 . > linter-report.txt || true"
+          docker compose -f deploy/docker-compose.test.yaml cp adminpanel:/app/linter-report.txt ./linter-report.txt
+      - name: Run tests with coverage
+        run: |
+          docker compose -f deploy/docker-compose.test.yaml exec -T adminpanel sh -c "coverage run -m pytest && coverage html"
+          docker compose -f deploy/docker-compose.test.yaml cp -a adminpanel:/app/htmlcov ./htmlcov
+      - name: Upload linter report
+        uses: actions/upload-artifact@v3
+        with:
+          name: linter-report
+          path: linter-report.txt
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: htmlcov/
+
 #  cleanup:
 #    name: Cleanup test containers
 #    if: always()
