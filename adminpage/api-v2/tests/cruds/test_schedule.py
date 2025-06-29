@@ -8,9 +8,8 @@ from sport.models import Schedule, Training, MedicalGroups
 
 assertMembers = unittest.TestCase().assertCountEqual
 
-
 @pytest.mark.django_db
-@pytest.mark.freeze_time('2020-01-20 10:03')
+@pytest.mark.freeze_time('2025-01-20 10:03')
 def test_training_creation_on_schedule(
         semester_factory,
         sport_factory,

@@ -23,7 +23,7 @@ jobs:
       - name: Install and run flake8 linter
         run: |
           docker compose -f deploy/docker-compose.test.yaml exec -T adminpanel sh -c "pip install flake8 && flake8 . > linter-report.txt || true"
-          docker compose -f deploy/docker-compose.test.yaml cp adminpanel:/code/linter-report.txt ./linter-report.txt      
+          docker compose -f deploy/docker-compose.test.yaml cp adminpanel:/code/linter-report.txt ./linter-report.txt
       - name: Upload linter report
         uses: actions/upload-artifact@v4
         with:
@@ -32,12 +32,3 @@ jobs:
 
       - name: Run tests
         run: docker compose -f deploy/docker-compose.test.yaml exec -T adminpanel pytest
-
-#  cleanup:
-#    name: Cleanup test containers
-#    if: always()
-#    needs: run_tests
-#    runs-on: self-hosted
-#    steps:
-#      - name: Remove docker containers
-#        run: docker compose -f deploy/docker-compose.test.yaml down --volumes --rmi all
