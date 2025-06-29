@@ -135,7 +135,6 @@ def test_get_student_trainer_groups(
     student_groups = get_student_groups(student)
     trainer_groups = get_trainer_groups(trainer)
 
-    # FIXME: DEPRECATED!!!!!!!!!!!!
     assertMembers(student_groups, [
         {
             "id": c2.pk,
