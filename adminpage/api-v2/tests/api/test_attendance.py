@@ -13,10 +13,10 @@ from sport.models import Trainer, Training, Attendance
 
 User = get_user_model()
 assertMembers = unittest.TestCase().assertCountEqual
-before_training = datetime(2025, 1, 15, 17, 0, 0, tzinfo=timezone.utc)
-training_start = datetime(2025, 1, 15, 18, 0, 0, tzinfo=timezone.utc)
-during_training = datetime(2025, 1, 15, 19, 0, 0, tzinfo=timezone.utc)
-training_end = datetime(2025, 1, 15, 20, 0, 0, tzinfo=timezone.utc)
+before_training = datetime(2020, 1, 15, 17, 0, 0, tzinfo=timezone.utc)
+training_start = datetime(2020, 1, 15, 18, 0, 0, tzinfo=timezone.utc)
+during_training = datetime(2020, 1, 15, 19, 0, 0, tzinfo=timezone.utc)
+training_end = datetime(2020, 1, 15, 20, 0, 0, tzinfo=timezone.utc)
 long_after_training = training_start + settings.TRAINING_EDITABLE_INTERVAL + \
                       timedelta(hours=5)
 
@@ -34,8 +34,8 @@ def setup(
         student_factory,
         enroll_factory,
 ) -> Tuple[Training, Trainer, User]:
-    semester_start = date(2025, 1, 1)
-    semester_end = date(2025, 2, 20)
+    semester_start = date(2020, 1, 1)
+    semester_end = date(2020, 2, 20)
     sem = semester_factory(
         "S1",
         semester_start,
