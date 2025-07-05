@@ -30,5 +30,16 @@ jobs:
           name: linter-report
           path: linter-report.txt
 
+      - name: Install and run Vulture
+        run: |
+          docker compose -f deploy/docker-compose.test.yaml exec -T adminpanel sh -c "pip install vulture && vulture . > vulture-report.txt || true"
+          docker compose -f deploy/docker-compose.test.yaml cp adminpanel:/code/vulture-report.txt ./vulture-report.txt
+
+      - name: Upload Vulture report
+        uses: actions/upload-artifact@v4
+        with:
+          name: vulture-report
+          path: vulture-report.txt
+
       - name: Run tests
         run: docker compose -f deploy/docker-compose.test.yaml exec -T adminpanel pytest
