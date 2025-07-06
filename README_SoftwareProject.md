@@ -20,13 +20,21 @@ The work on the task started, but not completed and doesn't comply DoD
 
 # Build and deployment
 ## Continuous Integration
-Our CI pipeline consists of testing and static analysis tools for Python and React.js
+Our CI pipeline consists of testing and static analysis tools for Python and React.js \
+### Workflow files:
+- https://github.com/inno-sport-inh/backend/blob/main/.github/workflows/tests.yaml
+- https://github.com/inno-sport-inh/frontend/blob/main/.github/workflows/node.js.yml
+
+### Github actions pages:
+- https://github.com/inno-sport-inh/frontend/actions
+- https://github.com/inno-sport-inh/backend/actions
+  
 ### Static analysis tools:
 #### Python
-- flake8
-- vulture
+- flake8 (Code linter)
+- vulture (A python tool that finds unused code such as dead functions, classes, variables and imports.)
 #### React.js
-- github Super-Linter
+- github Super-Linter (Code linter)
 ### Testing tools:
 #### Python
 - pytest
@@ -47,6 +55,10 @@ Our CI pipeline consists of testing and static analysis tools for Python and Rea
 
 
 # Quality assurance
+## Automated tests
+We used **pytest** for python testing and **Jest** for React.js. \
+Unit tests and integration tests was implemented. They can be found here: \
+https://github.com/inno-sport-inh/backend/tree/main/adminpage/api-v2/tests
 ## User acceptance tests
 
 
