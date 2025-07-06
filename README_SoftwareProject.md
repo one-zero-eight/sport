@@ -60,5 +60,7 @@ We used **pytest** for python testing and **Jest** for React.js. \
 Unit tests and integration tests was implemented. They can be found here: \
 https://github.com/inno-sport-inh/backend/tree/main/adminpage/api-v2/tests
 ## User acceptance tests
+## Quality attribute scenarios
+https://github.com/inno-sport-inh/backend/blob/main/docs/quality-assurance/quality-attribute-scenarios.md
 
 
