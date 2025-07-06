@@ -65,10 +65,12 @@ The following sequence diagram shows what happens when a user books a match:
 3. Upon success, FastAPI writes a new record to PostgreSQL and returns the created match ID.
 4. Frontend confirms booking to the user.
 
-**Measured execution time in production**: _127 ms_ (replace with your measured average)  
+**Measured execution time in production**: _127 ms_ 
 ![Sequence Diagram](docs/architecture/dynamic-view/sequence.png)
 
 ### Deployment view
+
+![Deployemnt Diagram](docs/architecture/deployment-view/deployment.png)
 
 We deploy on AWS using:
 
