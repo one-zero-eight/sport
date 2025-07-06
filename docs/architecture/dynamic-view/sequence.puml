@@ -1,0 +1,16 @@
+@startuml
+actor User
+participant FE as "React App"
+participant API as "FastAPI"
+participant Auth as "Auth Service"
+participant DB as "PostgreSQL"
+
+User -> FE : Click “Book Match”
+FE -> API : POST /matches {payload}
+API -> Auth : validate(token)
+Auth --> API : 200 OK
+API -> DB : INSERT match record
+DB --> API : success
+API --> FE : 201 Created + matchId
+FE --> User : show confirmation
+@enduml
