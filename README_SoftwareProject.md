@@ -1,64 +1,70 @@
-# Development
-## Kanban board
+# InnoSport site backend (API-V2)
+
+## Development
+
+### Kanban board
 https://github.com/orgs/inno-sport-inh/projects/1
-### Entry criterias:
-#### Todo
-The task was planned, but not started
-#### In Progress
-The work on the task started, but not completed and doesn't comply DoD
-#### Done
-- Code is written and committed to the github
-- Code is approved by another members (or at least 1)
-- No critical bugs
-- Task is moved to the "Done" section in the kanban board
-- Acceptance criteria is completed
-## Git workflow
 
-## Secrets management
+| **Column**     | **Emtry criteria** |
+| -------------- | ------------------ |
+| Todo           | The task was planned, but not started |
+| In Progress    | The work on the task started, but not completed and doesn't comply DoD |
+| Done           | - Code is written and committed to the GitHub<br>- Code is approved by another members (or at least 1)<br>- No critical bugs<br>- Task is moved to the "Done" section in the kanban board<br>- Acceptance criteria is completed |
 
+### Git workflow
+TODO
 
+### Secrets management
+TODO
 
-# Build and deployment
-## Continuous Integration
-Our CI pipeline consists of testing and static analysis tools for Python and React.js \
-### Workflow files:
+## Quality assurance
+
+### Quality attribute scenarios
+https://github.com/inno-sport-inh/backend/blob/main/docs/quality-assurance/quality-attribute-scenarios.md
+
+### Automated tests
+Unit tests and integration tests was implemented. They can be found [here](https://github.com/inno-sport-inh/backend/tree/main/adminpage/api-v2/tests).
+
+### User acceptance tests
+The user acceptance tests can be found [here](https://github.com/inno-sport-inh/backend/blob/main/docs/quality-assurance/user-acceptance-tests.md).
+
+## Build and deployment
+
+### Continuous Integration
+Our CI pipeline consists of testing and static analysis tools for Python and React.js
+
+#### Workflow files
 - https://github.com/inno-sport-inh/backend/blob/main/.github/workflows/tests.yaml
 - https://github.com/inno-sport-inh/frontend/blob/main/.github/workflows/node.js.yml
 
-### Github actions pages:
+### Github actions pages
 - https://github.com/inno-sport-inh/frontend/actions
 - https://github.com/inno-sport-inh/backend/actions
   
-### Static analysis tools:
-#### Python
-- flake8 (Code linter)
-- vulture (A python tool that finds unused code such as dead functions, classes, variables and imports.)
-#### React.js
-- github Super-Linter (Code linter)
-### Testing tools:
-#### Python
-- pytest
-#### React.js
-- Jest
+### Static analysis tools
+- Python — [`flake8`](https://github.com/PyCQA/flake8), [`vulture`](https://github.com/jendrikseipp/vulture)
+- React.js — [`super-linter`](https://github.com/super-linter/super-linter)
+
+### Testing tools
+- Python — [`pytest`](https://github.com/pytest-dev/pytest)
+- React.js — [`jest`](https://github.com/jestjs/jest)
 
 ## Architecture
 
 ### Static view
-
+![Component Diagram](docs/architecture/static-view/component.png) \
 We organize our code into three main layers—**React frontend**, **FastAPI backend**, and **PostgreSQL**—each in its own module.
-
--   **Coupling**:
-    -   Frontend ↔ API: loose coupling via HTTP/REST or GraphQL, so you can swap out backend implementations without touching UI code.
-    -   API ↔ DB: well-defined repository layer isolates SQL queries, minimizing ripple effects from schema changes.
--   **Cohesion**:
-    -   Each module has a single responsibility (UI, business logic, data storage), which simplifies both development and testing.
--   **Maintainability**:
-    -   Clear separation of concerns and modular structure make it easy to onboard new developers, write unit tests per component, and refactor services independently.  
-        ![Component Diagram](docs/architecture/static-view/component.png)
+- **Coupling**:
+    - Frontend ↔ API: loose coupling via HTTP/REST or GraphQL, so you can swap out backend implementations without touching UI code.
+    - API ↔ DB: well-defined repository layer isolates SQL queries, minimizing ripple effects from schema changes.
+-  **Cohesion**:
+    - Each module has a single responsibility (UI, business logic, data storage), which simplifies both development and testing.
+- **Maintainability**:
+    - Clear separation of concerns and modular structure make it easy to onboard new developers, write unit tests per component, and refactor services independently.  
 
 ### Dynamic view
-
-The following sequence diagram shows what happens when a user books a match:
+![Sequence Diagram](docs/architecture/dynamic-view/sequence.png) \
+The above sequence diagram shows what happens when a user books a match:
 
 1. User clicks “Book Match” in the frontend.
 2. Frontend sends a POST to FastAPI, which first calls the Auth service to validate the token.
@@ -66,7 +72,6 @@ The following sequence diagram shows what happens when a user books a match:
 4. Frontend confirms booking to the user.
 
 **Measured execution time in production**: _127 ms_ 
-![Sequence Diagram](docs/architecture/dynamic-view/sequence.png)
 
 ### Deployment view
 
@@ -87,16 +92,11 @@ We deploy on AWS using:
 This setup lets the customer spin up the entire stack via our Terraform module in their own AWS account—only configuration values (VPC IDs, domain names, secrets) need to be provided.
 
 # Usage
+TODO
 
 
 
-# Quality assurance
-## Automated tests
-We used **pytest** for python testing and **Jest** for React.js. \
-Unit tests and integration tests was implemented. They can be found here: \
-https://github.com/inno-sport-inh/backend/tree/main/adminpage/api-v2/tests
-## User acceptance tests
-## Quality attribute scenarios
-https://github.com/inno-sport-inh/backend/blob/main/docs/quality-assurance/quality-attribute-scenarios.md
+
+
 
 
