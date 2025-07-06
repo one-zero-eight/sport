@@ -52,8 +52,10 @@ Our CI pipeline consists of testing and static analysis tools for Python and Rea
 ## Architecture
 
 ### Static view
-![Component Diagram](docs/architecture/static-view/component.png) \
-We organize our code into three main layers—**React frontend**, **FastAPI backend**, and **PostgreSQL**—each in its own module.
+
+![Component Diagram](docs/architecture/static-view/component.png) 
+
+We organize our code into three main layers — **React frontend**, **FastAPI backend**, and **PostgreSQL** — each in its own module.
 - **Coupling**:
     - Frontend ↔ API: loose coupling via HTTP/REST or GraphQL, so you can swap out backend implementations without touching UI code.
     - API ↔ DB: well-defined repository layer isolates SQL queries, minimizing ripple effects from schema changes.
@@ -63,7 +65,9 @@ We organize our code into three main layers—**React frontend**, **FastAPI back
     - Clear separation of concerns and modular structure make it easy to onboard new developers, write unit tests per component, and refactor services independently.  
 
 ### Dynamic view
-![Sequence Diagram](docs/architecture/dynamic-view/sequence.png) \
+
+![Sequence Diagram](docs/architecture/dynamic-view/sequence.png)
+
 The above sequence diagram shows what happens when a user books a match:
 
 1. User clicks “Book Match” in the frontend.
@@ -91,8 +95,44 @@ We deploy on AWS using:
 
 This setup lets the customer spin up the entire stack via our Terraform module in their own AWS account—only configuration values (VPC IDs, domain names, secrets) need to be provided.
 
-# Usage
-TODO
+## Usage
+
+1. Install [Python 3.12](https://www.python.org/downloads/), [Poetry](https://python-poetry.org/docs/),
+   [Docker](https://docs.docker.com/engine/install/)
+2. Install project dependencies with [Poetry](https://python-poetry.org/docs/cli/#options-2).
+   ```bash
+   cd adminpage
+   poetry install
+   ```
+3. Copy environment variables: `cp deploy/.env.example deploy/.env` (leave default values in development)
+4. Start services: `docker compose -f ./deploy/docker-compose.yaml up --build`
+5. Make migrations and create superuser:
+   - Enter shell: `docker compose -f ./deploy/docker-compose.yaml exec -it adminpanel bash`
+   - Autocreate migration files: `python3 manage.py makemigrations`
+   - Apply migrations to db: `python3 manage.py migrate`
+     > If there are problems with migrations applying, try to run the same migrate command with `--fake` option.
+   - Create a new superuser: `python3 manage.py createsuperuser`
+6. View Admin panel at http://localhost/admin and Swagger at http://localhost/api/swagger
+
+> [!NOTE]
+> Server supports auto-reload on code change in debug mode
+
+### Commands
+
+- Dump database
+  ```bash
+  docker compose -f ./deploy/docker-compose.yaml exec -t db pg_dumpall -c -U user > ./sport_dump.sql
+  ```
+- Drop database (**dangerous!**)
+  ```bash
+  docker compose -f ./deploy/docker-compose.yaml down
+  # Dangerous!!! - immediately removes all database data
+  docker volume rm sport_db-data
+  ```
+- Setup database from dump and apply migrations
+  ```bash
+  sh scripts/setup_sport_database.sh ./sport_dump.sql
+  ```
 
 
 
