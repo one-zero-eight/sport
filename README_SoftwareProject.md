@@ -19,6 +19,38 @@ Students can stay updated on their progress and discover new ways to stay active
 **Admin users** have full control over the system, including managing semesters, clubs, trainings, and user data.  
 The goal is to streamline sports participation and management in one powerful platform.
 
+## Project Context Diagram
+
+This diagram shows the high-level context of the project, including key stakeholders and external systems interacting with the core application.
+
+```mermaid
+graph TB
+    subgraph Stakeholders
+        A[Sport website administrator]
+        B[Students]
+        C[Trainers]
+    end
+
+    subgraph External Systems
+        SSO[University SSO Provider]
+        Mail[University Email Server]
+    end
+
+    subgraph Core System
+        CSWS[Website for students]
+        CSACP[Admin control page]
+    end
+
+    A --> CSWS
+    B --> CSWS
+    C --> CSWS
+    A --> CSACP
+
+
+    CSWS --> SSO
+    CSWS --> Mail
+    CSACP --> Mail
+```
 
 ## Development
 
