@@ -1,5 +1,7 @@
 # InnoSport site backend (API-V2)
 
+![Logo](docs/logo-CcwA-A2S.svg)
+
 ## Demo video
 https://disk.yandex.ru/i/WlsXpBPXi6LQyA
 
