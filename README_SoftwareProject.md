@@ -1,5 +1,23 @@
 # InnoSport site backend (API-V2)
 
+## Demo video
+https://disk.yandex.ru/i/WlsXpBPXi6LQyA
+
+## Current website state preview
+https://frontend-prod-eta.vercel.app
+
+---
+
+## Project Goals and Description
+
+This university sports website - **InnoSport** helps students easily check in, explore available sports clubs, and track their completed sport hours.  
+It's designed to promote engagement in physical activities through a clean and user-friendly interface.  
+Students can stay updated on their progress and discover new ways to stay active.  
+
+**Admin users** have full control over the system, including managing semesters, clubs, trainings, and user data.  
+The goal is to streamline sports participation and management in one powerful platform.
+
+
 ## Development
 
 ### Kanban board
