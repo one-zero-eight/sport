@@ -3,7 +3,9 @@
 ## Development
 
 ### Kanban board
-https://github.com/orgs/inno-sport-inh/projects/1
+Kanban board can be found [here](https://github.com/orgs/inno-sport-inh/projects/1).
+
+The table below documents an entry criteria for each column on kanban board.
 
 | **Column**     | **Emtry criteria** |
 | -------------- | ------------------ |
@@ -15,7 +17,7 @@ https://github.com/orgs/inno-sport-inh/projects/1
 TODO
 
 ### Secrets management
-TODO
+
 
 ## Quality assurance
 
