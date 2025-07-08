@@ -1,4 +1,4 @@
-# InnoSport site backend (API-V2)
+# InnoSport Site (API-V2)
 
 ![Logo](docs/logo-CcwA-A2S.svg)
 
