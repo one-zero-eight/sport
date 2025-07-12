@@ -39,6 +39,13 @@ def get_student_info(request, **kwargs):
     return Response(serializer.data)
 
 
+@extend_schema(
+    methods=["POST"],
+    request=None,
+    responses={
+        status.HTTP_200_OK: HasQRSerializer,
+    }
+)
 
 
 @extend_schema(

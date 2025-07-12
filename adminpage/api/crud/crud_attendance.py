@@ -151,7 +151,6 @@ def mark_hours(training: Training, student_hours: Iterable[Tuple[int, float]]):
 
 
 
-
 class SemesterHours(TypedDict):
     id_sem: int
     hours_not_self: float
