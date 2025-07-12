@@ -1,0 +1,24 @@
+2025/07/12 12:28:33 [notice] 1#1: using the "epoll" event method
+2025/07/12 12:28:33 [notice] 1#1: nginx/1.27.5
+2025/07/12 12:28:33 [notice] 1#1: built by gcc 12.2.0 (Debian 12.2.0-14) 
+2025/07/12 12:28:33 [notice] 1#1: OS: Linux 6.11.0-29-generic
+2025/07/12 12:28:33 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1024:524288
+2025/07/12 12:28:33 [notice] 1#1: start worker processes
+2025/07/12 12:28:33 [notice] 1#1: start worker process 21
+2025/07/12 12:28:33 [notice] 1#1: start worker process 22
+2025/07/12 12:28:33 [notice] 1#1: start worker process 23
+2025/07/12 12:28:33 [notice] 1#1: start worker process 24
+2025/07/12 12:28:33 [notice] 1#1: start worker process 25
+2025/07/12 12:28:33 [notice] 1#1: start worker process 26
+2025/07/12 12:28:33 [notice] 1#1: start worker process 27
+2025/07/12 12:28:33 [notice] 1#1: start worker process 28
+2025/07/12 12:28:33 [notice] 1#1: start worker process 29
+2025/07/12 12:28:33 [notice] 1#1: start worker process 30
+2025/07/12 12:28:33 [notice] 1#1: start worker process 31
+2025/07/12 12:28:33 [notice] 1#1: start worker process 32
+2025/07/12 12:28:33 [notice] 1#1: start worker process 33
+2025/07/12 12:28:33 [notice] 1#1: start worker process 34
+2025/07/12 12:28:33 [notice] 1#1: start worker process 35
+2025/07/12 12:28:33 [notice] 1#1: start worker process 36
+2025/07/12 12:32:15 [error] 23#23: *8 open() "/static/favicon.ico" failed (2: No such file or directory), client: 172.18.0.1, server: , request: "GET /favicon.ico HTTP/1.1", host: "localhost", referrer: "http://localhost/admin/login/?next=/admin/"
+2025/07/12 12:32:21 [error] 25#25: *14 open() "/static/favicon.ico" failed (2: No such file or directory), client: 172.18.0.1, server: , request: "GET /favicon.ico HTTP/1.1", host: "localhost", referrer: "http://localhost/admin/"

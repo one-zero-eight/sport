@@ -39,23 +39,6 @@ def get_student_info(request, **kwargs):
     return Response(serializer.data)
 
 
-@extend_schema(
-    methods=["POST"],
-    request=None,
-    responses={
-        status.HTTP_200_OK: HasQRSerializer,
-    }
-)
-@api_view(["POST"])
-@permission_classes([IsStudent])
-def toggle_QR_presence(request, **kwargs):
-    """
-    Toggles has_QR status
-    """
-    student = request.user.student
-    toggle_has_QR(student)
-    serializer = HasQRSerializer(student)
-    return Response(serializer.data)
 
 
 @extend_schema(

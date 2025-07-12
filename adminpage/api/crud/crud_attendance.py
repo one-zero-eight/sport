@@ -150,12 +150,6 @@ def mark_hours(training: Training, student_hours: Iterable[Tuple[int, float]]):
                            f'WHERE  (student_id, training_id) IN ({args_del_str.decode()})')
 
 
-def toggle_has_QR(student: Student):
-    """
-    Toggles student's QR presence
-    """
-    student.has_QR = not student.has_QR
-    student.save()
 
 
 class SemesterHours(TypedDict):
