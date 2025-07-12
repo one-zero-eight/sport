@@ -183,7 +183,7 @@
                                 <div class="progress-bar bg-light text-info" id="bar-text-sport" style="width: 100%; height: 2rem; flex-direction: row; gap: 2px; align-items: center"><b>Sport group</b> <span></span></div>
                             {% endif %}
                         </div>
-                        <div class="progress mb-3" style="width: 100%; height: 2rem">
+                        <div class="progress mb-3" style="position: relative; width: 100%; height: 2rem">
                             {% if student.is_online %}
                                 <div class="progress-bar bg-primary" id="subbar-self-on" style="width: calc({{student.all_hours.hours_self_not_debt}}% * 100 / {{student.all_hours.hours_sem_max}});height: 2rem;">
                                     {{student.all_hours.hours_self_not_debt}}h
