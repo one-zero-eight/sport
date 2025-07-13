@@ -120,13 +120,13 @@ https://github.com/inno-sport-inh/backend/blob/main/docs/quality-assurance/quali
 
 ## Quality assurance
 ### Automated tests
-[CONTRIBUTING.md](docs/quality-assurance/quality-attribute-scenarios.md)
+[automated-tests.md](docs/quality-assurance/automated-tests.md)
 
 ### User acceptance tests
-[CONTRIBUTING.md](docs/quality-assurance/user-acceptance-tests.md)
+[user-acceptance-tests.md](docs/quality-assurance/user-acceptance-tests.md)
 
 ## Build and deployment automation
-https://github.com/inno-sport-inh/backend/blob/main/docs/automation/continuous-integration.md
+[continuous-integration.md](docs/automation/continuous-integration.md)
 
 ## License
 ...
