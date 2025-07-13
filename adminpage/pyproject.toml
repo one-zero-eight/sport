@@ -27,7 +27,7 @@ django-tinymce = "^4.1.0"
 djangorestframework-stubs = "^3.15.3"
 drf-spectacular = {extras = ["sidecar"], version = "^0.28.0"}
 openpyxl = "^3.1.5"
-pillow = "9.5.0"
+pillow = ">=10.0.0"
 psycopg2-binary = "^2.9.10"
 pyjwt = "2.4.0"
 pytest = "^8.3.3"
