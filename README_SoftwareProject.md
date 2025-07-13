@@ -26,7 +26,6 @@ The goal is to streamline sports participation and management in one powerful pl
 
 ### Roadmap
 
-ChatGPT said:
 - [ ] Add additional functionality to the frontend
 
 - [ ] Clean up the backend by removing outdated functions
