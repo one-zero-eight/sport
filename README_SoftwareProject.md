@@ -115,8 +115,18 @@ This is an example of how you may give instructions on setting up your project l
 ## Development
 [CONTRIBUTING.md](CONTRIBUTING.md)
 
-## Contributing
-...
+## Quality characteristics and quality attribute scenarios
+https://github.com/inno-sport-inh/backend/blob/main/docs/quality-assurance/quality-attribute-scenarios.md
+
+## Quality assurance
+### Automated tests
+Unit tests and integration tests was implemented. They can be found [here](https://github.com/inno-sport-inh/backend/tree/main/adminpage/api-v2/tests).
+
+### User acceptance tests
+The user acceptance tests can be found [here](https://github.com/inno-sport-inh/backend/blob/main/docs/quality-assurance/user-acceptance-tests.md).
+
+## Build and deployment automation
+https://github.com/inno-sport-inh/backend/blob/main/docs/automation/continuous-integration.md
 
 ## License
 ...
