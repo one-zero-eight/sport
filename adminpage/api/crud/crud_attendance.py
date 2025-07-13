@@ -274,3 +274,73 @@ def better_than(student_id):
                       complex_hours__lt=student_hours).count()
 
     return round(worse / (all - 1) * 100, 1)
+
+
+def get_student_semester_history(student: Student):
+    """
+    Get student's semester history with attended trainings since enrollment
+    """
+    from sport.models import Semester, Attendance, Training
+    from django.db.models import Q, F, Sum, Case, When, Value
+    from django.db.models.fields import CharField, DateTimeField
+    
+    # Get all semesters since student enrollment
+    semesters = Semester.objects.filter(
+        start__year__gte=student.enrollment_year
+    ).exclude(
+        # Skip semester if it matches the enrollment_year but Spring (semester before august)
+        Q(start__year=student.enrollment_year) & Q(start__month__lte=7)
+    ).order_by('start')
+    
+    result = []
+    
+    for semester in semesters:
+        # Get all attendances for this semester
+        attendances = Attendance.objects.filter(
+            student=student,
+            training__group__semester=semester
+        ).select_related(
+            'training',
+            'training__group',
+            'training__group__sport',
+            'training__training_class'
+        ).annotate(
+            training_date=F('training__start'),
+            group_name=F('training__group__name'),
+            sport_name=F('training__group__sport__name'),
+            training_class_name=F('training__training_class__name'),
+            custom_name=F('training__custom_name')
+        ).order_by('training__start')
+        
+        # Calculate total hours for this semester
+        total_hours = attendances.aggregate(
+            total=Sum('hours')
+        )['total'] or 0
+        
+        # Format training data
+        trainings = []
+        for attendance in attendances:
+            training_info = {
+                'training_id': attendance.training.id,
+                'date': attendance.training_date.strftime('%Y-%m-%d'),
+                'time': attendance.training_date.strftime('%H:%M'),
+                'hours': attendance.hours,
+                'group_name': attendance.group_name,
+                'sport_name': attendance.sport_name,
+                'training_class': attendance.training_class_name or '',
+                'custom_name': attendance.custom_name or ''
+            }
+            trainings.append(training_info)
+        
+        semester_data = {
+            'semester_id': semester.id,
+            'semester_name': semester.name,
+            'semester_start': semester.start.strftime('%Y-%m-%d'),
+            'semester_end': semester.end.strftime('%Y-%m-%d'),
+            'required_hours': semester.hours,
+            'total_hours': total_hours,
+            'trainings': trainings
+        }
+        result.append(semester_data)
+    
+    return result

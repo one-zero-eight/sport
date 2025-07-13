@@ -6,7 +6,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
 from api.crud.crud_attendance import (
-    get_detailed_hours, get_detailed_hours_and_self, get_student_hours
+    get_detailed_hours, get_detailed_hours_and_self, get_student_hours,
+    get_student_semester_history
 )
 from api.permissions import (
     IsStudent, IsStaff,
@@ -18,6 +19,7 @@ from api.serializers import (
 )
 from api.serializers.profile import GenderSerializer
 from api.serializers.student import StudentSerializer
+from api.serializers.profile import SemesterHistorySerializer
 from sport.models import Semester, Student, Group
 
 
@@ -150,3 +152,23 @@ def get_history_with_self(request, semester_id: int, **kwargs):
             get_detailed_hours_and_self(student, semester)
         ))
     )
+
+
+@extend_schema(
+    methods=["GET"],
+    tags=["Profile"],
+    summary="Get student semester history",
+    description="Retrieve student's semester history with attended trainings since enrollment. Returns all semesters with trainings, dates, and hours earned.",
+    responses={
+        status.HTTP_200_OK: SemesterHistorySerializer(many=True),
+    }
+)
+@api_view(["GET"])
+@permission_classes([IsStudent])
+def get_student_semester_history_view(request, **kwargs):
+    """
+    Get student's semester history with attended trainings since enrollment
+    """
+    student: Student = request.user.student
+    history = get_student_semester_history(student)
+    return Response(history)
