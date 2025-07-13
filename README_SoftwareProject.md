@@ -15,11 +15,14 @@
 </div>
 
 ## About The Project
-...
+### Project Goals and Description
 
-### Goals
-- ...
-- ...
+This university sports website - **InnoSport** helps students easily check in, explore available sports clubs, and track their completed sport hours.  
+It's designed to promote engagement in physical activities through a clean and user-friendly interface.  
+Students can stay updated on their progress and discover new ways to stay active.  
+
+**Admin users** have full control over the system, including managing semesters, clubs, trainings, and user data.  
+The goal is to streamline sports participation and management in one powerful platform.
 
 ### Roadmap
 
@@ -70,7 +73,43 @@ This is an example of how you may give instructions on setting up your project l
 ...
 
 ### Usage
-...
+
+1. Install [Python 3.12](https://www.python.org/downloads/), [Poetry](https://python-poetry.org/docs/),
+   [Docker](https://docs.docker.com/engine/install/)
+2. Install project dependencies with [Poetry](https://python-poetry.org/docs/cli/#options-2).
+   ```bash
+   cd adminpage
+   poetry install
+   ```
+3. Copy environment variables: `cp deploy/.env.example deploy/.env` (leave default values in development)
+4. Start services: `docker compose -f ./deploy/docker-compose.yaml up --build`
+5. Make migrations and create superuser:
+   - Enter shell: `docker compose -f ./deploy/docker-compose.yaml exec -it adminpanel bash`
+   - Autocreate migration files: `python3 manage.py makemigrations`
+   - Apply migrations to db: `python3 manage.py migrate`
+     > If there are problems with migrations applying, try to run the same migrate command with `--fake` option.
+   - Create a new superuser: `python3 manage.py createsuperuser`
+6. View Admin panel at http://localhost/admin and Swagger at http://localhost/api/swagger
+
+#### Commands
+
+- Dump database
+  ```bash
+  docker compose -f ./deploy/docker-compose.yaml exec -t db pg_dumpall -c -U user > ./sport_dump.sql
+  ```
+- Drop database (**dangerous!**)
+  ```bash
+  docker compose -f ./deploy/docker-compose.yaml down
+  # Dangerous!!! - immediately removes all database data
+  docker volume rm sport_db-data
+  ```
+- Setup database from dump and apply migrations
+  ```bash
+  sh scripts/setup_sport_database.sh ./sport_dump.sql
+  ```
+
+> [!NOTE]
+> Server supports auto-reload on code change in debug mode
 
 ## Contributing
 ...
