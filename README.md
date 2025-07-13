@@ -1,13 +1,181 @@
-# InnoSport website
+# InnoSport Site (API-V2)
 
-[![Tests](https://github.com/one-zero-eight/sport/actions/workflows/tests.yaml/badge.svg)](https://github.com/one-zero-eight/sport/actions/workflows/tests.yaml)
-[![Production deploy](https://github.com/one-zero-eight/sport/actions/workflows/deploy_production.yaml/badge.svg)](https://github.com/one-zero-eight/sport/actions/workflows/deploy_production.yaml)
+![Logo](docs/logo-CcwA-A2S.svg)
 
-The platform for conducting, tracking and checking students' sports activity at Innopolis University.
+## Demo video
+https://disk.yandex.ru/i/WlsXpBPXi6LQyA
+
+## Current website state preview
+https://frontend-prod-eta.vercel.app
+
+---
+
+## Project Goals and Description
+
+This university sports website - **InnoSport** helps students easily check in, explore available sports clubs, and track their completed sport hours.  
+It's designed to promote engagement in physical activities through a clean and user-friendly interface.  
+Students can stay updated on their progress and discover new ways to stay active.  
+
+**Admin users** have full control over the system, including managing semesters, clubs, trainings, and user data.  
+The goal is to streamline sports participation and management in one powerful platform.
+
+## Project Context Diagram
+
+This diagram shows the high-level context of the project, including key stakeholders and external systems interacting with the core application.
+
+```mermaid
+graph TB
+    subgraph Stakeholders
+        A[Sport website administrator]
+        B[Students]
+        C[Trainers]
+    end
+
+    subgraph External Systems
+        SSO[University SSO Provider]
+        Mail[University Email Server]
+    end
+
+    subgraph Core System
+        CSWS[Website for students]
+        CSACP[Admin control page]
+    end
+
+    A --> CSWS
+    B --> CSWS
+    C --> CSWS
+    A --> CSACP
+
+
+    CSWS --> SSO
+    CSWS --> Mail
+    CSACP --> Mail
+```
 
 ## Development
 
-### Set up for development
+### Kanban board
+Kanban board can be found [here](https://github.com/orgs/inno-sport-inh/projects/1).
+
+The table below documents an entry criteria for each column on kanban board.
+
+| **Column**     | **Emtry criteria** |
+| -------------- | ------------------ |
+| Todo           | The task was planned, but not started |
+| In Progress    | The work on the task started, but not completed and doesn't comply DoD |
+| Done           | - Code is written and committed to the GitHub<br>- Code is approved by another members (or at least 1)<br>- No critical bugs<br>- Task is moved to the "Done" section in the kanban board<br>- Acceptance criteria is completed |
+
+### Git workflow
+This project follows a structured Git workflow based on **GitHub Flow**, designed to support effective collaboration and high code quality.
+
+---
+#### Rules & Conventions
+##### Creating Issues
+Issues are created using predefined templates.  
+See templates in: [`.github/ISSUE_TEMPLATE/`](.github/ISSUE_TEMPLATE/)
+
+##### Labelling Issues
+Issues are labelled using the following tags:
+- `bug` – For bugs and unexpected behavior
+- `enhancement` – New features or improvements
+- `question` – General questions or clarifications
+- `documentation` – Docs-related tasks
+- `help wanted` – Community or team assistance needed
+
+##### Assigning Issues
+Issues should be assigned to relevant team members responsible for implementation or resolution.
+
+##### Branching Strategy
+Branches are created based on issue types:
+- Feature: `feature/<issue-number>-short-description`
+- Bugfix: `bugfix/<issue-number>-short-description`
+- Hotfix: `hotfix/<issue-number>-short-description`
+
+All work is done in branches and merged into the `main` branch via Pull Requests.
+
+##### Commit Message Format
+Commit messages follow the [Conventional Commits](https://www.conventionalcommits.org/) specification:
+
+
+## Quality assurance
+
+### Quality attribute scenarios
+https://github.com/inno-sport-inh/backend/blob/main/docs/quality-assurance/quality-attribute-scenarios.md
+
+### Automated tests
+Unit tests and integration tests was implemented. They can be found [here](https://github.com/inno-sport-inh/backend/tree/main/adminpage/api-v2/tests).
+
+### User acceptance tests
+The user acceptance tests can be found [here](https://github.com/inno-sport-inh/backend/blob/main/docs/quality-assurance/user-acceptance-tests.md).
+
+## Build and deployment
+
+### Continuous Integration
+Our CI pipeline consists of testing and static analysis tools for Python and React.js
+
+#### Workflow files
+- https://github.com/inno-sport-inh/backend/blob/main/.github/workflows/tests.yaml
+- https://github.com/inno-sport-inh/frontend/blob/main/.github/workflows/node.js.yml
+
+### Github actions pages
+- https://github.com/inno-sport-inh/frontend/actions
+- https://github.com/inno-sport-inh/backend/actions
+  
+### Static analysis tools
+- Python — [`flake8`](https://github.com/PyCQA/flake8), [`vulture`](https://github.com/jendrikseipp/vulture)
+- React.js — [`super-linter`](https://github.com/super-linter/super-linter)
+
+### Testing tools
+- Python — [`pytest`](https://github.com/pytest-dev/pytest)
+- React.js — [`jest`](https://github.com/jestjs/jest)
+
+## Architecture
+
+### Static view
+
+![Component Diagram](docs/architecture/static-view/component.png) 
+
+We organize our code into three main layers — **React frontend**, **FastAPI backend**, and **PostgreSQL** — each in its own module.
+- **Coupling**:
+    - Frontend ↔ API: loose coupling via HTTP/REST or GraphQL, so you can swap out backend implementations without touching UI code.
+    - API ↔ DB: well-defined repository layer isolates SQL queries, minimizing ripple effects from schema changes.
+-  **Cohesion**:
+    - Each module has a single responsibility (UI, business logic, data storage), which simplifies both development and testing.
+- **Maintainability**:
+    - Clear separation of concerns and modular structure make it easy to onboard new developers, write unit tests per component, and refactor services independently.  
+
+### Dynamic view
+
+![Sequence Diagram](docs/architecture/dynamic-view/sequence.png)
+
+The above sequence diagram shows what happens when a user books a match:
+
+1. User clicks “Book Match” in the frontend.
+2. Frontend sends a POST to FastAPI, which first calls the Auth service to validate the token.
+3. Upon success, FastAPI writes a new record to PostgreSQL and returns the created match ID.
+4. Frontend confirms booking to the user.
+
+**Measured execution time in production**: _127 ms_ 
+
+### Deployment view
+
+![Deployemnt Diagram](docs/architecture/deployment-view/deployment.png)
+
+We deploy on AWS using:
+
+-   **CloudFront + S3** for static assets (React bundle).
+-   **EKS (Kubernetes)** for both frontend and API pods, behind an ALB with HTTPS termination.
+-   **RDS (PostgreSQL)** in a private subnet, with automated backups and Multi-AZ for high availability.
+
+| Component       | Location                   | Notes                          |
+| --------------- | -------------------------- | ------------------------------ |
+| React app       | S3 + CloudFront CDN        | Globally cached, TTL = 5 min   |
+| FastAPI service | EKS (2 pods, 500 m/256 Mi) | Auto-scale on CPU > 60 %       |
+| PostgreSQL RDS  | Private subnet, Multi-AZ   | Backups daily, 7-day retention |
+
+This setup lets the customer spin up the entire stack via our Terraform module in their own AWS account—only configuration values (VPC IDs, domain names, secrets) need to be provided.
+
+## Usage
 
 1. Install [Python 3.12](https://www.python.org/downloads/), [Poetry](https://python-poetry.org/docs/),
    [Docker](https://docs.docker.com/engine/install/)
@@ -45,60 +213,3 @@ The platform for conducting, tracking and checking students' sports activity at 
   ```bash
   sh scripts/setup_sport_database.sh ./sport_dump.sql
   ```
-
-### Project structure
-
-```
-.
-├── adminpage - Django project
-│   ├── adminpage - main django app
-│   │   ├── settings.py
-│   │   ├── swagger.py
-│   │   ├── urls.py
-│   │   └── wsgi.py
-│   ├── api
-│   │   ├── crud - directory with database queries
-│   │   ├── fixtures - database tools for testing
-│   │   ├── serializers - DRF serializers
-│   │   ├── tests
-│   │   │   ├── api - endpoints tests
-│   │   │   └── crud - database queries tests
-│   │   └── views - api endpoints
-│   ├── sport
-│   │   ├── admin - django adminpage classes
-│   │   ├── dumps - database dumps for tests
-│   │   ├── migrations - django database migrations
-│   │   ├── models - django database models
-│   │   ├── signals - django ORM signal handlers
-│   │   ├── static - static files for app (css, fonts, images, js)
-│   │   │   └── sport
-│   │   │       ├── css
-│   │   │       ├── fonts
-│   │   │       ├── images
-│   │   │       └── js
-│   │   ├── templates - django templates for app pages
-│   │   └── views - app pages url handlers
-├── deploy - deployment configuration
-│   ├── docker-compose.yaml - development Docker Compose file
-│   ├── docker-compose.prod.yaml - production Docker Compose file
-│   ├── docker-compose.test.yaml - services for automatic testing
-│   ├── .env.example - example of environment variables
-│   ├── nginx-conf - reverse proxy configuration
-│   ├── nginx-logs - request logs
-│   ├── grafana-provisioning - default dashboards for Grafana
-│   └── prometheus - Prometheus configs
-├── scripts - development tools
-└── README.md
-```
-
-## Flows
-
-### Releasing a new version
-
-1. Merge your changes to 'main' branch.
-2. Verify that a new version works on the staging server.
-3. Create a new tag with the version number in the format `vF24.22.20`,
-   where F24 is the semester number and 22.20 is the release number.
-   You can create the tag via GitHub releases tab.
-4. Ask maintainer (@ArtemSBulgakov) to allow the deployment via GitHub Actions.
-5. Verify that changes work on the production server.
