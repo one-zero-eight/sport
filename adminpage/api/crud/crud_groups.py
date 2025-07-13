@@ -134,7 +134,7 @@ def get_sports_with_groups(student: Optional[Student] = None):
                     'start_time': schedule.start.strftime('%H:%M'),
                     'end_time': schedule.end.strftime('%H:%M'),
                     'training_class': schedule.training_class.name if schedule.training_class else None,
-                    'location': schedule.training_class.name if schedule.training_class else None,  # Location is same as training_class
+                    #'location': schedule.training_class.name if schedule.training_class else None,  # Location is same as training_class
                 }
                 schedule_data.append(schedule_info)
             

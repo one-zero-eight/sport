@@ -9,7 +9,6 @@ class ScheduleSerializer(serializers.Serializer):
     start_time = serializers.CharField()
     end_time = serializers.CharField()
     training_class = serializers.CharField(allow_null=True)
-    location = serializers.CharField(allow_null=True)  # Training location/place
 
 
 class SportEnrollSerializer(serializers.Serializer):
