@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 __pycache__/
 
 /deploy/nginx-logs
@@ -23,3 +24,8 @@ venv/
 =======
 sport_demo_dump_2025_06.sql
 >>>>>>> 16d4e0c5 (Add gitignore, fix some bugs)
+=======
+sport_demo_dump_2025_06.sql
+__pycache__/
+deploy/nginx-logs/
+>>>>>>> 008a85f9 (Fix some bugs, remove useless functions, update gitignore)
