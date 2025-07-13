@@ -67,29 +67,29 @@ graph TB
 This is an example of how you may give instructions on setting up your project locally. To get a local copy up and running follow these simple example steps.
 
 ### Prerequisites
-...
+- [Python 3.12](https://www.python.org/downloads/)
+- [Poetry](https://python-poetry.org/docs/)
+- [Docker](https://docs.docker.com/engine/install/)
 
 ### Installation
-...
-
-### Usage
-
-1. Install [Python 3.12](https://www.python.org/downloads/), [Poetry](https://python-poetry.org/docs/),
-   [Docker](https://docs.docker.com/engine/install/)
-2. Install project dependencies with [Poetry](https://python-poetry.org/docs/cli/#options-2).
+1. Install project dependencies with [Poetry](https://python-poetry.org/docs/cli/#options-2).
    ```bash
    cd adminpage
    poetry install
    ```
-3. Copy environment variables: `cp deploy/.env.example deploy/.env` (leave default values in development)
-4. Start services: `docker compose -f ./deploy/docker-compose.yaml up --build`
-5. Make migrations and create superuser:
+2. Copy environment variables: `cp deploy/.env.example deploy/.env` (leave default values in development)
+3. Start services: `docker compose -f ./deploy/docker-compose.yaml up --build`
+4. Make migrations and create superuser:
    - Enter shell: `docker compose -f ./deploy/docker-compose.yaml exec -it adminpanel bash`
    - Autocreate migration files: `python3 manage.py makemigrations`
    - Apply migrations to db: `python3 manage.py migrate`
      > If there are problems with migrations applying, try to run the same migrate command with `--fake` option.
    - Create a new superuser: `python3 manage.py createsuperuser`
-6. View Admin panel at http://localhost/admin and Swagger at http://localhost/api/swagger
+5. View Admin panel at http://localhost/admin and Swagger at http://localhost/api/swagger
+
+
+
+
 
 #### Commands
 
@@ -110,6 +110,8 @@ This is an example of how you may give instructions on setting up your project l
 
 > [!NOTE]
 > Server supports auto-reload on code change in debug mode
+
+### Usage
 
 ## Contributing
 ...
