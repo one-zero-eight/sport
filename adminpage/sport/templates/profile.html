@@ -449,6 +449,7 @@
     <div id="medical-group-info-modal"></div>
     <div id="group-info-modal"></div>
     <!-- Choose sport type modal-->
+    {% comment "Модальное окно выбора спорта отключено" %}
     {% if student.obj.student_status.id == 0 and student.obj.medical_group.id > -1 and not student.sport %}
         <div class="modal fade" id="choose-sport-type-modal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg" role="document">
@@ -526,6 +527,7 @@
         }
         </script>
     {% endif %}
+    {% endcomment %}
 
     <!-- Hours progress bar -->
     <script>
