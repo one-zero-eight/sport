@@ -12,7 +12,8 @@ class StudentSerializer(serializers.ModelSerializer[Student]):
     hours = serializers.FloatField(read_only=True)
     debt = serializers.IntegerField(read_only=True)
     self_sport_hours = serializers.FloatField(read_only=True)
+    required_hours = serializers.FloatField(read_only=True)  # Required hours threshold for current semester
 
     class Meta:
         model = Student
-        fields = ('id', 'name', 'email', 'medical_group', 'hours', 'debt', 'self_sport_hours')
+        fields = ('id', 'name', 'email', 'medical_group', 'hours', 'debt', 'self_sport_hours', 'required_hours')

@@ -15,6 +15,7 @@ from api.views import (
     semester,
     analytics,
     medical_groups,
+    faq,
 )
 
 
@@ -96,6 +97,9 @@ urlpatterns = [
 
     # medical groups
     path(r"medical-groups", medical_groups.medical_groups_view),
+
+    # FAQ
+    path(r"faq", faq.get_faq_dict),
 
     # API Documentation
     path('schema/', SpectacularJSONAPIView.as_view(), name='schema'),
