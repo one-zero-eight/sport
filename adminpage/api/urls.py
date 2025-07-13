@@ -35,6 +35,7 @@ urlpatterns = [
     path(r"student/change_gender", profile.change_gender),
     #path(r"profile/history/<int:semester_id>", profile.get_history),
     path(r"student/history/<int:semester_id>", profile.get_history_with_self),
+    path(r"student/semester-history", profile.get_student_semester_history_view),
 
     # enrollment
     path(r"student/enroll", enroll.enroll),
