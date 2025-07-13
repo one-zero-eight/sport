@@ -8,8 +8,10 @@ from rest_framework.response import Response
 from django.utils import timezone
 
 from api_v2.crud import get_sport_schedule, get_trainings_for_student, get_trainings_for_trainer
+from api_v2.crud.crud_training import get_weekly_schedule_with_participants
 from api_v2.permissions import IsStudent, IsTrainer
 from api_v2.serializers import CalendarRequestSerializer, CalendarSerializer
+from api_v2.serializers.calendar import WeeklyTrainingSerializer
 
 
 def convert_training_schedule(t) -> dict:
@@ -115,3 +117,29 @@ def get_personal_schedule(request, **kwargs):
     return Response(
         list(map(convert_personal_training, result_dict.values()))
     )
+
+
+@extend_schema(
+    methods=["GET"],
+    parameters=[CalendarRequestSerializer],
+    responses={
+        status.HTTP_200_OK: WeeklyTrainingSerializer(many=True),
+    }
+)
+@api_view(["GET"])
+@permission_classes([IsStudent])
+def get_weekly_schedule_with_participants_view(request, **kwargs):
+    """
+    Get weekly schedule with participants information for each training
+    """
+    serializer = CalendarRequestSerializer(data=request.GET)
+    serializer.is_valid(raise_exception=True)
+
+    student = request.user.student
+    trainings = get_weekly_schedule_with_participants(
+        student,
+        serializer.validated_data["start"],
+        serializer.validated_data["end"],
+    )
+
+    return Response(trainings)

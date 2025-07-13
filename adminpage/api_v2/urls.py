@@ -33,8 +33,8 @@ register_converter(NegativeIntConverter, 'negint')
 
 urlpatterns = [
     # profile
-    path(r"profile/me", profile.get_student_info),
-    path(r"profile/change_gender", profile.change_gender),
+    path(r"student/profile", profile.get_student_info),
+    path(r"student/change_gender", profile.change_gender),
     #path(r"profile/history/<int:semester_id>", profile.get_history),
     path(r"student/history/<int:semester_id>", profile.get_history_with_self),
 
@@ -44,7 +44,7 @@ urlpatterns = [
     path(r"trainer/unenroll-student", enroll.unenroll_by_trainer),
 
     # groups
-    path(r"groups/<int:group_id>", group.group_info_view),
+    path(r"sport-groups/<int:group_id>", group.group_info_view),
     path(r"sports", group.sports_view),
 
     # trainings
@@ -66,6 +66,7 @@ urlpatterns = [
     # calendar
     path(r"sports/<negint:sport_id>/schedule", calendar.get_schedule),
     path(r"student/schedule", calendar.get_personal_schedule),
+    path(r"student/weekly-schedule", calendar.get_weekly_schedule_with_participants_view),
 
     # references
     path(r"references/upload", reference.reference_upload),

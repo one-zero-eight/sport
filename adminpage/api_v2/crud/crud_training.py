@@ -35,6 +35,9 @@ def get_group_info(group_id: int, student: Student):
             'GROUP BY g.id, d.id', {"group_id": group_id, "student_id": student.pk})
 
         info = dictfetchone(cursor)
+        if info is None:
+            return None
+            
         info['trainers'] = get_trainers_group(group_id)
 
         info['can_enroll'] = student.sport is not None and \
@@ -264,3 +267,49 @@ def get_student_last_attended_dates(group_id: int):
                        'AND e.student_id = d.id '
                        'GROUP BY d.id', {"group_id": group_id})
         return dictfetchall(cursor)
+
+
+def get_weekly_schedule_with_participants(student: Student, start: datetime, end: datetime):
+    """
+    Retrieves weekly schedule with participants information for each training
+    @param student - requesting student
+    @param start - week start date
+    @param end - week end date
+    @return list of trainings with participants info
+    """
+    # Get trainings for the week
+    trainings = get_trainings_for_student(student, start, end)
+    
+    # For each training, get participants info
+    for training in trainings:
+        training_id = training['id']
+        
+        # Get checked-in students and those who received grades
+        participants = get_students_grades(training_id)
+        
+        # Add participants info to training
+        training['participants'] = {
+            'total_checked_in': len([p for p in participants if p.get('hours', 0) >= 0]),
+            'students': [
+                {
+                    'id': p['student_id'],
+                    'name': p['full_name'],
+                    'email': p['email'],
+                    'medical_group': p['med_group'],
+                    'hours': p.get('hours', 0),
+                    'attended': p.get('hours', 0) > 0
+                }
+                for p in participants
+            ]
+        }
+        
+        # Add group capacity info
+        try:
+            group = Group.objects.get(id=training['group_id'])
+            training['capacity'] = group.capacity
+            training['available_spots'] = group.capacity - training['participants']['total_checked_in']
+        except Group.DoesNotExist:
+            training['capacity'] = 0
+            training['available_spots'] = 0
+    
+    return trainings
