@@ -10,7 +10,7 @@ function mark_club_as_free(club_id, free_places) {
 }
 
 async function openGroupInfoModal(id) {
-    const {group_id, capacity, current_load} = await openGroupInfoModalForStudent(`/api/group/${id}`);
+    const {group_id, capacity, current_load} = await openGroupInfoModalForStudent(`/api/sport-groups/${id}`);
     if (current_load >= capacity) {
         mark_club_as_full(group_id);
     } else {

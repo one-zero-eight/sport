@@ -89,7 +89,7 @@
                         <p class="d-flex justify-content-center align-content-between flex-wrap">
                             <script type="text/javascript">
                                 const student_id = "{{ student.student_id }}";
-                                const apiUrl = `/api/attendance/${student_id}/negative_hours`;
+                                const apiUrl = `/api/students/${student_id}/negative-hours`;
                                 fetch(apiUrl).then(response => {
                                 return response.json();
                                     }).then(data => {
@@ -126,7 +126,7 @@
                         <h3>Progress</h3>
                         <!-- Better than percantage-->
                         <script type="text/javascript">
-                            fetch(`/api/attendance/${student_id}/better_than`, {
+                            fetch(`/api/students/${student_id}/better-than`, {
                                 method: 'GET',
                                 'X-CSRFToken': csrf_token,
                             })

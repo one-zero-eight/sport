@@ -1,6 +1,6 @@
 //Fetch data
 function fetchGroups() {
-    return fetch('/api/medical_groups')
+    return fetch('/api/medical-groups')
         .then(response => response.json())
         .then(data => data);
 }
