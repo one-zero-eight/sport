@@ -27,7 +27,7 @@ from sport.models import Semester, Student, Group
     methods=["GET"],
     tags=["Profile"],
     summary="Get student profile information",
-    description="Retrieve current student's profile information including personal details, medical group, and sport hours statistics for the current semester.",
+    description="Retrieve current student's profile information including personal details, medical group, sport hours statistics, and required hours threshold for the current semester.",
     responses={
         status.HTTP_200_OK: StudentSerializer(),
     }
@@ -53,6 +53,7 @@ def get_student_info(request, **kwargs):
     response_data['debt'] = ongoing_semester['debt']  # Debt hours
     response_data['self_sport_hours'] = (ongoing_semester['hours_self_not_debt'] + 
                                         ongoing_semester['hours_self_debt'])  # Self sport hours
+    response_data['required_hours'] = ongoing_semester['hours_sem_max']  # Required hours threshold for current semester
     
     return Response(response_data)
 

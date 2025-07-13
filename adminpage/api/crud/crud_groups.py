@@ -93,3 +93,103 @@ def get_free_places_for_sport(sport_id):
     for i in groups:
         res += i.capacity - Enroll.objects.filter(group=i.id).count()
     return res
+
+
+def get_sports_with_groups(student: Optional[Student] = None):
+    """
+    Retrieves all sports with their groups and detailed information
+    @param student - if student passed, get sports applicable for student
+    @return list of sports with groups, schedules, trainers, etc.
+    """
+    from sport.models import Schedule, TrainingClass
+    
+    # Get groups for current semester
+    groups = Group.objects.filter(semester__pk=api.crud.get_ongoing_semester().pk)
+    if student:
+        groups = groups.filter(allowed_medical_groups=student.medical_group_id)
+    
+    # Get sports that have groups
+    sports = Sport.objects.filter(
+        id__in=groups.values_list('sport', flat=True)
+    ).filter(special=False, visible=True).distinct()
+    
+    sports_list = []
+    
+    for sport in sports:
+        sport_groups = groups.filter(sport=sport).select_related(
+            'trainer__user', 'sport'
+        ).prefetch_related(
+            'trainers__user', 'schedule', 'allowed_medical_groups'
+        )
+        
+        # Prepare groups data
+        groups_data = []
+        for group in sport_groups:
+            # Get schedule for this group
+            schedule_data = []
+            for schedule in group.schedule.all():
+                schedule_info = {
+                    'weekday': schedule.weekday,
+                    'weekday_name': schedule.get_weekday_display(),
+                    'start_time': schedule.start.strftime('%H:%M'),
+                    'end_time': schedule.end.strftime('%H:%M'),
+                    'training_class': schedule.training_class.name if schedule.training_class else None,
+                    'location': schedule.training_class.name if schedule.training_class else None,  # Location is same as training_class
+                }
+                schedule_data.append(schedule_info)
+            
+            # Get trainers for this group
+            trainers_data = []
+            for trainer in group.trainers.all():
+                trainer_info = {
+                    'id': trainer.user.id,
+                    'name': f"{trainer.user.first_name} {trainer.user.last_name}",
+                    'email': trainer.user.email,
+                }
+                trainers_data.append(trainer_info)
+            
+            # Add main trainer if exists
+            if group.trainer and group.trainer not in group.trainers.all():
+                main_trainer = {
+                    'id': group.trainer.user.id,
+                    'name': f"{group.trainer.user.first_name} {group.trainer.user.last_name}",
+                    'email': group.trainer.user.email,
+                }
+                trainers_data.insert(0, main_trainer)  # Main trainer first
+            
+            # Calculate enrollment info
+            current_enrollment = Enroll.objects.filter(group=group).count()
+            free_places = group.capacity - current_enrollment
+            
+            # Check if student is enrolled
+            is_enrolled = False
+            if student:
+                is_enrolled = Enroll.objects.filter(group=group, student=student).exists()
+            
+            group_info = {
+                'id': group.id,
+                'name': group.name or '',
+                'description': group.sport.description if group.sport else '',
+                'capacity': group.capacity,
+                'current_enrollment': current_enrollment,
+                'free_places': free_places,
+                'is_club': group.is_club,
+                'accredited': group.accredited,
+                'is_enrolled': is_enrolled,
+                'schedule': schedule_data,
+                'trainers': trainers_data,
+                'allowed_medical_groups': [mg.name for mg in group.allowed_medical_groups.all()],
+            }
+            groups_data.append(group_info)
+        
+        sport_info = {
+            'id': sport.id,
+            'name': sport.name,
+            'description': sport.description,
+            'groups': groups_data,
+            'total_groups': len(groups_data),
+            'total_free_places': sum(group['free_places'] for group in groups_data),
+        }
+        sports_list.append(sport_info)
+    
+    return sports_list

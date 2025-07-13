@@ -3,15 +3,14 @@ from rest_framework import serializers
 from sport.models import Schedule
 
 
-class ScheduleSerializer(serializers.ModelSerializer[Schedule]):
-    class Meta:
-        model = Schedule
-        fields = (
-            "weekday",
-            "start",
-            "end",
-            "training_class",
-        )
+class ScheduleSerializer(serializers.Serializer):
+    weekday = serializers.IntegerField()
+    weekday_name = serializers.CharField()
+    start_time = serializers.CharField()
+    end_time = serializers.CharField()
+    training_class = serializers.CharField(allow_null=True)
+    location = serializers.CharField(allow_null=True)  # Training location/place
+
 
 class SportEnrollSerializer(serializers.Serializer):
     sport_id = serializers.IntegerField()
@@ -26,9 +25,9 @@ class SportsSerializer(serializers.Serializer):
 
 
 class TrainerSerializer(serializers.Serializer):
-    trainer_first_name = serializers.CharField()
-    trainer_last_name = serializers.CharField()
-    trainer_email = serializers.CharField()
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+    email = serializers.EmailField()
 
 
 class GroupInfoSerializer(serializers.Serializer):
@@ -47,3 +46,31 @@ class GroupInfoSerializer(serializers.Serializer):
     can_enroll = serializers.BooleanField()
 
     schedule = ScheduleSerializer(many=True)
+
+
+class DetailedGroupSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+    description = serializers.CharField()
+    capacity = serializers.IntegerField()
+    current_enrollment = serializers.IntegerField()
+    free_places = serializers.IntegerField()
+    is_club = serializers.BooleanField()
+    accredited = serializers.BooleanField()
+    is_enrolled = serializers.BooleanField()
+    schedule = ScheduleSerializer(many=True)
+    trainers = TrainerSerializer(many=True)
+    allowed_medical_groups = serializers.ListField(child=serializers.CharField())
+
+
+class DetailedSportSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+    description = serializers.CharField()
+    groups = DetailedGroupSerializer(many=True)
+    total_groups = serializers.IntegerField()
+    total_free_places = serializers.IntegerField()
+
+
+class SportsWithGroupsSerializer(serializers.Serializer):
+    sports = DetailedSportSerializer(many=True)
