@@ -6,7 +6,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
 from api.crud.crud_attendance import (
-    get_detailed_hours, get_detailed_hours_and_self,
+    get_detailed_hours, get_detailed_hours_and_self, get_student_hours
 )
 from api.permissions import (
     IsStudent, IsStaff,
@@ -35,8 +35,26 @@ def get_student_info(request, **kwargs):
     Get info about current student.
     """
     student: Student = request.user.student
+    
+    # Get student hours data
+    hours_data = get_student_hours(student.user.id)
+    ongoing_semester = hours_data['ongoing_semester']
+    
+    # Prepare data for serializer
     serializer = StudentSerializer(student)
-    return Response(serializer.data)
+    response_data = serializer.data
+    
+    # Add hours data
+    response_data['hours_not_self'] = ongoing_semester['hours_not_self']
+    response_data['hours_self_not_debt'] = ongoing_semester['hours_self_not_debt']
+    response_data['hours_self_debt'] = ongoing_semester['hours_self_debt']
+    response_data['hours_total'] = (ongoing_semester['hours_not_self'] + 
+                                   ongoing_semester['hours_self_not_debt'] + 
+                                   ongoing_semester['hours_self_debt'])
+    response_data['hours_required'] = ongoing_semester['hours_sem_max']
+    response_data['debt'] = ongoing_semester['debt']
+    
+    return Response(response_data)
 
 
 @extend_schema(

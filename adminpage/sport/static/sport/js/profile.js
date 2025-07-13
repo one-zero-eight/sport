@@ -38,7 +38,7 @@ async function fetch_detailed_hours(e) {
     const semester_id = parseInt(e.getAttribute('data-semester-id'), 10);
     if (loaded_hours[semester_id]) return;
     const response = await fetch(
-        `/api/profile/history_with_self/${semester_id}`,
+        `/api/student/history/${semester_id}`,
         {
             method: 'GET',
             'X-CSRFToken': csrf_token,
@@ -379,7 +379,7 @@ async function open_modal(info) {
         return await open_trainer_modal(info);
     }
     return await openTrainingInfoModalForStudent(
-        `/api/training/${info.event.extendedProps.id}`
+        `/api/trainings/${info.event.extendedProps.id}`
     );
 }
 
@@ -391,7 +391,7 @@ async function open_trainer_modal({ event }) {
     modal.append($('<div class="spinner-border" role="status"></div>'));
     $('#grading-modal').modal('show');
     const response = await fetch(
-        `/api/attendance/${event.extendedProps.id}/grades`,
+        `/api/trainings/${event.extendedProps.id}/grades`,
         {
             method: 'GET',
             'X-CSRFToken': csrf_token,
@@ -412,7 +412,7 @@ async function open_trainer_modal({ event }) {
     const mark_all_btn = $('#put-default-hours-btn');
     mark_all_btn.attr('data-hours', current_duration_academic_hours);
     $('#mark-all-hours-value').text(current_duration_academic_hours);
-    $('#export-csv-btn').attr('href', `/api/attendance/${event.extendedProps.id}/grades.csv`);
+    $('#export-csv-btn').attr('href', `/api/trainings/${event.extendedProps.id}/grades.csv`);
     modal.append(make_grades_table(grades, current_duration_academic_hours));
 
     $('#csv-file-input')
@@ -473,7 +473,7 @@ document.addEventListener('DOMContentLoaded', function () {
         eventRender: render,
         eventClick: open_modal,
         // Event format: yyyy-mm-dd
-        events: '/api/calendar/trainings',
+        events: '/api/student/schedule',
         eventBackgroundColor: 'black',
         eventTimeFormat: { // like '14:30'
             hour: '2-digit',
@@ -647,7 +647,7 @@ $(function () {
         .autocomplete({
             source: function (request, response) {
                 $.ajax({
-                    url: '/api/attendance/suggest_student',
+                    url: '/api/attendance/students/search',
                     data: { term: request.term, group_id },
                     dataType: 'json',
                     success: response,
@@ -666,7 +666,7 @@ function csv_upload(object) {
     }).done(function (dataset) {
         dataset.records.forEach((record) => {
             fetch(
-                '/api/attendance/suggest_student?' +
+                '/api/attendance/students/search?' +
                     new URLSearchParams({ term: record[0], group_id }),
                 {
                     method: 'GET',
@@ -700,7 +700,7 @@ function csv_upload(object) {
     });
 }
 
-fetch('/api/fitnesstest/result', {
+    fetch('/api/fitness-test/result', {
     method: 'GET',
     'X-CSRFToken': csrf_token,
 })
