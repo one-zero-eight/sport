@@ -16,7 +16,6 @@ from sport.models import Training, Student, TrainingCheckIn, Attendance
 
 @extend_schema(
     methods=["GET"],
-    tags=["Trainings"],
     responses={
         status.HTTP_200_OK: NewTrainingInfoStudentSerializer(),
         status.HTTP_404_NOT_FOUND: NotFoundSerializer(),

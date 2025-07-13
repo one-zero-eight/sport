@@ -150,7 +150,12 @@ def mark_hours(training: Training, student_hours: Iterable[Tuple[int, float]]):
                            f'WHERE  (student_id, training_id) IN ({args_del_str.decode()})')
 
 
-
+def toggle_has_QR(student: Student):
+    """
+    Toggles student's QR presence
+    """
+    student.has_QR = not student.has_QR
+    student.save()
 
 
 class SemesterHours(TypedDict):
@@ -161,11 +166,10 @@ class SemesterHours(TypedDict):
     hours_sem_max: int
     debt: int
 
-class StudentHours(TypedDict):
-    last_semesters_hours: List[SemesterHours]
-    ongoing_semester: SemesterHours
 
-def get_student_hours(student_id, **kwargs) -> StudentHours:
+def get_student_hours(student_id, **kwargs) -> TypedDict('StudentHours',
+                                                         {'last_semesters_hours': List[SemesterHours],
+                                                          'ongoing_semester': SemesterHours}):
     student = Student.objects.get(user_id=student_id)
     sem_info_cur = {"id_sem": 0, "hours_not_self": 0.0, "hours_self_not_debt": 0.0,
                     "hours_self_debt": 0.0, "hours_sem_max": 0.0, "debt": 0.0}

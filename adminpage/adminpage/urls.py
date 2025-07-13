@@ -18,19 +18,6 @@ from django.conf.urls.static import static
 from django.urls import path, include
 from sport.admin.site import site
 
-# TODO: remove when not needed
-# from django.http import JsonResponse
-# def show(request):
-#     data = dict(
-#         [
-#             (key, str(value)) for key, value in request.META.items()
-#         ]
-#     )
-#     data.update({
-#         "scheme": str(request.scheme),
-#     })
-#     return JsonResponse(data)
-
 handler404 = "sport.views.errors.handler404"
 handler500 = "sport.views.errors.handler500"
 
