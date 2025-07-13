@@ -1,6 +1,10 @@
-# InnoSport Site (API-V2)
+<p align="center" style="background-color: white">
+  <a href="https://innohassle.ru">
+    <img alt="InNoHassle" height="300px" src="https://raw.githubusercontent.com/one-zero-eight/design/212a5c06590c4d469a0a894481c09915a4b1735f/logo/ing-white-outline-transparent.svg">
+  </a>
+</p>
 
-![Logo](docs/logo-CcwA-A2S.svg)
+# InnoSport site — Backend
 
 ## Demo video
 https://disk.yandex.ru/i/WlsXpBPXi6LQyA
