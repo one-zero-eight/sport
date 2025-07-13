@@ -112,7 +112,8 @@ This is an example of how you may give instructions on setting up your project l
 > [!NOTE]
 > Server supports auto-reload on code change in debug mode
 
-### Usage
+## Development
+[CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## Contributing
 ...
