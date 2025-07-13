@@ -6,6 +6,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
 from api.crud.crud_attendance import (
+    toggle_has_QR,
     get_detailed_hours, get_detailed_hours_and_self,
 )
 from api.permissions import (
@@ -23,7 +24,6 @@ from sport.models import Semester, Student, Group
 
 @extend_schema(
     methods=["GET"],
-    tags=["Profile"],
     responses={
         status.HTTP_200_OK: StudentSerializer(),
     }
@@ -46,12 +46,20 @@ def get_student_info(request, **kwargs):
         status.HTTP_200_OK: HasQRSerializer,
     }
 )
-
+@api_view(["POST"])
+@permission_classes([IsStudent])
+def toggle_QR_presence(request, **kwargs):
+    """
+    Toggles has_QR status
+    """
+    student = request.user.student
+    toggle_has_QR(student)
+    serializer = HasQRSerializer(student)
+    return Response(serializer.data)
 
 
 @extend_schema(
     methods=["POST"],
-    tags=["Profile"],
     request=GenderSerializer,
     responses={
         status.HTTP_200_OK: EmptySerializer,

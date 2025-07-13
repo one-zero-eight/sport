@@ -25,7 +25,6 @@ from sport.models import FitnessTestSession, FitnessTestResult, FitnessTestExerc
 
 @extend_schema(
     methods=["GET"],
-    tags=["Fitness Test"],
     description='Get all exercises by `semester_id`. If `semester_id` is not set, returns current semester '
                           'exercises.',
     parameters=[SemesterInSerializer],

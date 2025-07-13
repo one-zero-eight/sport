@@ -63,7 +63,6 @@ def compose_bad_grade_report(email: str, hours: float) -> dict:
 
 @extend_schema(
     methods=["GET"],
-    tags=["Attendance"],
     parameters=[SuggestionQuerySerializer],
     responses={
         status.HTTP_200_OK: SuggestionSerializer(many=True),

@@ -14,7 +14,6 @@ from sport.models import Group, Schedule, Student, Sport
 
 @extend_schema(
     methods=["GET"],
-    tags=["Groups"],
     responses={
         status.HTTP_200_OK: GroupInfoSerializer,
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
@@ -34,7 +33,6 @@ def group_info_view(request, group_id, **kwargs):
 
 @extend_schema(
     methods=["GET"],
-    tags=["Sports"],
     responses={
         status.HTTP_200_OK: SportsSerializer,
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
@@ -46,3 +44,29 @@ def sports_view(request, **kwargs):
     serializer = SportsSerializer({'sports': get_sports()})
     return Response(serializer.data)
 
+
+@extend_schema(
+    methods=["POST"],
+    request=SportEnrollSerializer,
+    responses={
+        status.HTTP_200_OK: EmptySerializer,
+        status.HTTP_404_NOT_FOUND: NotFoundSerializer,
+        status.HTTP_400_BAD_REQUEST: ErrorSerializer,
+    },
+)
+@api_view(["POST"])
+@permission_classes([IsStudent])
+@transaction.atomic
+def select_sport(request, **kwargs):
+    serializer = SportEnrollSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    sport = get_object_or_404(
+        Sport,
+        pk=serializer.validated_data["sport_id"]
+    )
+
+    student: Student = request.user.student
+    student.sport = sport
+    student.save()
+
+    return Response({})
