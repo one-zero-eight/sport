@@ -136,7 +136,7 @@ https://github.com/inno-sport-inh/backend/blob/main/docs/quality-assurance/quali
 
 ### Dynamic view
 
-![dynamic-view.md](docs/architecture/dynamic-view/dynamic-view.md)
+[dynamic-view.md](docs/architecture/dynamic-view/dynamic-view.md)
 
 ### Deployment view
 
