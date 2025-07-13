@@ -43,6 +43,15 @@ Unit tests and integration tests was implemented. They can be found [here](https
 The user acceptance tests can be found [here](https://github.com/inno-sport-inh/backend/blob/main/docs/quality-assurance/user-acceptance-tests.md).
 
 ## Build and deployment automation
+https://github.com/inno-sport-inh/backend/blob/main/docs/automation/continuous-integration.md
+
+
+## Quality assurance
+### User acceptance tests
+https://github.com/inno-sport-inh/backend/blob/main/docs/quality-assurance/user-acceptance-tests.md
+
+### Automated tests
+https://github.com/inno-sport-inh/backend/blob/main/docs/quality-assurance/automated-tests.md
 
 ## Architecture
 
