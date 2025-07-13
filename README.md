@@ -59,7 +59,7 @@ Kanban board can be found [here](https://github.com/orgs/inno-sport-inh/projects
 
 The table below documents an entry criteria for each column on kanban board.
 
-| **Column**     | **Emtry criteria** |
+| **Column**     | **Entry criteria** |
 | -------------- | ------------------ |
 | Todo           | The task was planned, but not started |
 | In Progress    | The work on the task started, but not completed and doesn't comply DoD |
