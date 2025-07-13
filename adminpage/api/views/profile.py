@@ -45,14 +45,10 @@ def get_student_info(request, **kwargs):
     response_data = serializer.data
     
     # Add hours data
-    response_data['hours_not_self'] = ongoing_semester['hours_not_self']
-    response_data['hours_self_not_debt'] = ongoing_semester['hours_self_not_debt']
-    response_data['hours_self_debt'] = ongoing_semester['hours_self_debt']
-    response_data['hours_total'] = (ongoing_semester['hours_not_self'] + 
-                                   ongoing_semester['hours_self_not_debt'] + 
-                                   ongoing_semester['hours_self_debt'])
-    response_data['hours_required'] = ongoing_semester['hours_sem_max']
-    response_data['debt'] = ongoing_semester['debt']
+    response_data['hours'] = ongoing_semester['hours_not_self']  # Hours for semester (not self-sport)
+    response_data['debt'] = ongoing_semester['debt']  # Debt hours
+    response_data['self_sport_hours'] = (ongoing_semester['hours_self_not_debt'] + 
+                                        ongoing_semester['hours_self_debt'])  # Self sport hours
     
     return Response(response_data)
 
