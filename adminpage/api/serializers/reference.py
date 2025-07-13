@@ -12,3 +12,12 @@ class ReferenceUploadSerializer(serializers.ModelSerializer[Reference]):
     class Meta:
         model = Reference
         fields = ['image', 'start', 'end', 'student_comment']
+
+
+class ReferenceUploadResponseSerializer(serializers.Serializer):
+    message = serializers.CharField()
+    reference_id = serializers.IntegerField()
+    hours = serializers.FloatField()
+    start = serializers.DateField()
+    end = serializers.DateField()
+    uploaded = serializers.DateTimeField()

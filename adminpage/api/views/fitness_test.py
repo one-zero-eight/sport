@@ -26,8 +26,8 @@ from sport.models import FitnessTestSession, FitnessTestResult, FitnessTestExerc
 @extend_schema(
     methods=["GET"],
     tags=["Fitness Test"],
-    description='Get all exercises by `semester_id`. If `semester_id` is not set, returns current semester '
-                          'exercises.',
+    summary="Get fitness test exercises",
+    description="Get all fitness test exercises for a specific semester. If semester_id is not provided, returns exercises for the current semester.",
     parameters=[SemesterInSerializer],
     responses={
         status.HTTP_200_OK: FitnessTestExerciseSerializer(many=True),
@@ -48,7 +48,9 @@ def get_exercises(request, **kwargs):
 
 @extend_schema(
     methods=["GET"],
-    description='Get all sessions by `semester_id`. If `semester_id` is not set, returns all sessions.',
+    tags=["Fitness Test"],
+    summary="Get fitness test sessions",
+    description="Get all fitness test sessions for a specific semester. If semester_id is not provided, returns all sessions. Only accessible by trainers.",
     parameters=[SemesterInSerializer],
     responses={
         status.HTTP_200_OK: FitnessTestSessionSerializer(many=True)
@@ -71,8 +73,12 @@ def get_sessions(request, **kwargs):
 
 @extend_schema(
     methods=["GET"],
+    tags=["Fitness Test"],
+    summary="Get student fitness test results",
+    description="Get all fitness test results for the current student, grouped by semester and retake status, with detailed scores and grades.",
     responses={
-        status.HTTP_200_OK: FitnessTestStudentResult(many=True)
+        status.HTTP_200_OK: FitnessTestStudentResult(many=True),
+        status.HTTP_404_NOT_FOUND: NotFoundSerializer(),
     }
 )
 @api_view(["GET"])
@@ -125,6 +131,9 @@ def get_result(request, **kwargs):
 
 @extend_schema(
     methods=["GET"],
+    tags=["Fitness Test"],
+    summary="Get session details",
+    description="Get detailed information about a specific fitness test session, including exercises and results.",
     responses={
         status.HTTP_200_OK: FitnessTestSessionWithResult()
     }
@@ -153,6 +162,9 @@ class PostStudentExerciseResult(serializers.Serializer):
 
 @extend_schema(
     methods=["POST"],
+    tags=["Fitness Test"],
+    summary="Post student fitness test results",
+    description="Post the results of a student's fitness test exercises for a specific session. Only accessible by trainers.",
     request=FitnessTestUpload(),
     responses={
         status.HTTP_200_OK: PostStudentExerciseResult(),
@@ -189,6 +201,9 @@ def post_student_exercises_result(request, session_id=None, **kwargs):
 # TODO: Rewrite suggest to JSON
 @extend_schema(
     methods=["GET"],
+    tags=["Fitness Test"],
+    summary="Suggest students for fitness test",
+    description="Suggest students based on a search term for fitness test. Only accessible by trainers.",
     parameters=[SuggestionQueryFTSerializer],
     responses={
         status.HTTP_200_OK: SuggestionSerializer(many=True),

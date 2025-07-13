@@ -11,11 +11,13 @@ from api.serializers.semester import SemesterSerializer
 
 @extend_schema(
     methods=["GET"],
+    tags=["Semester"],
+    summary="Get semester information",
+    description="Retrieve semester information. Use 'current=true' to get only current semester, 'with_ft_exercises=true' to get semesters with fitness test exercises.",
     parameters=[
-        OpenApiParameter(name='current', type=OpenApiTypes.BOOL),
-        OpenApiParameter(name='with_ft_exercises', type=OpenApiTypes.BOOL),
+        OpenApiParameter(name='current', type=OpenApiTypes.BOOL, description='Get only current semester'),
+        OpenApiParameter(name='with_ft_exercises', type=OpenApiTypes.BOOL, description='Get semesters with fitness test exercises'),
     ],
-    description='Get semesters.',
     responses={
         status.HTTP_200_OK: SemesterSerializer(many=True),
         status.HTTP_404_NOT_FOUND: NotFoundSerializer(),
