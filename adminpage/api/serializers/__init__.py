@@ -42,6 +42,7 @@ from .profile import (
 )
 from .reference import (
     ReferenceUploadSerializer,
+    ReferenceUploadResponseSerializer,
 )
 from .self_sport_report import (
     SelfSportReportUploadSerializer,

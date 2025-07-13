@@ -15,6 +15,8 @@ from sport.models import Group, Schedule, Student, Sport
 @extend_schema(
     methods=["GET"],
     tags=["Groups"],
+    summary="Get sport group information",
+    description="Retrieve detailed information about a sport group including schedule, capacity, enrolled students, and enrollment status.",
     responses={
         status.HTTP_200_OK: GroupInfoSerializer,
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
@@ -35,6 +37,8 @@ def group_info_view(request, group_id, **kwargs):
 @extend_schema(
     methods=["GET"],
     tags=["Sports"],
+    summary="Get available sports",
+    description="Retrieve list of all available sports that students can enroll in.",
     responses={
         status.HTTP_200_OK: SportsSerializer,
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,

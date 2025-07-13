@@ -20,8 +20,9 @@ from sport.models import Measurement, MeasurementSession, MeasurementResult, Stu
 
 @extend_schema(
     methods=["GET"],
-    # TODO: Check
-    # parameters=[MeasurementSerializer(many=True)],
+    tags=["Measurements"],
+    summary="Get available measurements",
+    description="Get list of all available measurement types (height, weight, etc.) with their units.",
     responses={
         status.HTTP_200_OK: MeasurementResultsSerializer,
     }
@@ -37,8 +38,9 @@ def get_measurements(request, **kwargs):
 
 @extend_schema(
     methods=["GET"],
-    # TODO: Check
-    # parameters=[MeasurementResultsSerializer],
+    tags=["Measurements"],
+    summary="Get student measurement results",
+    description="Get all measurement results for the current student, grouped by semester.",
     responses={
         status.HTTP_200_OK: MeasurementResultsSerializer,
     }
@@ -72,8 +74,12 @@ def get_results(request, **kwargs):
 
 @extend_schema(
     methods=["POST"],
+    tags=["Measurements"],
+    summary="Post student measurement",
+    description="Post measurement results for a student. Only accessible by trainers.",
     request=MeasurementPostSerializer,
     responses={
+        status.HTTP_200_OK: MeasurementResultsSerializer,
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
         status.HTTP_400_BAD_REQUEST: ErrorSerializer,
     },

@@ -38,6 +38,9 @@ class EnrollErrors:
 
 @extend_schema(
     methods=["POST"],
+    tags=["Enrollment"],
+    summary="Enroll student to sport group",
+    description="Enroll the current student to a sport group. Students can only enroll if they have selected a sport, the group has available spots, and their medical group allows participation.",
     request=EnrollSerializer,
     responses={
         status.HTTP_200_OK: EmptySerializer,
@@ -129,6 +132,9 @@ def enroll(request, **kwargs):
 
 @extend_schema(
     methods=["POST"],
+    tags=["Enrollment"],
+    summary="Unenroll student from sport group",
+    description="Remove the current student from a sport group enrollment.",
     request=EnrollSerializer,
     responses={
         status.HTTP_200_OK: EmptySerializer,
@@ -167,6 +173,9 @@ def unenroll(request, **kwargs):
 
 @extend_schema(
     methods=["POST"],
+    tags=["Enrollment"],
+    summary="Unenroll student by trainer",
+    description="Remove a student from a sport group. Only accessible by trainers who are assigned to the group.",
     request=UnenrollStudentSerializer,
     responses={
         status.HTTP_200_OK: EmptySerializer,

@@ -61,6 +61,9 @@ def convert_personal_training(t) -> dict:
 
 @extend_schema(
     methods=["GET"],
+    tags=["Calendar"],
+    summary="Get sport schedule",
+    description="Retrieve training schedule for a specific sport. Use sport_id=-1 to get all sports without specific sport type.",
     parameters=[CalendarRequestSerializer],
     responses={
         status.HTTP_200_OK: CalendarSerializer,
@@ -81,6 +84,9 @@ def get_schedule(request, sport_id, **kwargs):
 
 @extend_schema(
     methods=["GET"],
+    tags=["Calendar"],
+    summary="Get personal schedule",
+    description="Retrieve personal training schedule for the current user (student or trainer). Shows trainings relevant to the user's role.",
     parameters=[CalendarRequestSerializer],
     responses={
         status.HTTP_200_OK: CalendarSerializer,
@@ -122,6 +128,8 @@ def get_personal_schedule(request, **kwargs):
 @extend_schema(
     methods=["GET"],
     tags=["Calendar"],
+    summary="Get weekly schedule with participants",
+    description="Retrieve weekly training schedule with detailed participant information for each training session, including attendance status and available spots.",
     parameters=[CalendarRequestSerializer],
     responses={
         status.HTTP_200_OK: WeeklyTrainingSerializer(many=True),

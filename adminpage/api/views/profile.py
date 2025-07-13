@@ -24,6 +24,8 @@ from sport.models import Semester, Student, Group
 @extend_schema(
     methods=["GET"],
     tags=["Profile"],
+    summary="Get student profile information",
+    description="Retrieve current student's profile information including personal details, medical group, and sport hours statistics for the current semester.",
     responses={
         status.HTTP_200_OK: StudentSerializer(),
     }
@@ -66,6 +68,8 @@ def get_student_info(request, **kwargs):
 @extend_schema(
     methods=["POST"],
     tags=["Profile"],
+    summary="Change student gender",
+    description="Update student's gender information. Only accessible by staff members.",
     request=GenderSerializer,
     responses={
         status.HTTP_200_OK: EmptySerializer,
@@ -121,6 +125,9 @@ def get_history(request, semester_id: int, **kwargs):
 
 @extend_schema(
     methods=["GET"],
+    tags=["Profile"],
+    summary="Get student training history",
+    description="Retrieve student's training history for a specific semester, including regular trainings, self-sport activities, and medical references.",
     responses={
         status.HTTP_200_OK: TrainingHourSerializer(many=True),
         status.HTTP_404_NOT_FOUND: training_history404,
