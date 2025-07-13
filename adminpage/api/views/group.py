@@ -9,7 +9,7 @@ from api.crud import get_group_info, get_sports
 from api.crud.crud_groups import get_sports_with_groups
 from api.permissions import IsStudent, IsTrainer
 from api.serializers import GroupInfoSerializer, NotFoundSerializer, SportsSerializer, EmptySerializer, ErrorSerializer
-from api.serializers.group import SportEnrollSerializer, SportsWithGroupsSerializer
+from api.serializers.group import SportEnrollSerializer, SportsWithGroupsSerializer, DetailedSportSerializer
 from sport.models import Group, Schedule, Student, Sport
 
 
@@ -37,23 +37,23 @@ def group_info_view(request, group_id, **kwargs):
 
 @extend_schema(
     methods=["GET"],
-    tags=["Sports"],
-    summary="Get available sports with detailed groups information",
-    description="Retrieve list of all available sports with their groups, schedules, trainers, capacity, and enrollment information.",
+    tags=["Clubs"],
+    summary="Get available clubs with detailed groups information",
+    description="Retrieve list of all available clubs with their groups, schedules, trainers, capacity, and enrollment information.",
     responses={
-        status.HTTP_200_OK: SportsWithGroupsSerializer,
+        status.HTTP_200_OK: DetailedSportSerializer(many=True),
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
     }
 )
 @api_view(["GET"])
 # @permission_classes([IsStudent]) Temporary off for academic_leave students
-def sports_view(request, **kwargs):
+def clubs_view(request, **kwargs):
     # Get student if authenticated
     student = None
     if hasattr(request.user, 'student'):
         student = request.user.student
     
     sports_data = get_sports_with_groups(student)
-    serializer = SportsWithGroupsSerializer({'sports': sports_data})
+    serializer = DetailedSportSerializer(sports_data, many=True)
     return Response(serializer.data)
 
