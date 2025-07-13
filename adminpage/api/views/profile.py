@@ -141,8 +141,7 @@ def get_history_with_self(request, semester_id: int, **kwargs):
     """
     semester = get_object_or_404(Semester, pk=semester_id)
     student = request.user  # user.pk == user.student.pk
-    return Response({
-        "trainings": list(map(
+    return Response(list(map(
             lambda g: {
                 **g,
                 "group": g["group"] if g["group_id"] < 0 else Group.objects.get(pk=g["group_id"]).to_frontend_name(),
@@ -150,4 +149,4 @@ def get_history_with_self(request, semester_id: int, **kwargs):
             },
             get_detailed_hours_and_self(student, semester)
         ))
-    })
+    )
