@@ -120,10 +120,10 @@ https://github.com/inno-sport-inh/backend/blob/main/docs/quality-assurance/quali
 
 ## Quality assurance
 ### Automated tests
-Unit tests and integration tests was implemented. They can be found [here](https://github.com/inno-sport-inh/backend/tree/main/adminpage/api-v2/tests).
+[CONTRIBUTING.md](docs/quality-assurance/quality-attribute-scenarios.md)
 
 ### User acceptance tests
-The user acceptance tests can be found [here](https://github.com/inno-sport-inh/backend/blob/main/docs/quality-assurance/user-acceptance-tests.md).
+[CONTRIBUTING.md](docs/quality-assurance/user-acceptance-tests.md)
 
 ## Build and deployment automation
 https://github.com/inno-sport-inh/backend/blob/main/docs/automation/continuous-integration.md
