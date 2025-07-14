@@ -89,4 +89,6 @@
 - **pytest.ini** — test discovery and settings
 - **.github/** — issue and pull request templates
 
+### 11. Frontend
+- **React.js**
 ---
