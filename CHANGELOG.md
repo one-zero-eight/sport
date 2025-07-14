@@ -34,3 +34,15 @@
 - Rewrited path for statistic data
 - Rewrited path for user actions files
 ## MVP v2.5
+### Frontend
+- Visual improvements
+# Backend
+- Added new endpoint for student history
+- Made swagger more readable and optimazed endpoints
+- Removed window for choosing sport type
+- Turned off old api and turn on new
+- Renamed the endpoints
+- Updated gitignore
+- Removed unused old functions
+- Fixed the bugs
+- Removed QR system
