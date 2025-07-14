@@ -107,7 +107,7 @@ This is an example of how you may give instructions on setting up your project l
 > [!NOTE]
 > Server supports auto-reload on code change in debug mode
 
-### Usage
+### Usage [Currently deployed]
 #### Admin panel of the main sport site:
 - http://t9d.store
 - Superuser data:
