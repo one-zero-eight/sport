@@ -10,7 +10,7 @@
     Backend of the sport page in the InnoNoHassle ecosystem. <br />
     <a href="https://frontend6-git-main-an11ys-projects.vercel.app">Deployed Product</a>
     &middot;
-    <a href="https://disk.yandex.ru/i/sqDhXHd9m3ng3w">Demo Video</a>
+    <a href="https://disk.yandex.ru/i/iq12O5IXZ6lxLw">Demo Video</a>
   </p>
 </div>
 
