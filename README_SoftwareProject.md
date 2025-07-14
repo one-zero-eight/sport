@@ -8,9 +8,9 @@
   <p align="center">
     <p align="center">
     Backend of the sport page in the InnoNoHassle ecosystem. <br />
-    <a href="https://...">Deployed Product</a>
+    <a href="https://frontend6-git-main-an11ys-projects.vercel.app">Deployed Product</a>
     &middot;
-    <a href="https://...">Demo Video</a>
+    <a href="https://disk.yandex.ru/i/sqDhXHd9m3ng3w">Demo Video</a>
   </p>
 </div>
 
@@ -88,10 +88,6 @@ This is an example of how you may give instructions on setting up your project l
    - Create a new superuser: `python3 manage.py createsuperuser`
 5. View Admin panel at http://localhost/admin and Swagger at http://localhost/api/swagger
 
-
-
-
-
 #### Commands
 
 - Dump database
@@ -112,41 +108,20 @@ This is an example of how you may give instructions on setting up your project l
 > [!NOTE]
 > Server supports auto-reload on code change in debug mode
 
-## Development
-[CONTRIBUTING.md](CONTRIBUTING.md)
+## Documentation
 
-## Quality characteristics and quality attribute scenarios
-https://github.com/inno-sport-inh/backend/blob/main/docs/quality-assurance/quality-attribute-scenarios.md
-
-## Quality assurance
-### Automated tests
-[automated-tests.md](docs/quality-assurance/automated-tests.md)
-
-### User acceptance tests
-[user-acceptance-tests.md](docs/quality-assurance/user-acceptance-tests.md)
-
-## Build and deployment automation
-[continuous-integration.md](docs/automation/continuous-integration.md)
-
-## Architecture
-
-### Static view
-
-[static-view.md](docs/architecture/static-view/static-view.md) 
-
-### Dynamic view
-
-[dynamic-view.md](docs/architecture/dynamic-view/dynamic-view.md)
-
-### Deployment view
-
-[deployment-view.md](/docs/architecture/deployment-view)
-
-### Tech stack
-[architecture.md](/docs/architecture/architecture.md)
-
-## License
-...
+- [Development](CONTRIBUTING.md)
+- [Quality characteristics and quality attribute scenarios](docs/quality-assurance/quality-attribute-scenarios.md)
+- **Quality assurance**
+    - [Automated tests](docs/quality-assurance/automated-tests.md)
+    - [User acceptance tests](docs/quality-assurance/user-acceptance-tests.md)
+- [Build and deployment automation](docs/automation/continuous-integration.md)
+- **Architecture**
+    - [Static view](docs/architecture/static-view/static-view.md)
+    - [Dynamic view](docs/architecture/dynamic-view/dynamic-view.md)
+    - [Deployment view](docs/architecture/deployment-view)
+    - [Tech stack](docs/architecture/architecture.md)
+  
 
 
 
