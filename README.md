@@ -1,20 +1,21 @@
-<p align="center" style="background-color: white">
+<br />
+<div align="center">
   <a href="https://innohassle.ru">
-    <img alt="InNoHassle" height="300px" src="https://raw.githubusercontent.com/one-zero-eight/design/212a5c06590c4d469a0a894481c09915a4b1735f/logo/ing-white-outline-transparent.svg">
+    <img alt="InNoHassle" height="200px" src="https://raw.githubusercontent.com/one-zero-eight/design/212a5c06590c4d469a0a894481c09915a4b1735f/logo/ing-white-outline-transparent.svg">
   </a>
-</p>
 
-# InnoSport site — Backend
+  <h1 align="center">InnoNoHassle: Sport &ndash; Backend</h1>
+  <p align="center">
+    <p align="center">
+    Backend of the sport page in the InnoNoHassle ecosystem. <br />
+    <a href="https://frontend6-git-main-an11ys-projects.vercel.app">Deployed Product</a>
+    &middot;
+    <a href="https://disk.yandex.ru/i/iq12O5IXZ6lxLw">Demo Video</a>
+  </p>
+</div>
 
-## Demo video
-https://disk.yandex.ru/i/WlsXpBPXi6LQyA
-
-## Current website state preview
-https://frontend-prod-eta.vercel.app
-
----
-
-## Project Goals and Description
+## About The Project
+### Project Goals and Description
 
 This university sports website - **InnoSport** helps students easily check in, explore available sports clubs, and track their completed sport hours.  
 It's designed to promote engagement in physical activities through a clean and user-friendly interface.  
@@ -23,7 +24,12 @@ Students can stay updated on their progress and discover new ways to stay active
 **Admin users** have full control over the system, including managing semesters, clubs, trainings, and user data.  
 The goal is to streamline sports participation and management in one powerful platform.
 
-## Project Context Diagram
+### Roadmap
+
+- [x] Add additional functionality to the frontend
+- [x] Clean up the backend by removing outdated functions
+
+### Context diagram
 
 This diagram shows the high-level context of the project, including key stakeholders and external systems interacting with the core application.
 
@@ -56,152 +62,32 @@ graph TB
     CSACP --> Mail
 ```
 
-## Development
+## Getting Started
 
-### Kanban board
-Kanban board can be found [here](https://github.com/orgs/inno-sport-inh/projects/1).
+This is an example of how you may give instructions on setting up your project locally. To get a local copy up and running follow these simple example steps.
 
-The table below documents an entry criteria for each column on kanban board.
+### Prerequisites
+- [Python 3.12](https://www.python.org/downloads/)
+- [Poetry](https://python-poetry.org/docs/)
+- [Docker](https://docs.docker.com/engine/install/)
 
-| **Column**     | **Entry criteria** |
-| -------------- | ------------------ |
-| Todo           | The task was planned, but not started |
-| In Progress    | The work on the task started, but not completed and doesn't comply DoD |
-| Done           | - Code is written and committed to the GitHub<br>- Code is approved by another members (or at least 1)<br>- No critical bugs<br>- Task is moved to the "Done" section in the kanban board<br>- Acceptance criteria is completed |
-
-### Git workflow
-This project follows a structured Git workflow based on **GitHub Flow**, designed to support effective collaboration and high code quality.
-
----
-#### Rules & Conventions
-##### Creating Issues
-Issues are created using predefined templates.  
-See templates in: [`.github/ISSUE_TEMPLATE/`](.github/ISSUE_TEMPLATE/)
-
-##### Labelling Issues
-Issues are labelled using the following tags:
-- `bug` – For bugs and unexpected behavior
-- `enhancement` – New features or improvements
-- `question` – General questions or clarifications
-- `documentation` – Docs-related tasks
-- `help wanted` – Community or team assistance needed
-
-##### Assigning Issues
-Issues should be assigned to relevant team members responsible for implementation or resolution.
-
-##### Branching Strategy
-Branches are created based on issue types:
-- Feature: `feature/<issue-number>-short-description`
-- Bugfix: `bugfix/<issue-number>-short-description`
-- Hotfix: `hotfix/<issue-number>-short-description`
-
-All work is done in branches and merged into the `main` branch via Pull Requests.
-
-##### Commit Message Format
-Commit messages follow the [Conventional Commits](https://www.conventionalcommits.org/) specification:
-
-
-## Quality assurance
-
-### Quality attribute scenarios
-https://github.com/inno-sport-inh/backend/blob/main/docs/quality-assurance/quality-attribute-scenarios.md
-
-### Automated tests
-Unit tests and integration tests was implemented. They can be found [here](https://github.com/inno-sport-inh/backend/tree/main/adminpage/api-v2/tests).
-
-### User acceptance tests
-The user acceptance tests can be found [here](https://github.com/inno-sport-inh/backend/blob/main/docs/quality-assurance/user-acceptance-tests.md).
-
-## Build and deployment
-
-### Continuous Integration
-Our CI pipeline consists of testing and static analysis tools for Python and React.js
-
-#### Workflow files
-- https://github.com/inno-sport-inh/backend/blob/main/.github/workflows/tests.yaml
-- https://github.com/inno-sport-inh/frontend/blob/main/.github/workflows/node.js.yml
-
-### Github actions pages
-- https://github.com/inno-sport-inh/frontend/actions
-- https://github.com/inno-sport-inh/backend/actions
-  
-### Static analysis tools
-- Python — [`flake8`](https://github.com/PyCQA/flake8), [`vulture`](https://github.com/jendrikseipp/vulture)
-- React.js — [`super-linter`](https://github.com/super-linter/super-linter)
-
-### Testing tools
-- Python — [`pytest`](https://github.com/pytest-dev/pytest)
-- React.js — [`jest`](https://github.com/jestjs/jest)
-
-## Architecture
-
-### Static view
-
-![Component Diagram](docs/architecture/static-view/component.png) 
-
-We organize our code into three main layers — **React frontend**, **FastAPI backend**, and **PostgreSQL** — each in its own module.
-- **Coupling**:
-    - Frontend ↔ API: loose coupling via HTTP/REST or GraphQL, so you can swap out backend implementations without touching UI code.
-    - API ↔ DB: well-defined repository layer isolates SQL queries, minimizing ripple effects from schema changes.
--  **Cohesion**:
-    - Each module has a single responsibility (UI, business logic, data storage), which simplifies both development and testing.
-- **Maintainability**:
-    - Clear separation of concerns and modular structure make it easy to onboard new developers, write unit tests per component, and refactor services independently.  
-
-### Dynamic view
-
-![Sequence Diagram](docs/architecture/dynamic-view/sequence.png)
-
-The above sequence diagram shows what happens when a user books a match:
-
-1. User clicks “Book Match” in the frontend.
-2. Frontend sends a POST to FastAPI, which first calls the Auth service to validate the token.
-3. Upon success, FastAPI writes a new record to PostgreSQL and returns the created match ID.
-4. Frontend confirms booking to the user.
-
-**Measured execution time in production**: _127 ms_ 
-
-### Deployment view
-
-![Deployemnt Diagram](docs/architecture/deployment-view/deployment.png)
-
-We deploy on AWS using:
-
--   **CloudFront + S3** for static assets (React bundle).
--   **EKS (Kubernetes)** for both frontend and API pods, behind an ALB with HTTPS termination.
--   **RDS (PostgreSQL)** in a private subnet, with automated backups and Multi-AZ for high availability.
-
-| Component       | Location                   | Notes                          |
-| --------------- | -------------------------- | ------------------------------ |
-| React app       | S3 + CloudFront CDN        | Globally cached, TTL = 5 min   |
-| FastAPI service | EKS (2 pods, 500 m/256 Mi) | Auto-scale on CPU > 60 %       |
-| PostgreSQL RDS  | Private subnet, Multi-AZ   | Backups daily, 7-day retention |
-
-This setup lets the customer spin up the entire stack via our Terraform module in their own AWS account—only configuration values (VPC IDs, domain names, secrets) need to be provided.
-
-## Usage
-
-1. Install [Python 3.12](https://www.python.org/downloads/), [Poetry](https://python-poetry.org/docs/),
-   [Docker](https://docs.docker.com/engine/install/)
-2. Install project dependencies with [Poetry](https://python-poetry.org/docs/cli/#options-2).
+### Installation
+1. Install project dependencies with [Poetry](https://python-poetry.org/docs/cli/#options-2).
    ```bash
    cd adminpage
    poetry install
    ```
-3. Copy environment variables: `cp deploy/.env.example deploy/.env` (leave default values in development)
-4. Start services: `docker compose -f ./deploy/docker-compose.yaml up --build`
-5. Make migrations and create superuser:
+2. Copy environment variables: `cp deploy/.env.example deploy/.env` (leave default values in development)
+3. Start services: `docker compose -f ./deploy/docker-compose.yaml up --build`
+4. Make migrations and create superuser:
    - Enter shell: `docker compose -f ./deploy/docker-compose.yaml exec -it adminpanel bash`
    - Autocreate migration files: `python3 manage.py makemigrations`
    - Apply migrations to db: `python3 manage.py migrate`
      > If there are problems with migrations applying, try to run the same migrate command with `--fake` option.
    - Create a new superuser: `python3 manage.py createsuperuser`
-6. View Admin panel at http://localhost/admin and Swagger at http://localhost/api/swagger
+5. View Admin panel at http://localhost/admin and Swagger at http://localhost/api/swagger
 
-> [!NOTE]
-> Server supports auto-reload on code change in debug mode
-
-### Commands
+#### Commands
 
 - Dump database
   ```bash
@@ -217,3 +103,22 @@ This setup lets the customer spin up the entire stack via our Terraform module i
   ```bash
   sh scripts/setup_sport_database.sh ./sport_dump.sql
   ```
+
+> [!NOTE]
+> Server supports auto-reload on code change in debug mode
+
+### Usage
+
+## Documentation
+
+- [Development](CONTRIBUTING.md)
+- [Quality characteristics and quality attribute scenarios](docs/quality-assurance/quality-attribute-scenarios.md)
+- **Quality assurance**
+    - [Automated tests](docs/quality-assurance/automated-tests.md)
+    - [User acceptance tests](docs/quality-assurance/user-acceptance-tests.md)
+- [Build and deployment automation](docs/automation/continuous-integration.md)
+- **Architecture**
+    - [Static view](docs/architecture/static-view/static-view.md)
+    - [Dynamic view](docs/architecture/dynamic-view/dynamic-view.md)
+    - [Deployment view](docs/architecture/deployment-view)
+    - [Tech stack](docs/architecture/architecture.md)
