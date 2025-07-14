@@ -142,6 +142,9 @@ https://github.com/inno-sport-inh/backend/blob/main/docs/quality-assurance/quali
 
 [deployment-view.md](/docs/architecture/deployment-view)
 
+### Tech stack
+[architecture.md](/docs/architecture/architecture.md)
+
 ## License
 ...
 
