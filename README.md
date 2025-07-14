@@ -108,6 +108,13 @@ This is an example of how you may give instructions on setting up your project l
 > Server supports auto-reload on code change in debug mode
 
 ### Usage
+#### Admin panel of the main sport site:
+- http://t9d.store
+- Superuser data:
+  - login: a.cherkasov@innopolis.university
+  - password: supersanya
+#### New front of the sport site:
+- https://frontend6-git-main-an11ys-projects.vercel.app/
 
 ## Documentation
 
