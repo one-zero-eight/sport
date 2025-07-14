@@ -29,6 +29,9 @@ The goal is to streamline sports participation and management in one powerful pl
 - [x] Add additional functionality to the frontend
 - [x] Clean up the backend by removing outdated functions
 
+### Demo video
+https://disk.yandex.ru/i/iq12O5IXZ6lxLw
+
 ### Context diagram
 
 This diagram shows the high-level context of the project, including key stakeholders and external systems interacting with the core application.
