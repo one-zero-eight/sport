@@ -26,9 +26,8 @@ The goal is to streamline sports participation and management in one powerful pl
 
 ### Roadmap
 
-- [ ] Add additional functionality to the frontend
-
-- [ ] Clean up the backend by removing outdated functions
+- [x] Add additional functionality to the frontend
+- [x] Clean up the backend by removing outdated functions
 
 ### Context diagram
 
