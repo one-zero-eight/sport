@@ -314,7 +314,7 @@ def get_student_semester_history(student: Student):
         
         # Calculate total hours for this semester
         total_hours = attendances.aggregate(
-            total=Sum('hours')Ашч
+            total=Sum('hours')
         )['total'] or 0
         
         # Format training data
