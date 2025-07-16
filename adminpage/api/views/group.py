@@ -9,7 +9,7 @@ from api.crud import get_group_info, get_sports
 from api.crud.crud_groups import get_sports_with_groups
 from api.permissions import IsStudent, IsTrainer
 from api.serializers import GroupInfoSerializer, NotFoundSerializer, SportsSerializer, EmptySerializer, ErrorSerializer
-from api.serializers.group import SportEnrollSerializer, SportsWithGroupsSerializer, DetailedSportSerializer
+from api.serializers.group import SportsWithGroupsSerializer, DetailedSportSerializer
 from sport.models import Group, Schedule, Student, Sport
 
 

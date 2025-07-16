@@ -3,7 +3,6 @@ from drf_spectacular.views import SpectacularSwaggerView, SpectacularJSONAPIView
 
 from api.views import (
     profile,
-    enroll,
     group,
     training,
     attendance,
@@ -33,15 +32,8 @@ register_converter(NegativeIntConverter, 'negint')
 urlpatterns = [
     # profile
     path(r"student/profile", profile.get_student_info),
-    path(r"student/change_gender", profile.change_gender),
-    #path(r"profile/history/<int:semester_id>", profile.get_history),
     path(r"student/history/<int:semester_id>", profile.get_history_with_self),
     path(r"student/semester-history", profile.get_student_semester_history_view),
-
-    # enrollment
-    path(r"student/enroll", enroll.enroll),
-    path(r"student/unenroll", enroll.unenroll),
-    path(r"trainer/unenroll-student", enroll.unenroll_by_trainer),
 
     # groups
     path(r"sport-groups/<int:group_id>", group.group_info_view),
@@ -84,11 +76,6 @@ urlpatterns = [
     path(r"fitness-test/sessions", fitness_test.get_sessions),
     path(r"fitness-test/sessions/<int:session_id>", fitness_test.get_session_info),
     path(r"fitness-test/students/search", fitness_test.suggest_fitness_test_student),
-
-    # measurements
-    path(r"measurements/upload", measurement.post_student_measurement),
-    path(r"measurements/results", measurement.get_results),
-    path(r"measurements", measurement.get_measurements),
 
     path(r"semester", semester.get_semester),
 

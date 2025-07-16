@@ -13,6 +13,14 @@ services:
       - "./nginx-logs:/var/log/nginx"
       - "django-static:/static"
       - "/sport/media:/media:ro"
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 128M
+          cpus: '0.1'
 
   adminpanel:
     build: ../adminpage
@@ -26,6 +34,14 @@ services:
         condition: service_healthy
     env_file:
       - .env
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.2'
 
   db:
     # See more: https://registry.hub.docker.com/_/postgres
@@ -41,6 +57,14 @@ services:
       retries: 5
       start_period: 30s
       timeout: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.1'
 
   prometheus:
     # See more: https://registry.hub.docker.com/r/prom/prometheus
@@ -51,6 +75,14 @@ services:
       - "prometheus-data:/prometheus"
     ports:
       - "127.0.0.1:9090:9090"
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.3'
+        reservations:
+          memory: 128M
+          cpus: '0.1'
 
   prometheus-postgres:
     # See more: https://github.com/prometheus-community/postgres_exporter
@@ -64,6 +96,14 @@ services:
       - "127.0.0.1:9187:9187"
     depends_on:
       - db
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.2'
+        reservations:
+          memory: 64M
+          cpus: '0.05'
 
   grafana:
     # See more: https://registry.hub.docker.com/r/grafana/grafana
@@ -85,6 +125,14 @@ services:
     volumes:
       - "grafana-data:/var/lib/grafana"
       - "./grafana-provisioning:/etc/grafana/provisioning/"
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.3'
+        reservations:
+          memory: 128M
+          cpus: '0.1'
 
 
 volumes:
