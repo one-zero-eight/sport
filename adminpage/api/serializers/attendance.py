@@ -94,3 +94,27 @@ class AttendanceSerializer(serializers.Serializer):
     group_id = serializers.IntegerField()
     group_name = serializers.CharField()
     trainers_emails = serializers.ListField()
+
+
+class SemesterHoursSummarySerializer(serializers.Serializer):
+    semester_id = serializers.IntegerField(help_text="Semester ID")
+    semester_name = serializers.CharField(help_text="Semester name")
+    debt = serializers.FloatField(help_text="Debt in hours for this semester")
+    self_sport_hours = serializers.FloatField(help_text="Self sport hours for this semester")
+    hours_from_groups = serializers.FloatField(help_text="Hours from sport groups for this semester")
+    required_hours = serializers.FloatField(help_text="Required hours for this semester")
+    is_current = serializers.BooleanField(help_text="Is this the current semester")
+
+
+class StudentHoursSummarySerializer(serializers.Serializer):
+    # Fields for current semester only (when current_semester_only=true)
+    debt = serializers.FloatField(help_text="Current student debt in hours", required=False)
+    self_sport_hours = serializers.FloatField(help_text="Number of self sport hours", required=False)
+    hours_from_groups = serializers.FloatField(help_text="Number of hours from sport groups", required=False)
+    required_hours = serializers.FloatField(help_text="Number of hours required to achieve", required=False)
+    
+    # Fields for all semesters (when current_semester_only=false)
+    semesters = SemesterHoursSummarySerializer(many=True, help_text="List of semesters with hours info", required=False)
+    
+    # Common field
+    current_semester_only = serializers.BooleanField(help_text="Current semester only or all semesters")

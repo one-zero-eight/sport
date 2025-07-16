@@ -314,7 +314,7 @@ def get_student_semester_history(student: Student):
         
         # Calculate total hours for this semester
         total_hours = attendances.aggregate(
-            total=Sum('hours')
+            total=Sum('hours')Ашч
         )['total'] or 0
         
         # Format training data
@@ -344,3 +344,93 @@ def get_student_semester_history(student: Student):
         result.append(semester_data)
     
     return result
+
+
+def get_student_hours_summary(student_id: int, current_semester_only: bool = False):
+    """
+    Get comprehensive student hours summary
+    
+    Args:
+        student_id: Student ID
+        current_semester_only: If True - current semester only, if False - all semesters
+        
+    Returns:
+        Dict with student hours information
+    """
+    student = Student.objects.get(user_id=student_id)
+    
+    if current_semester_only:
+        # Current semester only
+        current_semester = get_ongoing_semester()
+        
+        # Get current semester attendance
+        current_attendance = Attendance.objects.filter(
+            student_id=student_id,
+            training__group__semester=current_semester
+        )
+        
+        hours_from_groups = 0.0  # Hours from sport groups
+        self_sport_hours = 0.0   # Self sport hours (not debt)
+        
+        for attendance in current_attendance:
+            if attendance.cause_report is None:
+                hours_from_groups += float(attendance.hours)
+            elif attendance.cause_report.debt is False:
+                self_sport_hours += float(attendance.hours)
+        
+        # Get debt
+        try:
+            debt = Debt.objects.get(
+                semester_id=current_semester.id, 
+                student_id=student_id
+            ).debt
+        except Debt.DoesNotExist:
+            debt = 0.0
+        
+        required_hours = float(current_semester.hours)
+        
+        return {
+            'debt': float(debt),
+            'self_sport_hours': float(self_sport_hours),
+            'hours_from_groups': float(hours_from_groups),
+            'required_hours': float(required_hours),
+            'current_semester_only': True
+        }
+        
+    else:
+        # All semesters - return list of semesters
+        student_hours_data = get_student_hours(student_id)
+        current_sem = student_hours_data['ongoing_semester']
+        past_sems = student_hours_data['last_semesters_hours']
+        
+        semesters_list = []
+        
+        # Add current semester
+        current_semester_info = {
+            'semester_id': current_sem['id_sem'],
+            'semester_name': Semester.objects.get(id=current_sem['id_sem']).name,
+            'debt': float(current_sem['debt']),
+            'self_sport_hours': float(current_sem['hours_self_not_debt']),
+            'hours_from_groups': float(current_sem['hours_not_self']),
+            'required_hours': float(current_sem['hours_sem_max']),
+            'is_current': True
+        }
+        semesters_list.append(current_semester_info)
+        
+        # Add past semesters
+        for sem in past_sems:
+            semester_info = {
+                'semester_id': sem['id_sem'],
+                'semester_name': Semester.objects.get(id=sem['id_sem']).name,
+                'debt': float(sem['debt']),
+                'self_sport_hours': float(sem['hours_self_not_debt']),
+                'hours_from_groups': float(sem['hours_not_self']),
+                'required_hours': float(sem['hours_sem_max']),
+                'is_current': False
+            }
+            semesters_list.append(semester_info)
+        
+        return {
+            'semesters': semesters_list,
+            'current_semester_only': False
+        }
