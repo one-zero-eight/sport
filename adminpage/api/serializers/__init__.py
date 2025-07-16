@@ -12,6 +12,8 @@ from .attendance import (
     HoursInfoSerializer,
     HoursInfoFullSerializer,
     AttendanceSerializer,
+    StudentHoursSummarySerializer,
+    SemesterHoursSummarySerializer,
 )
 from .calendar import (
     CalendarRequestSerializer,
@@ -50,12 +52,7 @@ from .fitness_test import (
     FitnessTestResultSerializer,
     FitnessTestResults
 )
-from .measurement import (
-    MeasurementSerializer,
-    MeasurementPostSerializer,
-    MeasurementResultSerializer,
-    MeasurementResultsSerializer
-)
+
 from .medical_groups import (
     MedicalGroupSerializer,
     MedicalGroupsSerializer

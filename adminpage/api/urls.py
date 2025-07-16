@@ -10,7 +10,6 @@ from api.views import (
     reference,
     self_sport_report,
     fitness_test,
-    measurement,
     semester,
     analytics,
     medical_groups,
@@ -51,8 +50,7 @@ urlpatterns = [
     path(r"trainings/<int:training_id>/grades.csv", attendance.get_grades_csv),
     path(r"groups/<int:group_id>/attendance-report", attendance.get_last_attended_dates),
     path(r"attendance/mark", attendance.mark_attendance),
-    path(r"students/<int:student_id>/hours", attendance.get_student_hours_info),
-    path(r"students/<int:student_id>/negative-hours", attendance.get_negative_hours_info),
+    path(r"students/<int:student_id>/hours-summary", attendance.get_student_hours_summary),
     path(r"students/<int:student_id>/better-than", attendance.get_better_than_info),
 
     # calendar

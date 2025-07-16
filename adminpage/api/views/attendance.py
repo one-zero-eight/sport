@@ -24,7 +24,7 @@ from api.serializers import SuggestionQuerySerializer, SuggestionSerializer, \
     NotFoundSerializer, InbuiltErrorSerializer, \
     TrainingGradesSerializer, AttendanceMarkSerializer, error_detail, \
     BadGradeReportGradeSerializer, BadGradeReport, LastAttendedDatesSerializer, HoursInfoSerializer, \
-    HoursInfoFullSerializer, AttendanceSerializer, ErrorSerializer
+    HoursInfoFullSerializer, AttendanceSerializer, ErrorSerializer, StudentHoursSummarySerializer
 from api.serializers.attendance import BetterThanInfoSerializer
 from sport.models import Group, Student, Attendance
 
@@ -197,27 +197,43 @@ def get_last_attended_dates(request, group_id, **kwargs):
         status.HTTP_403_FORBIDDEN: InbuiltErrorSerializer,
     }
 )
-@api_view(["GET"])
-@permission_classes([IsStudent | IsStaff | IsSuperUser])
-def get_negative_hours_info(request, student_id, **kwargs):
-    return Response({"final_hours": get_negative_hours(student_id)})
-
-
 @extend_schema(
     methods=["GET"],
     tags=["Attendance"],
-    summary="Get student hours information",
-    description="Get detailed information about student's hours including regular hours, self-sport hours, and debt.",
+    summary="Get student hours summary",
+    description="Get comprehensive student hours summary including debt, self-sport hours, hours from groups, and required hours. Use 'current_semester_only' parameter to get data for current semester only or all semesters.",
+    parameters=[
+        OpenApiParameter(
+            name='current_semester_only',
+            type=bool,
+            location=OpenApiParameter.QUERY,
+            description='If true, returns data for current semester only. If false, returns data for all semesters.',
+            default=True
+        )
+    ],
     responses={
-        status.HTTP_200_OK: HoursInfoSerializer,
+        status.HTTP_200_OK: StudentHoursSummarySerializer,
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
         status.HTTP_403_FORBIDDEN: InbuiltErrorSerializer,
     }
 )
 @api_view(["GET"])
 @permission_classes([IsStudent | IsStaff | IsSuperUser])
-def get_student_hours_info(request, student_id, **kwargs):
-    return Response(get_student_hours(student_id))
+def get_student_hours_summary(request, student_id, **kwargs):
+    """
+    Get comprehensive student hours summary
+    """
+    current_semester_only = request.GET.get('current_semester_only', 'true').lower() == 'true'
+    
+    try:
+        from api.crud.crud_attendance import get_student_hours_summary
+        summary = get_student_hours_summary(student_id, current_semester_only)
+        return Response(summary)
+    except Student.DoesNotExist:
+        return Response(
+            {"detail": "Student not found"}, 
+            status=status.HTTP_404_NOT_FOUND
+        )
 
 
 @extend_schema(
