@@ -14,12 +14,10 @@ from api.permissions import (
 )
 from api.serializers import (
     get_error_serializer,
-    TrainingHourSerializer, EmptySerializer,
-    HasQRSerializer,
+    EmptySerializer,
 )
-from api.serializers.profile import GenderSerializer
+from api.serializers.profile import GenderSerializer, TrainingHourSerializer, SemesterHistorySerializer
 from api.serializers.student import StudentSerializer
-from api.serializers.profile import SemesterHistorySerializer
 from sport.models import Semester, Student, Group
 
 
@@ -58,73 +56,12 @@ def get_student_info(request, **kwargs):
     return Response(response_data)
 
 
-@extend_schema(
-    methods=["POST"],
-    request=None,
-    responses={
-        status.HTTP_200_OK: HasQRSerializer,
-    }
-)
-
-
-
-@extend_schema(
-    methods=["POST"],
-    tags=["Profile"],
-    summary="Change student gender",
-    description="Update student's gender information. Only accessible by staff members.",
-    request=GenderSerializer,
-    responses={
-        status.HTTP_200_OK: EmptySerializer,
-    }
-)
-@api_view(["POST"])
-@permission_classes([IsStaff])
-def change_gender(request, **kwargs):
-    serializer = GenderSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-
-    print(serializer.validated_data['student_id'])
-
-    student = Student.objects.get(user_id=serializer.validated_data['student_id'])
-    student.gender = serializer.validated_data['gender']
-    student.save()
-
-    return Response({})
-
-
 training_history404 = get_error_serializer(
     "training_history",
     error_code=404,
     error_description="Not found",
 )
 
-
-@extend_schema(
-    methods=["GET"],
-    responses={
-        status.HTTP_200_OK: TrainingHourSerializer(many=True),
-        status.HTTP_404_NOT_FOUND: training_history404,
-    }
-)
-@api_view(["GET"])
-@permission_classes([IsStudent])
-# TODO: Replace on get_history_with_self
-def get_history(request, semester_id: int, **kwargs):
-    """
-    Get student's trainings per_semester
-    """
-    semester = get_object_or_404(Semester, pk=semester_id)
-    student = request.user  # user.pk == user.student.pk
-    return Response({
-        "trainings": list(map(
-            lambda g: {
-                **g,
-                "timestamp": timezone.localtime(g["timestamp"]).strftime("%b %d %H:%M"),
-            },
-            get_detailed_hours(student, semester)
-        ))
-    })
 
 @extend_schema(
     methods=["GET"],

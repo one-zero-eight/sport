@@ -11,8 +11,6 @@ class ScheduleSerializer(serializers.Serializer):
     training_class = serializers.CharField(allow_null=True)
 
 
-class SportEnrollSerializer(serializers.Serializer):
-    sport_id = serializers.IntegerField()
 
 class SportSerializer(serializers.Serializer):
     id = serializers.IntegerField()

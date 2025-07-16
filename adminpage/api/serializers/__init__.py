@@ -26,10 +26,7 @@ from .common import (
     get_error_serializer,
     error_detail,
 )
-from .enroll import (
-    EnrollSerializer,
-    UnenrollStudentSerializer,
-)
+
 from .group import (
     ScheduleSerializer,
     SportSerializer,
@@ -37,7 +34,6 @@ from .group import (
     GroupInfoSerializer,
 )
 from .profile import (
-    HasQRSerializer,
     TrainingHourSerializer,
 )
 from .reference import (
