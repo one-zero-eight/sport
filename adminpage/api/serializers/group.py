@@ -9,6 +9,7 @@ class ScheduleSerializer(serializers.Serializer):
     start_time = serializers.CharField()
     end_time = serializers.CharField()
     training_class = serializers.CharField(allow_null=True)
+    training_ids = serializers.ListField(child=serializers.IntegerField(), allow_empty=True)
 
 
 

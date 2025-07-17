@@ -9,7 +9,7 @@ from django.db.models import Count, Sum, IntegerField
 import api.crud
 from api.crud.utils import dictfetchall, get_trainers_group
 from api.crud.crud_semester import get_ongoing_semester
-from sport.models import Sport, Student, Trainer, Group, Enroll
+from sport.models import Sport, Student, Trainer, Group, Enroll, Training
 
 
 def get_sports(all=False, student: Optional[Student] = None):
@@ -128,12 +128,19 @@ def get_sports_with_groups(student: Optional[Student] = None):
             # Get schedule for this group
             schedule_data = []
             for schedule in group.schedule.all():
+                # Get training IDs for this schedule
+                training_ids = list(Training.objects.filter(
+                    schedule=schedule,
+                    group=group
+                ).values_list('id', flat=True))
+                
                 schedule_info = {
                     'weekday': schedule.weekday,
                     'weekday_name': schedule.get_weekday_display(),
                     'start_time': schedule.start.strftime('%H:%M'),
                     'end_time': schedule.end.strftime('%H:%M'),
                     'training_class': schedule.training_class.name if schedule.training_class else None,
+                    'training_ids': training_ids,
                     #'location': schedule.training_class.name if schedule.training_class else None,  # Location is same as training_class
                 }
                 schedule_data.append(schedule_info)
