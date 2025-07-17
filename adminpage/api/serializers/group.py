@@ -46,6 +46,34 @@ class GroupInfoSerializer(serializers.Serializer):
     schedule = ScheduleSerializer(many=True)
 
 
+class TrainingParticipantSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+    email = serializers.EmailField()
+    medical_group = serializers.CharField()
+    hours = serializers.FloatField()
+    attended = serializers.BooleanField()
+
+
+class TrainingParticipantsInfoSerializer(serializers.Serializer):
+    total_checked_in = serializers.IntegerField()
+    students = TrainingParticipantSerializer(many=True)
+
+
+class ClubTrainingSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    start = serializers.DateTimeField()
+    end = serializers.DateTimeField()
+    training_class = serializers.CharField(allow_null=True)
+    group_accredited = serializers.BooleanField()
+    can_grade = serializers.BooleanField()
+    can_check_in = serializers.BooleanField()
+    checked_in = serializers.BooleanField()
+    participants = TrainingParticipantsInfoSerializer()
+    capacity = serializers.IntegerField()
+    available_spots = serializers.IntegerField()
+
+
 class DetailedGroupSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     name = serializers.CharField()
@@ -54,7 +82,7 @@ class DetailedGroupSerializer(serializers.Serializer):
     current_enrollment = serializers.IntegerField()
     is_club = serializers.BooleanField()
     accredited = serializers.BooleanField()
-    schedule = ScheduleSerializer(many=True)
+    trainings = ClubTrainingSerializer(many=True)
     trainers = TrainerSerializer(many=True)
     allowed_medical_groups = serializers.ListField(child=serializers.CharField())
 

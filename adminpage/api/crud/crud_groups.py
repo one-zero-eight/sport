@@ -12,6 +12,7 @@ import api.crud
 from api.crud.utils import dictfetchall, get_trainers_group
 from api.crud.crud_semester import get_ongoing_semester
 from sport.models import Sport, Student, Trainer, Group, Enroll, Training
+from api.crud.crud_training import can_check_in
 
 
 def get_sports(all=False, student: Optional[Student] = None):
@@ -21,9 +22,9 @@ def get_sports(all=False, student: Optional[Student] = None):
     @param student - if student passed, get sports applicable for student
     @return list of all sport types
     """
-    groups = Group.objects.filter(semester__pk=api.crud.get_ongoing_semester().pk)
+    groups = Group.objects.filter(semester__pk=get_ongoing_semester().pk)
     if student:
-        groups = groups.filter(allowed_medical_groups=student.medical_group_id)
+        groups = groups.filter(allowed_medical_groups=student.medical_group)
         # groups = groups.filter(allowed_qr__in=[-1, int(student.has_QR)])
 
     # w/o distinct returns a lot of duplicated
@@ -88,13 +89,122 @@ def get_trainer_groups(trainer: Trainer):
     # Will it be converted to a dictionary?
 
 
-def get_free_places_for_sport(sport_id):
-    groups = Group.objects.filter(sport=sport_id, semester=get_ongoing_semester())
-    res = 0
-    # TODO: replace with aggregate
-    for i in groups:
-        res += i.capacity - Enroll.objects.filter(group=i.id).count()
-    return res
+def get_free_places_for_sport(sport_id: int) -> int:
+    """
+    Calculate the total number of free places for all groups in a sport
+    """
+    groups = Group.objects.filter(
+        sport=sport_id,
+        semester=get_ongoing_semester()
+    )
+    
+    total_free = 0
+    for group in groups:
+        current_enrollment = Enroll.objects.filter(group=group).count()
+        free_places = max(0, group.capacity - current_enrollment)
+        total_free += free_places
+    
+    return total_free
+
+
+def get_clubs_as_trainings(student: Optional[Student] = None):
+    """
+    Retrieve all upcoming club trainings in the same format as weekly schedule
+    @param student - if student passed, filter applicable trainings
+    @return list of training objects with participants info
+    """
+    from sport.models import TrainingCheckIn
+    from django.db.models import Prefetch
+    
+    # Get current time to filter out past trainings
+    current_time = timezone.now()
+    
+    # Get groups for current semester that are clubs
+    groups_query = Group.objects.filter(
+        semester__pk=get_ongoing_semester().pk,
+        is_club=True  # Only clubs
+    )
+    
+    if student:
+        groups_query = groups_query.filter(
+            Q(allowed_medical_groups=student.medical_group)
+            | Q(allowed_students=student.pk)
+        ).exclude(banned_students=student.pk)
+    
+    # Get upcoming trainings for these club groups
+    group_prefetch = Prefetch("group", queryset=Group.objects.select_related("sport").prefetch_related(
+        "allowed_medical_groups"))
+    
+    trainings = Training.objects.filter(
+        group__in=groups_query,
+        start__gt=current_time,  # Only future trainings
+        group__sport__isnull=False  # Exclude special groups
+    ).select_related(
+        'group', 'group__sport', 'training_class'
+    ).prefetch_related(
+        group_prefetch, "checkins"
+    ).order_by('start')
+    
+    # Get student check-ins if student provided
+    student_checkins_map = {}
+    if student:
+        student_checkins = TrainingCheckIn.objects.filter(
+            student=student, 
+            training__in=trainings
+        ).select_related("training")
+        student_checkins_map = {checkin.training_id: checkin for checkin in student_checkins}
+    
+    trainings_data = []
+    
+    for training in trainings:
+        # Calculate can_check_in
+        can_check_in_result = False
+        checked_in = False
+        
+        if student:
+            can_check_in_result = can_check_in(student, training)
+            checked_in = training.id in student_checkins_map
+        
+        # Get current enrollment for this group
+        current_enrollment = Enroll.objects.filter(group=training.group).count()
+        
+        # Calculate participants info (similar to weekly schedule)
+        from api.crud.crud_training import get_students_grades
+        participants = get_students_grades(training.id)
+        
+        participants_info = {
+            'total_checked_in': len([p for p in participants if p.get('hours', 0) >= 0]),
+            'students': [
+                {
+                    'id': p['student_id'],
+                    'name': p['full_name'],
+                    'email': p['email'],
+                    'medical_group': p['med_group'],
+                    'hours': p.get('hours', 0),
+                    'attended': p.get('hours', 0) > 0
+                }
+                for p in participants
+            ]
+        }
+        
+        training_dict = {
+            "id": training.id,
+            "start": training.start,
+            "end": training.end,
+            "group_id": training.group.id,
+            "group_name": training.group.to_frontend_name(),
+            "training_class": training.training_class.name if training.training_class else None,
+            "group_accredited": training.group.accredited,
+            "can_grade": False,  # Students can't grade
+            "can_check_in": can_check_in_result,
+            "checked_in": checked_in,
+            "capacity": training.group.capacity,
+            "available_spots": training.group.capacity - participants_info['total_checked_in'],
+            "participants": participants_info
+        }
+        trainings_data.append(training_dict)
+    
+    return trainings_data
 
 
 def get_sports_with_groups(student: Optional[Student] = None):
@@ -106,9 +216,9 @@ def get_sports_with_groups(student: Optional[Student] = None):
     from sport.models import Schedule, TrainingClass
     
     # Get groups for current semester
-    groups = Group.objects.filter(semester__pk=api.crud.get_ongoing_semester().pk)
+    groups = Group.objects.filter(semester__pk=get_ongoing_semester().pk)
     if student:
-        groups = groups.filter(allowed_medical_groups=student.medical_group_id)
+        groups = groups.filter(allowed_medical_groups=student.medical_group)
     
     # Get sports that have groups
     sports = Sport.objects.filter(
@@ -128,26 +238,57 @@ def get_sports_with_groups(student: Optional[Student] = None):
         # Prepare groups data
         groups_data = []
         for group in sport_groups:
-            # Get schedule for this group
-            schedule_data = []
-            for schedule in group.schedule.all():
-                # Get training IDs for this schedule - only upcoming trainings
-                training_ids = list(Training.objects.filter(
-                    schedule=schedule,
-                    group=group,
-                    start__gt=current_time  # Only future trainings
-                ).values_list('id', flat=True))
+            # Get trainings for this group - only upcoming trainings
+            group_trainings = []
+            trainings = Training.objects.filter(
+                group=group,
+                start__gt=current_time  # Only future trainings
+            ).select_related('training_class').order_by('start')
+            
+            for training in trainings:
+                # Get participants info for this training
+                from api.crud.crud_training import get_students_grades
+                participants = get_students_grades(training.id)
                 
-                schedule_info = {
-                    'weekday': schedule.weekday,
-                    'weekday_name': schedule.get_weekday_display(),
-                    'start_time': schedule.start.strftime('%H:%M'),
-                    'end_time': schedule.end.strftime('%H:%M'),
-                    'training_class': schedule.training_class.name if schedule.training_class else None,
-                    'training_ids': training_ids,
-                    #'location': schedule.training_class.name if schedule.training_class else None,  # Location is same as training_class
+                participants_info = {
+                    'total_checked_in': len([p for p in participants if p.get('hours', 0) >= 0]),
+                    'students': [
+                        {
+                            'id': p['student_id'],
+                            'name': p['full_name'],
+                            'email': p['email'],
+                            'medical_group': p['med_group'],
+                            'hours': p.get('hours', 0),
+                            'attended': p.get('hours', 0) > 0
+                        }
+                        for p in participants
+                    ]
                 }
-                schedule_data.append(schedule_info)
+                
+                # Calculate can_check_in and checked_in for student
+                can_check_in_result = False
+                checked_in = False
+                if student:
+                    can_check_in_result = can_check_in(student, training)
+                    from sport.models import TrainingCheckIn
+                    checked_in = TrainingCheckIn.objects.filter(
+                        student=student, training=training
+                    ).exists()
+                
+                training_info = {
+                    'id': training.id,
+                    'start': training.start,
+                    'end': training.end,
+                    'training_class': training.training_class.name if training.training_class else None,
+                    'group_accredited': group.accredited,
+                    'can_grade': False,
+                    'can_check_in': can_check_in_result,
+                    'checked_in': checked_in,
+                    'participants': participants_info,
+                    'capacity': group.capacity,
+                    'available_spots': group.capacity - participants_info['total_checked_in'],
+                }
+                group_trainings.append(training_info)
             
             # Get trainers for this group
             trainers_data = []
@@ -183,7 +324,7 @@ def get_sports_with_groups(student: Optional[Student] = None):
                 'current_enrollment': current_enrollment,
                 'is_club': group.is_club,
                 'accredited': group.accredited,
-                'schedule': schedule_data,
+                'trainings': group_trainings,
                 'trainers': trainers_data,
                 'allowed_medical_groups': [mg.name for mg in group.allowed_medical_groups.all()],
             }
