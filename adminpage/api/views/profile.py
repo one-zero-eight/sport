@@ -24,34 +24,44 @@ from sport.models import Semester, Student, Group
 @extend_schema(
     methods=["GET"],
     tags=["Profile"],
-    summary="Get student profile information",
-    description="Retrieve current student's profile information including personal details, medical group, sport hours statistics, and required hours threshold for the current semester.",
+    summary="Get user profile information",
+    description="Retrieve current user's profile information including user ID, statuses, and detailed information for each status (student info with hours, trainer info with groups, etc.).",
     responses={
         status.HTTP_200_OK: StudentSerializer(),
     }
 )
 @api_view(["GET"])
-@permission_classes([IsStudent])
+@permission_classes([IsStudent | IsStaff])
 def get_student_info(request, **kwargs):
     """
-    Get info about current student.
+    Get info about current user including all their statuses and corresponding information.
     """
-    student: Student = request.user.student
-    
-    # Get student hours data
-    hours_data = get_student_hours(student.user.id)
-    ongoing_semester = hours_data['ongoing_semester']
+    # For this endpoint, we need to get the user's student profile if it exists
+    # If user doesn't have student profile but is staff/trainer, we'll create minimal data
+    if hasattr(request.user, 'student'):
+        user_instance = request.user.student
+    else:
+        # Create a minimal Student-like object for the serializer to work with
+        class UserWrapper:
+            def __init__(self, user):
+                self.user = user
+        user_instance = UserWrapper(request.user)
     
     # Prepare data for serializer
-    serializer = StudentSerializer(student)
+    serializer = StudentSerializer(user_instance)
     response_data = serializer.data
     
-    # Add hours data
-    response_data['hours'] = ongoing_semester['hours_not_self']  # Hours for semester (not self-sport)
-    response_data['debt'] = ongoing_semester['debt']  # Debt hours
-    response_data['self_sport_hours'] = (ongoing_semester['hours_self_not_debt'] + 
-                                        ongoing_semester['hours_self_debt'])  # Self sport hours
-    response_data['required_hours'] = ongoing_semester['hours_sem_max']  # Required hours threshold for current semester
+    # Add hours data to student_info if user is a student
+    if hasattr(request.user, 'student') and response_data.get('student_info'):
+        hours_data = get_student_hours(request.user.id)
+        ongoing_semester = hours_data['ongoing_semester']
+        
+        # Add hours data to student_info
+        response_data['student_info']['hours'] = ongoing_semester['hours_not_self']  # Hours for semester (not self-sport)
+        response_data['student_info']['debt'] = ongoing_semester['debt']  # Debt hours
+        response_data['student_info']['self_sport_hours'] = (ongoing_semester['hours_self_not_debt'] + 
+                                            ongoing_semester['hours_self_debt'])  # Self sport hours
+        response_data['student_info']['required_hours'] = ongoing_semester['hours_sem_max']  # Required hours threshold for current semester
     
     return Response(response_data)
 
