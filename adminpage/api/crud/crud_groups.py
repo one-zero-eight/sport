@@ -5,6 +5,8 @@ from django.db import connection
 from django.db.models import F
 from django.db.models import Q
 from django.db.models import Count, Sum, IntegerField
+from django.utils import timezone
+from django.utils.html import strip_tags
 
 import api.crud
 from api.crud.utils import dictfetchall, get_trainers_group
@@ -114,6 +116,7 @@ def get_sports_with_groups(student: Optional[Student] = None):
     ).filter(special=False, visible=True).distinct()
     
     sports_list = []
+    current_time = timezone.now()
     
     for sport in sports:
         sport_groups = groups.filter(sport=sport).select_related(
@@ -128,10 +131,11 @@ def get_sports_with_groups(student: Optional[Student] = None):
             # Get schedule for this group
             schedule_data = []
             for schedule in group.schedule.all():
-                # Get training IDs for this schedule
+                # Get training IDs for this schedule - only upcoming trainings
                 training_ids = list(Training.objects.filter(
                     schedule=schedule,
-                    group=group
+                    group=group,
+                    start__gt=current_time  # Only future trainings
                 ).values_list('id', flat=True))
                 
                 schedule_info = {
@@ -166,36 +170,35 @@ def get_sports_with_groups(student: Optional[Student] = None):
             
             # Calculate enrollment info
             current_enrollment = Enroll.objects.filter(group=group).count()
-            free_places = group.capacity - current_enrollment
             
-            # Check if student is enrolled
-            is_enrolled = False
-            if student:
-                is_enrolled = Enroll.objects.filter(group=group, student=student).exists()
+            # Clean HTML tags from group name and description
+            group_name = strip_tags(group.name) if group.name else ''
+            group_description = strip_tags(group.sport.description) if group.sport and group.sport.description else ''
             
             group_info = {
                 'id': group.id,
-                'name': group.name or '',
-                'description': group.sport.description if group.sport else '',
+                'name': group_name,
+                'description': group_description,
                 'capacity': group.capacity,
                 'current_enrollment': current_enrollment,
-                'free_places': free_places,
                 'is_club': group.is_club,
                 'accredited': group.accredited,
-                'is_enrolled': is_enrolled,
                 'schedule': schedule_data,
                 'trainers': trainers_data,
                 'allowed_medical_groups': [mg.name for mg in group.allowed_medical_groups.all()],
             }
             groups_data.append(group_info)
         
+        # Clean HTML tags from sport name and description
+        sport_name = strip_tags(sport.name) if sport.name else ''
+        sport_description = strip_tags(sport.description) if sport.description else ''
+        
         sport_info = {
             'id': sport.id,
-            'name': sport.name,
-            'description': sport.description,
+            'name': sport_name,
+            'description': sport_description,
             'groups': groups_data,
             'total_groups': len(groups_data),
-            'total_free_places': sum(group['free_places'] for group in groups_data),
         }
         sports_list.append(sport_info)
     

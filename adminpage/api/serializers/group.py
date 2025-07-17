@@ -52,10 +52,8 @@ class DetailedGroupSerializer(serializers.Serializer):
     description = serializers.CharField()
     capacity = serializers.IntegerField()
     current_enrollment = serializers.IntegerField()
-    free_places = serializers.IntegerField()
     is_club = serializers.BooleanField()
     accredited = serializers.BooleanField()
-    is_enrolled = serializers.BooleanField()
     schedule = ScheduleSerializer(many=True)
     trainers = TrainerSerializer(many=True)
     allowed_medical_groups = serializers.ListField(child=serializers.CharField())
@@ -67,7 +65,6 @@ class DetailedSportSerializer(serializers.Serializer):
     description = serializers.CharField()
     groups = DetailedGroupSerializer(many=True)
     total_groups = serializers.IntegerField()
-    total_free_places = serializers.IntegerField()
 
 
 class SportsWithGroupsSerializer(serializers.Serializer):
