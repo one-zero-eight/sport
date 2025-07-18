@@ -50,11 +50,17 @@ class StudentSerializer(serializers.Serializer):
     
     def get_student_info(self, obj):
         """
-        Return detailed student information if user is a student
+        Return detailed student information if user is a student and has 'student' status
         """
         user = obj.user if hasattr(obj, 'user') else obj
         
+        # Check if user has student profile and 'student' status
         if not hasattr(user, 'student'):
+            return None
+            
+        # Get user statuses to check if 'student' is included
+        user_statuses = self.get_user_statuses(obj)
+        if 'student' not in user_statuses:
             return None
             
         student = user.student
@@ -79,11 +85,17 @@ class StudentSerializer(serializers.Serializer):
     
     def get_trainer_info(self, obj):
         """
-        Return detailed trainer information if user is a trainer
+        Return detailed trainer information if user is a trainer and has 'trainer' status
         """
         user = obj.user if hasattr(obj, 'user') else obj
         
+        # Check if user has trainer profile and 'trainer' status
         if not hasattr(user, 'trainer'):
+            return None
+            
+        # Get user statuses to check if 'trainer' is included
+        user_statuses = self.get_user_statuses(obj)
+        if 'trainer' not in user_statuses:
             return None
             
         trainer = user.trainer

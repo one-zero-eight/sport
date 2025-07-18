@@ -28,4 +28,8 @@ sport_demo_dump_2025_06.sql
 sport_demo_dump_2025_06.sql
 __pycache__/
 deploy/nginx-logs/
+<<<<<<< HEAD
 >>>>>>> 008a85f9 (Fix some bugs, remove useless functions, update gitignore)
+=======
+sport_dump.sql
+>>>>>>> 9740bf71 (Fix some bugs)

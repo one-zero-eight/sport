@@ -51,8 +51,9 @@ def get_student_info(request, **kwargs):
     serializer = StudentSerializer(user_instance)
     response_data = serializer.data
     
-    # Add hours data to student_info if user is a student
-    if hasattr(request.user, 'student') and response_data.get('student_info'):
+    # Add hours data to student_info only if user is a student AND student_info is present in response
+    if (hasattr(request.user, 'student') and 
+        response_data.get('student_info') is not None):
         hours_data = get_student_hours(request.user.id)
         ongoing_semester = hours_data['ongoing_semester']
         

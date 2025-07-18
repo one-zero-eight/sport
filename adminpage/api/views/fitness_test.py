@@ -99,12 +99,21 @@ def get_result(request, **kwargs):
         total_score = 0
         result_list = []
         for result in results.filter(exercise__semester_id=semester_id, session__retake=retake):
+            # Safe handling of select values
+            if result.exercise.select is None:
+                display_value = result.value
+            else:
+                select_options = result.exercise.select.split(',')
+                if 0 <= result.value < len(select_options):
+                    display_value = select_options[result.value]
+                else:
+                    # Fallback to raw value if index is out of bounds
+                    display_value = result.value
+            
             result_list.append({
                 'exercise': result.exercise.exercise_name,
                 'unit': result.exercise.value_unit,
-                'value': (result.value
-                          if result.exercise.select is None
-                          else result.exercise.select.split(',')[result.value]),
+                'value': display_value,
                 'score': get_score(request.user.student, result),
                 'max_score': get_max_score(request.user.student, result),
             })
