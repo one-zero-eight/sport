@@ -45,8 +45,12 @@ def get_grading_scheme(student: Student, result: FitnessTestResult):
 
 
 def get_score(student: Student, result: FitnessTestResult):
-    return get_grading_scheme(student, result).get(start_range__lte=result.value, end_range__gt=result.value).score
+    try:
+        return get_grading_scheme(student, result).get(start_range__lte=result.value, end_range__gt=result.value).score
+    except FitnessTestGrading.DoesNotExist:
+        return 0  # Default score when grading scheme is not found
 
 
 def get_max_score(student: Student, result: FitnessTestResult):
-    return max(map(lambda x: x[0], get_grading_scheme(student, result).values_list('score')))
+    scores = get_grading_scheme(student, result).values_list('score', flat=True)
+    return max(scores) if scores else 0  # Default max score when grading scheme is not found

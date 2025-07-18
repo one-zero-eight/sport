@@ -16,13 +16,12 @@ class FitnessTestExerciseSelectSerializer(serializers.ListSerializer):
 
 class FitnessTestExerciseSerializer(serializers.ModelSerializer[FitnessTestExercise]):
     name = serializers.CharField(source='exercise_name')
-    semester = SemesterSerializer()
     unit = serializers.CharField(source='value_unit')
     select = FitnessTestExerciseSelectSerializer(child=serializers.CharField())
 
     class Meta:
         model = FitnessTestExercise
-        fields = ('id', 'semester', 'name', 'unit', 'select')
+        fields = ('id', 'name', 'unit', 'threshold', 'select')
 
 
 class FitnessTestResultSerializer(serializers.ModelSerializer[FitnessTestResult]):
@@ -71,13 +70,12 @@ class FitnessTestUpload(serializers.Serializer):
 
 
 class FitnessTestSessionSerializer(serializers.ModelSerializer[FitnessTestSession]):
-    semester = SemesterSerializer()
     retake = serializers.BooleanField()
     teacher = serializers.CharField(source='teacher.__str__')  # TODO: return object
 
     class Meta:
         model = FitnessTestSession
-        fields = ('id', 'semester', 'retake', 'date', 'teacher')
+        fields = ('id', 'retake', 'date', 'teacher')
 
 
 class FitnessTestSessionWithResult(serializers.Serializer):

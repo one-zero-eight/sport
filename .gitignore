@@ -1,3 +1,4 @@
 sport_demo_dump_2025_06.sql
 __pycache__/
 deploy/nginx-logs/
+sport_dump.sql
