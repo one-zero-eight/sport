@@ -83,3 +83,21 @@ class FitnessTestSessionWithResult(serializers.Serializer):
     session = FitnessTestSessionSerializer()
     exercises = FitnessTestExerciseSerializer(many=True)
     results = serializers.DictField(child=FitnessTestResultSerializer(many=True))
+
+
+class FitnessTestStudentExerciseResult(serializers.Serializer):
+    exercise_id = serializers.IntegerField()
+    exercise_name = serializers.CharField()
+    unit = serializers.CharField(allow_null=True)
+    value = serializers.CharField()
+
+
+class FitnessTestStudentGroupedResult(serializers.Serializer):
+    student = StudentSerializer()
+    exercise_results = FitnessTestStudentExerciseResult(many=True)
+
+
+class FitnessTestSessionWithGroupedResults(serializers.Serializer):
+    session = FitnessTestSessionSerializer()
+    exercises = FitnessTestExerciseSerializer(many=True)
+    results = serializers.DictField(child=FitnessTestStudentGroupedResult())
