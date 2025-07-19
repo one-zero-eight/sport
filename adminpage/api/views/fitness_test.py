@@ -1,3 +1,4 @@
+import logging
 from collections import defaultdict
 
 from django.db.models import Q
@@ -21,6 +22,8 @@ from api.serializers.fitness_test import FitnessTestExerciseSerializer, FitnessT
     FitnessTestSessionWithResult, FitnessTestStudentResult, FitnessTestUpload
 from api.serializers.semester import SemesterInSerializer
 from sport.models import FitnessTestSession, FitnessTestResult, FitnessTestExercise, Semester, Student
+
+logger = logging.getLogger(__name__)
 
 
 @extend_schema(
@@ -192,18 +195,43 @@ def post_student_exercises_result(request, session_id=None, **kwargs):
     serializer = FitnessTestUpload(data=request.data)
     serializer.is_valid(raise_exception=True)
 
-    semester_id = serializer.validated_data['semester_id']
-    try:
-        semester = Semester.objects.get(id=semester_id)
-    except Semester.DoesNotExist:
-        return Response(
-            status=status.HTTP_404_NOT_FOUND,
-            data=NotFoundSerializer({'detail': f'No semester with id={semester_id}'})
-        )
+    # If session_id is provided, get semester from existing session
+    if session_id and session_id != 'new':
+        try:
+            existing_session = FitnessTestSession.objects.get(id=session_id)
+            semester = existing_session.semester
+        except FitnessTestSession.DoesNotExist:
+            return Response(
+                status=status.HTTP_404_NOT_FOUND,
+                data=NotFoundSerializer({'detail': f'No fitness test session with id={session_id}'}).data
+            )
+    else:
+        # For new sessions, get semester from request body
+        semester_id = serializer.validated_data['semester_id']
+        try:
+            semester = Semester.objects.get(id=semester_id)
+        except Semester.DoesNotExist:
+            return Response(
+                status=status.HTTP_404_NOT_FOUND,
+                data=NotFoundSerializer({'detail': f'No semester with id={semester_id}'}).data
+            )
 
     retake = serializer.validated_data['retake']
     results = serializer.validated_data['results']
-    session = post_student_exercises_result_crud(semester, retake, results, session_id, request.user)
+    
+    # Log the data for debugging
+    logger.info(f"Fitness test upload request - session_id: {session_id}, semester: {semester}, retake: {retake}")
+    logger.info(f"Results data: {results}")
+    
+    try:
+        session = post_student_exercises_result_crud(semester, retake, results, session_id, request.user)
+    except ValueError as e:
+        logger.error(f"Error in fitness test upload: {e}")
+        return Response(
+            status=status.HTTP_400_BAD_REQUEST,
+            data=ErrorSerializer({'detail': str(e)}).data
+        )
+    
     return Response(PostStudentExerciseResult({'session_id': session}).data)
 
 
