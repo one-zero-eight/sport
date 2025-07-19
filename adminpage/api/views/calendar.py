@@ -136,7 +136,7 @@ def get_personal_schedule(request, **kwargs):
     }
 )
 @api_view(["GET"])
-@permission_classes([IsStudent])
+@permission_classes([IsStudent | IsTrainer])
 def get_weekly_schedule_with_participants_view(request, **kwargs):
     """
     Get weekly schedule with participants information for each training
@@ -144,11 +144,20 @@ def get_weekly_schedule_with_participants_view(request, **kwargs):
     serializer = CalendarRequestSerializer(data=request.GET)
     serializer.is_valid(raise_exception=True)
 
-    student = request.user.student
+    # Get user info (student or trainer)
+    user = request.user
+    student = getattr(user, "student", None)
+    trainer = getattr(user, "trainer", None)
+    
+    if not student and not trainer:
+        return Response({"error": "User must be either a student or trainer"}, status=status.HTTP_400_BAD_REQUEST)
+
     trainings = get_weekly_schedule_with_participants(
-        student,
-        serializer.validated_data["start"],
-        serializer.validated_data["end"],
+        user=user,
+        student=student,
+        trainer=trainer,
+        start=serializer.validated_data["start"],
+        end=serializer.validated_data["end"],
     )
 
     return Response(trainings)
