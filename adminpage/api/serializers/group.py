@@ -5,11 +5,9 @@ from sport.models import Schedule
 
 class ScheduleSerializer(serializers.Serializer):
     weekday = serializers.IntegerField()
-    weekday_name = serializers.CharField()
-    start_time = serializers.CharField()
-    end_time = serializers.CharField()
+    start = serializers.TimeField()
+    end = serializers.TimeField()
     training_class = serializers.CharField(allow_null=True)
-    training_ids = serializers.ListField(child=serializers.IntegerField(), allow_empty=True)
 
 
 

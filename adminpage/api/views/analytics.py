@@ -14,6 +14,7 @@ from sport.models import Attendance
 
 @extend_schema(
     methods=["GET"],
+    exclude=True,  # Hide from Swagger since endpoint is not registered in URLs
     tags=["Analytics"],
     summary="Get attendance analytics",
     description="Get attendance analytics for the last 30 days, optionally filtered by sport and medical group. Only accessible by staff.",
