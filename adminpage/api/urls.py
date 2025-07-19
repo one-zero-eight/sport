@@ -78,7 +78,7 @@ urlpatterns = [
     path(r"semester", semester.get_semester),
 
     # analytics
-    path(r"analytics/attendance", analytics.attendance_analytics),
+    #path(r"analytics/attendance", analytics.attendance_analytics),
 
     # medical groups
     path(r"medical-groups", medical_groups.medical_groups_view),

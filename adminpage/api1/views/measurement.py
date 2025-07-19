@@ -20,6 +20,7 @@ from sport.models import Measurement, MeasurementSession, MeasurementResult, Stu
 
 @extend_schema(
     methods=["GET"],
+    exclude=True,  # Hide from Swagger documentation
     # TODO: Check
     # parameters=[MeasurementSerializer(many=True)],
     responses={
@@ -37,6 +38,7 @@ def get_measurements(request, **kwargs):
 
 @extend_schema(
     methods=["GET"],
+    exclude=True,  # Hide from Swagger documentation
     # TODO: Check
     # parameters=[MeasurementResultsSerializer],
     responses={
@@ -72,6 +74,7 @@ def get_results(request, **kwargs):
 
 @extend_schema(
     methods=["POST"],
+    exclude=True,  # Hide from Swagger documentation
     request=MeasurementPostSerializer,
     responses={
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
