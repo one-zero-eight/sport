@@ -19,7 +19,7 @@ from api.crud import get_exercises_crud, post_student_exercises_result_crud, \
     get_email_name_like_students, get_ongoing_semester, get_score, get_max_score
 from api.serializers.attendance import SuggestionQueryFTSerializer
 from api.serializers.fitness_test import FitnessTestExerciseSerializer, FitnessTestSessionSerializer, \
-    FitnessTestSessionWithResult, FitnessTestStudentResult, FitnessTestUpload
+    FitnessTestSessionWithResult, FitnessTestStudentResult, FitnessTestUpload, FitnessTestSessionWithGroupedResults
 from api.serializers.semester import SemesterInSerializer
 from sport.models import FitnessTestSession, FitnessTestResult, FitnessTestExercise, Semester, Student
 
@@ -147,7 +147,7 @@ def get_result(request, **kwargs):
     summary="Get session details",
     description="Get detailed information about a specific fitness test session, including exercises and results.",
     responses={
-        status.HTTP_200_OK: FitnessTestSessionWithResult()
+        status.HTTP_200_OK: FitnessTestSessionWithGroupedResults()
     }
 )
 @api_view(["GET"])
@@ -156,13 +156,28 @@ def get_session_info(request, session_id, **kwargs):
     # Get all results for this session
     results = FitnessTestResult.objects.filter(session_id=session_id).select_related('student__user', 'exercise')
     
-    # Group results by student instead of by exercise
-    results_dict = defaultdict(list)
+    # Group results by student
+    student_results = defaultdict(list)
     for result in results:
-        # Use student's user ID as the key since Student model uses user as primary key
-        results_dict[result.student.user.id].append(result)
+        student_id = result.student.user.id
+        student_results[student_id].append({
+            'exercise_id': result.exercise.id,
+            'exercise_name': result.exercise.exercise_name,
+            'unit': result.exercise.value_unit,
+            'value': result.value
+        })
+    
+    # Convert to the format expected by serializer
+    results_dict = {}
+    for student_id, exercise_results in student_results.items():
+        # Get the student object (we can use any result from this student)
+        student_result = next(r for r in results if r.student.user.id == student_id)
+        results_dict[student_id] = {
+            'student': student_result.student,
+            'exercise_results': exercise_results
+        }
 
-    return Response(FitnessTestSessionWithResult({
+    return Response(FitnessTestSessionWithGroupedResults({
         'session': FitnessTestSession.objects.get(id=session_id),
         'exercises': FitnessTestExercise.objects.filter(
             id__in=FitnessTestResult.objects.filter(session_id=session_id).values_list('exercise').distinct()
