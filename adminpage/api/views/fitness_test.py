@@ -153,9 +153,14 @@ def get_result(request, **kwargs):
 @api_view(["GET"])
 @permission_classes([IsTrainer | IsSuperUser])
 def get_session_info(request, session_id, **kwargs):
+    # Get all results for this session
+    results = FitnessTestResult.objects.filter(session_id=session_id).select_related('student__user', 'exercise')
+    
+    # Group results by student instead of by exercise
     results_dict = defaultdict(list)
-    for result in FitnessTestResult.objects.filter(session_id=session_id):
-        results_dict[result.exercise.id].append(result)
+    for result in results:
+        # Use student's user ID as the key since Student model uses user as primary key
+        results_dict[result.student.user.id].append(result)
 
     return Response(FitnessTestSessionWithResult({
         'session': FitnessTestSession.objects.get(id=session_id),
