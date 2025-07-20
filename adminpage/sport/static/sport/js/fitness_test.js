@@ -67,7 +67,7 @@ fetch("/api/semester?current=true", {
 
 
 // load sessions
-fetch("/api/fitnesstest/sessions", {
+    fetch("/api/fitness-test/sessions", {
 	method: "GET",
 	"X-CSRFToken": csrf_token,
 })

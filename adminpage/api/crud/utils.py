@@ -54,9 +54,19 @@ def get_trainers_group(group_id: int):
         trainer_last_name=F('user__last_name'),
         trainer_email=F('user__email'),
     ).values(
+        'user_id',
         'trainer_first_name',
         'trainer_last_name',
         'trainer_email',
     )
 
-    return list(query)
+    # Transform the data to match TrainerSerializer expectations
+    trainers = []
+    for trainer in query:
+        trainers.append({
+            'id': trainer['user_id'],
+            'name': f"{trainer['trainer_first_name']} {trainer['trainer_last_name']}",
+            'email': trainer['trainer_email'],
+        })
+
+    return trainers

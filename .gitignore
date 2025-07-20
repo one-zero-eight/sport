@@ -20,4 +20,4 @@ venv/
 
 .DS_Store
 
-sport_demo_dump_2025_06.sql
+sport_dump*.sql

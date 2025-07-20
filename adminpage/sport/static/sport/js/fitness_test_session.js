@@ -9,7 +9,7 @@ let exercises_global = [];
 let CURRENT_SEMESTER = null;
 
 function get_semester_exercises(semester_id) {
-	fetch(`/api/fitnesstest/exercises?semester_id=${semester_id}`, {
+	    fetch(`/api/fitness-test/exercises?semester_id=${semester_id}`, {
 		method: 'GET',
 		'X-CSRFToken': csrf_token,
 	})
@@ -30,7 +30,7 @@ function get_semester_exercises(semester_id) {
 
 function load_session() {
 	if (session_id !== 'new') {
-		fetch(`/api/fitnesstest/sessions/${session_id}`, {
+		    fetch(`/api/fitness-test/sessions/${session_id}`, {
 			method: 'GET',
 			'X-CSRFToken': csrf_token,
 		})
@@ -233,7 +233,7 @@ $(function () {
 		.autocomplete({
 			source: function (request, response) {
 				$.ajax({
-					url: '/api/fitnesstest/suggest_student',
+					        url: '/api/fitness-test/students/search',
 					data: { term: request.term },
 					dataType: 'json',
 					success: response,
@@ -301,7 +301,7 @@ function save_table() {
 		return;
 	}
 	if (session_id === 'new') {
-		fetch('/api/fitnesstest/upload', {
+		    fetch('/api/fitness-test/upload', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -330,7 +330,7 @@ function save_table() {
 				toastr.error(`${error}`, 'Server error');
 			});
 	} else {
-		fetch(`/api/fitnesstest/upload/${session_id}`, {
+		    fetch(`/api/fitness-test/upload/${session_id}`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -358,7 +358,7 @@ function save_table() {
 }
 
 function save_gender(val) {
-	fetch('/api/profile/change_gender', {
+	    fetch('/api/student/change_gender', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',

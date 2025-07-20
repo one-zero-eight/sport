@@ -254,7 +254,23 @@ Useful links:
         "tryItOutEnabled": True,
         "persistAuthorization": True,
         "filter": True,
+        "tagsSorter": "alpha",  # Sort tags alphabetically
     },
+
+    # Tags sorting
+    'TAGS': [
+        #{'name': 'Analytics', 'description': 'Analytics and reporting endpoints'},
+        {'name': 'Attendance', 'description': 'Attendance tracking and management'},
+        {'name': 'Schedule & Organization', 'description': 'Training schedules, sport groups, clubs, and semester information'},
+        #{'name': 'Enrollment', 'description': 'Student enrollment to sport groups'},
+        {'name': 'FAQ', 'description': 'Frequently asked questions'},
+        {'name': 'Fitness Test', 'description': 'Fitness test management and results'},
+        {'name': 'Medical', 'description': 'Medical group classifications and medical certificates/references'},
+        {'name': 'Profile', 'description': 'Student profile information'},
+        {'name': 'Self Sport', 'description': 'Self sport activities and reports'},
+        #{'name': 'Sports', 'description': 'Available sports and activities'},
+        {'name': 'Trainings', 'description': 'Training sessions, check-ins, and grades'},
+    ],
 
     'AUTHENTICATION_WHITELIST': ["adminpage.authentication.InNoHassleAuthentication"],
 }

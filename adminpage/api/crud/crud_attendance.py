@@ -150,12 +150,7 @@ def mark_hours(training: Training, student_hours: Iterable[Tuple[int, float]]):
                            f'WHERE  (student_id, training_id) IN ({args_del_str.decode()})')
 
 
-def toggle_has_QR(student: Student):
-    """
-    Toggles student's QR presence
-    """
-    student.has_QR = not student.has_QR
-    student.save()
+
 
 
 class SemesterHours(TypedDict):
@@ -166,10 +161,11 @@ class SemesterHours(TypedDict):
     hours_sem_max: int
     debt: int
 
+class StudentHours(TypedDict):
+    last_semesters_hours: List[SemesterHours]
+    ongoing_semester: SemesterHours
 
-def get_student_hours(student_id, **kwargs) -> TypedDict('StudentHours',
-                                                         {'last_semesters_hours': List[SemesterHours],
-                                                          'ongoing_semester': SemesterHours}):
+def get_student_hours(student_id, **kwargs) -> StudentHours:
     student = Student.objects.get(user_id=student_id)
     sem_info_cur = {"id_sem": 0, "hours_not_self": 0.0, "hours_self_not_debt": 0.0,
                     "hours_self_debt": 0.0, "hours_sem_max": 0.0, "debt": 0.0}
@@ -278,3 +274,163 @@ def better_than(student_id):
                       complex_hours__lt=student_hours).count()
 
     return round(worse / (all - 1) * 100, 1)
+
+
+def get_student_semester_history(student: Student):
+    """
+    Get student's semester history with attended trainings since enrollment
+    """
+    from sport.models import Semester, Attendance, Training
+    from django.db.models import Q, F, Sum, Case, When, Value
+    from django.db.models.fields import CharField, DateTimeField
+    
+    # Get all semesters since student enrollment
+    semesters = Semester.objects.filter(
+        start__year__gte=student.enrollment_year
+    ).exclude(
+        # Skip semester if it matches the enrollment_year but Spring (semester before august)
+        Q(start__year=student.enrollment_year) & Q(start__month__lte=7)
+    ).order_by('start')
+    
+    result = []
+    
+    for semester in semesters:
+        # Get all attendances for this semester
+        attendances = Attendance.objects.filter(
+            student=student,
+            training__group__semester=semester
+        ).select_related(
+            'training',
+            'training__group',
+            'training__group__sport',
+            'training__training_class'
+        ).annotate(
+            training_date=F('training__start'),
+            group_name=F('training__group__name'),
+            sport_name=F('training__group__sport__name'),
+            training_class_name=F('training__training_class__name'),
+            custom_name=F('training__custom_name')
+        ).order_by('training__start')
+        
+        # Calculate total hours for this semester
+        total_hours = attendances.aggregate(
+            total=Sum('hours')
+        )['total'] or 0
+        
+        # Format training data
+        trainings = []
+        for attendance in attendances:
+            training_info = {
+                'training_id': attendance.training.id,
+                'date': attendance.training_date.strftime('%Y-%m-%d'),
+                'time': attendance.training_date.strftime('%H:%M'),
+                'hours': attendance.hours,
+                'group_name': attendance.group_name,
+                'sport_name': attendance.sport_name,
+                'training_class': attendance.training_class_name or '',
+                'custom_name': attendance.custom_name or ''
+            }
+            trainings.append(training_info)
+        
+        semester_data = {
+            'semester_id': semester.id,
+            'semester_name': semester.name,
+            'semester_start': semester.start.strftime('%Y-%m-%d'),
+            'semester_end': semester.end.strftime('%Y-%m-%d'),
+            'required_hours': semester.hours,
+            'total_hours': total_hours,
+            'trainings': trainings
+        }
+        result.append(semester_data)
+    
+    return result
+
+
+def get_student_hours_summary(student_id: int, current_semester_only: bool = False):
+    """
+    Get comprehensive student hours summary
+    
+    Args:
+        student_id: Student ID
+        current_semester_only: If True - current semester only, if False - all semesters
+        
+    Returns:
+        Dict with student hours information
+    """
+    student = Student.objects.get(user_id=student_id)
+    
+    if current_semester_only:
+        # Current semester only
+        current_semester = get_ongoing_semester()
+        
+        # Get current semester attendance
+        current_attendance = Attendance.objects.filter(
+            student_id=student_id,
+            training__group__semester=current_semester
+        )
+        
+        hours_from_groups = 0.0  # Hours from sport groups
+        self_sport_hours = 0.0   # Self sport hours (not debt)
+        
+        for attendance in current_attendance:
+            if attendance.cause_report is None:
+                hours_from_groups += float(attendance.hours)
+            elif attendance.cause_report.debt is False:
+                self_sport_hours += float(attendance.hours)
+        
+        # Get debt
+        try:
+            debt = Debt.objects.get(
+                semester_id=current_semester.id, 
+                student_id=student_id
+            ).debt
+        except Debt.DoesNotExist:
+            debt = 0.0
+        
+        required_hours = float(current_semester.hours)
+        
+        return {
+            'debt': float(debt),
+            'self_sport_hours': float(self_sport_hours),
+            'hours_from_groups': float(hours_from_groups),
+            'required_hours': float(required_hours),
+            'current_semester_only': True
+        }
+        
+    else:
+        # All semesters - return list of semesters
+        student_hours_data = get_student_hours(student_id)
+        current_sem = student_hours_data['ongoing_semester']
+        past_sems = student_hours_data['last_semesters_hours']
+        
+        semesters_list = []
+        
+        # Add current semester
+        current_semester_info = {
+            'semester_id': current_sem['id_sem'],
+            'semester_name': Semester.objects.get(id=current_sem['id_sem']).name,
+            'debt': float(current_sem['debt']),
+            'self_sport_hours': float(current_sem['hours_self_not_debt']),
+            'hours_from_groups': float(current_sem['hours_not_self']),
+            'required_hours': float(current_sem['hours_sem_max']),
+            'is_current': True
+        }
+        semesters_list.append(current_semester_info)
+        
+        # Add past semesters
+        for sem in past_sems:
+            semester_info = {
+                'semester_id': sem['id_sem'],
+                'semester_name': Semester.objects.get(id=sem['id_sem']).name,
+                'debt': float(sem['debt']),
+                'self_sport_hours': float(sem['hours_self_not_debt']),
+                'hours_from_groups': float(sem['hours_not_self']),
+                'required_hours': float(sem['hours_sem_max']),
+                'is_current': False
+            }
+            semesters_list.append(semester_info)
+        
+        return {
+            'semesters': semesters_list,
+            'current_semester_only': False
+        }

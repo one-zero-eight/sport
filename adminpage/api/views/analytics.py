@@ -14,9 +14,13 @@ from sport.models import Attendance
 
 @extend_schema(
     methods=["GET"],
+    exclude=True,  # Hide from Swagger since endpoint is not registered in URLs
+    tags=["Analytics"],
+    summary="Get attendance analytics",
+    description="Get attendance analytics for the last 30 days, optionally filtered by sport and medical group. Only accessible by staff.",
     parameters=[
-        OpenApiParameter(name='sport_id', type=OpenApiTypes.INT),
-        OpenApiParameter(name='medical_group_id', type=OpenApiTypes.INT),
+        OpenApiParameter(name='sport_id', type=OpenApiTypes.INT, description='Filter by sport ID'),
+        OpenApiParameter(name='medical_group_id', type=OpenApiTypes.INT, description='Filter by medical group ID'),
     ],
     responses={
         status.HTTP_200_OK: dict[str, int],
