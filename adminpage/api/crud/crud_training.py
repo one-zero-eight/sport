@@ -350,5 +350,7 @@ def get_weekly_schedule_with_participants(user: User, student: Optional[Student]
         except Group.DoesNotExist:
             training['capacity'] = 0
             training['available_spots'] = 0
-    
+
+    # Sort trainings by start time
+    trainings.sort(key=lambda t: t['start'])
     return trainings
