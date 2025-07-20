@@ -1,0 +1,13 @@
+@startuml
+node "User’s Browser" as Browser
+node "AWS S3 + CloudFront" as CDN
+node "Kubernetes Cluster" as K8s {
+  [Frontend Pod]
+  [API Pod]
+}
+node "RDS (PostgreSQL)" as RDS
+
+Browser --> CDN : GET assets & JS
+Browser --> K8s : HTTPS /graphql
+K8s --> RDS : TLS SQL
+@enduml
