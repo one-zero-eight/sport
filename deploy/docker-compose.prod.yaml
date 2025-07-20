@@ -24,6 +24,7 @@ services:
 
   adminpanel:
     build: ../adminpage
+    command: python manage.py runserver 0.0.0.0:8000
     restart: always
     volumes:
       - "django-auth-preserve:/opt/pysetup/.venv/lib/python3.12/site-packages/django/contrib/auth/migrations/"
