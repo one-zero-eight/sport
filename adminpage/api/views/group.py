@@ -15,7 +15,7 @@ from sport.models import Group, Schedule, Student, Sport
 
 @extend_schema(
     methods=["GET"],
-    tags=["Groups"],
+    tags=["Schedule & Organization"],
     summary="Get sport group information",
     description="Retrieve detailed information about a sport group including schedule, capacity, enrolled students, and enrollment status.",
     responses={
@@ -37,7 +37,7 @@ def group_info_view(request, group_id, **kwargs):
 
 @extend_schema(
     methods=["GET"],
-    tags=["Clubs"],
+    tags=["Schedule & Organization"],
     summary="Get available clubs with detailed groups information",
     description="Retrieve list of all available clubs with their groups, schedules, trainers, capacity, and enrollment information.",
     responses={

@@ -11,7 +11,7 @@ from api.serializers.semester import SemesterSerializer
 
 @extend_schema(
     methods=["GET"],
-    tags=["Semester"],
+    tags=["Schedule & Organization"],
     summary="Get semester information",
     description="Retrieve semester information. Use 'current=true' to get only current semester.",
     parameters=[

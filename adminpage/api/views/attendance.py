@@ -96,7 +96,7 @@ def suggest_student(request, **kwargs):
 
 @extend_schema(
     methods=["GET"],
-    tags=["Attendance"],
+    tags=["Trainings"],
     summary="Get training grades",
     description="Get student grades for a specific training session. Only accessible by trainers assigned to the group.",
     responses={
@@ -121,17 +121,17 @@ def get_grades(request, training_id, **kwargs):
     })
 
 
-# @extend_schema(
-#     methods=["GET"],
-#     tags=["Attendance"],
-#     summary="Get training grades CSV",
-#     description="Export student grades for a specific training session as CSV file. Only accessible by trainers assigned to the group.",
-#     responses={
-#         (status.HTTP_200_OK, 'text/csv'): OpenApiTypes.BINARY,
-#         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
-#         status.HTTP_403_FORBIDDEN: InbuiltErrorSerializer,
-#     }
-# )
+@extend_schema(
+    methods=["GET"],
+    tags=["Trainings"],
+    summary="Get training grades CSV",
+    description="Export student grades for a specific training session as CSV file. Only accessible by trainers assigned to the group.",
+    responses={
+        (status.HTTP_200_OK, 'text/csv'): OpenApiTypes.BINARY,
+        status.HTTP_404_NOT_FOUND: NotFoundSerializer,
+        status.HTTP_403_FORBIDDEN: InbuiltErrorSerializer,
+    }
+)
 @api_view(["GET"])
 @permission_classes([IsTrainer | IsSuperUser])
 def get_grades_csv(request, training_id, **kwargs):
