@@ -28,7 +28,7 @@ class ReferenceErrors:
 
 @extend_schema(
     methods=["POST"],
-    tags=["Medical References"],
+    tags=["Medical"],
     summary="Upload medical certificate",
     description="Upload a medical certificate for sick leave. The system automatically calculates hours based on the duration of illness. Only one upload per day is allowed.",
     request=ReferenceUploadSerializer,

@@ -9,7 +9,7 @@ from api.serializers import MedicalGroupsSerializer
 
 @extend_schema(
     methods=["GET"],
-    tags=["Medical Groups"],
+    tags=["Medical"],
     summary="Get medical groups",
     description="Retrieve list of all medical groups that determine student's physical activity allowances.",
     responses={
