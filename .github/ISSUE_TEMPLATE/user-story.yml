@@ -1,0 +1,39 @@
+name: User Story
+description: A user story that describes a new feature or user goal
+labels: [user-story]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## User Story
+
+  - type: textarea
+    id: story
+    attributes:
+      label: As a...
+      description: Describe the user role
+      placeholder: e.g. As a registered user...
+
+  - type: textarea
+    id: goal
+    attributes:
+      label: I want to...
+      description: Describe what the user wants to do
+      placeholder: ...I want to reset my password.
+
+  - type: textarea
+    id: benefit
+    attributes:
+      label: So that...
+      description: Describe the benefit or value
+      placeholder: ...so that I can recover access to my account.
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria (GIVEN/WHEN/THEN)
+      description: List conditions that define when the story is complete
+      placeholder: |
+        GIVEN I am logged out
+        WHEN I click "Forgot Password"
+        THEN I see the password reset form

@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 __pycache__/
 
 /deploy/nginx-logs
@@ -33,3 +34,28 @@ deploy/nginx-logs/
 =======
 sport_dump.sql
 >>>>>>> 9740bf71 (Fix some bugs)
+=======
+__pycache__/
+
+/deploy/nginx-logs
+
+.env
+.env.local
+.sql
+
+.coverage
+.coveragerc
+htmlcov/
+
+.vscode/
+.idea/
+
+/media/
+
+venv/
+.prettierrc
+
+.DS_Store
+
+sport_dump*.sql
+>>>>>>> fc2c7cd2 (Restore posle debila)

@@ -1,0 +1,45 @@
+name: Tests
+on: [push, workflow_dispatch]
+jobs:
+  run_tests:
+    name: Run tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build docker images
+        run: docker compose -f deploy/docker-compose.test.yaml build --no-cache
+
+      - name: Run app in docker
+        run: docker compose -f deploy/docker-compose.test.yaml up -d --wait
+
+      - name: Migrate auth
+        run: |
+          docker compose -f deploy/docker-compose.test.yaml exec -T adminpanel python manage.py makemigrations
+          docker compose -f deploy/docker-compose.test.yaml exec -T adminpanel python manage.py migrate auth
+
+      - name: Install and run flake8 linter
+        run: |
+          docker compose -f deploy/docker-compose.test.yaml exec -T adminpanel sh -c "pip install flake8 && flake8 . > linter-report.txt || true"
+          docker compose -f deploy/docker-compose.test.yaml cp adminpanel:/code/linter-report.txt ./linter-report.txt
+      - name: Upload linter report
+        uses: actions/upload-artifact@v4
+        with:
+          name: linter-report
+          path: linter-report.txt
+
+      - name: Install and run Vulture
+        run: |
+          docker compose -f deploy/docker-compose.test.yaml exec -T adminpanel sh -c "pip install vulture && vulture . > vulture-report.txt || true"
+          docker compose -f deploy/docker-compose.test.yaml cp adminpanel:/code/vulture-report.txt ./vulture-report.txt
+
+      - name: Upload Vulture report
+        uses: actions/upload-artifact@v4
+        with:
+          name: vulture-report
+          path: vulture-report.txt
+
+      - name: Run tests
+        run: docker compose -f deploy/docker-compose.test.yaml exec -T adminpanel pytest
