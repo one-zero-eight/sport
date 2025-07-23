@@ -95,6 +95,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = getenv_boolean("DEBUG")
 PROJECT_ROOT = "/code/"
 ALLOWED_HOSTS = [HOSTNAME, 'adminpanel']
+CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS", "").split()
 
 if DEBUG:
     ALLOWED_HOSTS.append('localhost')
