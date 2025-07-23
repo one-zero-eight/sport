@@ -3,7 +3,10 @@ name: sport
 services:
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 52212391 (Restore origin)
   nginx:
     # See more: https://registry.hub.docker.com/_/nginx
     image: "nginx:1.27"
@@ -17,13 +20,16 @@ services:
       - django-static:/static
       - uploaded_media:/media:ro
 
+<<<<<<< HEAD
 >>>>>>> 664df2c7 (Restore original nginx and docker configs)
 =======
 >>>>>>> 750b777f (Add nginx proxy manager)
+=======
+>>>>>>> 52212391 (Restore origin)
   adminpanel:
     build: ../adminpage
     # Run development server with hot reload
-    command: python manage.py runserver  0.0.0.0:8000
+    command: python manage.py runserver 0.0.0.0:8000
     restart: unless-stopped
     volumes:
       - "../adminpage:/code"
@@ -71,17 +77,6 @@ services:
       - ./data/letsencrypt:/etc/letsencrypt
 =======
 >>>>>>> 664df2c7 (Restore original nginx and docker configs)
-
-  npm:
-    image: jc21/nginx-proxy-manager:latest
-    restart: unless-stopped
-    ports:
-      - "8080:80"
-      - "4443:443"
-      - "8081:81"
-    volumes:
-      - ./data/npm:/data
-      - ./data/letsencrypt:/etc/letsencrypt
 
 volumes:
   db-data:
