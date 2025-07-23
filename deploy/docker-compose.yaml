@@ -2,6 +2,7 @@ name: sport
 
 services:
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   nginx:
     # See more: https://registry.hub.docker.com/_/nginx
@@ -17,6 +18,8 @@ services:
       - uploaded_media:/media:ro
 
 >>>>>>> 664df2c7 (Restore original nginx and docker configs)
+=======
+>>>>>>> 750b777f (Add nginx proxy manager)
   adminpanel:
     build: ../adminpage
     # Run development server with hot reload
@@ -68,6 +71,17 @@ services:
       - ./data/letsencrypt:/etc/letsencrypt
 =======
 >>>>>>> 664df2c7 (Restore original nginx and docker configs)
+
+  npm:
+    image: jc21/nginx-proxy-manager:latest
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "81:81"
+    volumes:
+      - ./data/npm:/data
+      - ./data/letsencrypt:/etc/letsencrypt
 
 volumes:
   db-data:
