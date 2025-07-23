@@ -44,7 +44,7 @@ services:
     restart: unless-stopped
     ports:
       - "8080:80"
-      - "443:443"
+      - "4443:443"
       - "8081:81"
     volumes:
       - ./data/npm:/data
