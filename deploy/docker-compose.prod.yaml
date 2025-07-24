@@ -17,6 +17,7 @@ services:
   adminpanel:
     build: ../adminpage
     restart: always
+    ports: [ "8000:80" ]
     volumes:
       - "django-auth-preserve:/opt/pysetup/.venv/lib/python3.12/site-packages/django/contrib/auth/migrations/"
       - "django-static:/static"
