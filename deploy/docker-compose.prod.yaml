@@ -17,11 +17,12 @@ services:
   adminpanel:
     build: ../adminpage
     restart: always
-    ports: [ "8000:80" ]
     volumes:
       - "django-auth-preserve:/opt/pysetup/.venv/lib/python3.12/site-packages/django/contrib/auth/migrations/"
       - "django-static:/static"
       - "/sport/media:/uploaded_media"
+    ports:
+      - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
