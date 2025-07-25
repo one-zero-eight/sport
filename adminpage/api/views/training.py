@@ -16,6 +16,9 @@ from sport.models import Training, Student, TrainingCheckIn, Attendance
 
 @extend_schema(
     methods=["GET"],
+    tags=["Trainings"],
+    summary="Get training information",
+    description="Retrieve detailed information about a specific training session, including whether the student can check in, is already checked in, and received hours.",
     responses={
         status.HTTP_200_OK: NewTrainingInfoStudentSerializer(),
         status.HTTP_404_NOT_FOUND: NotFoundSerializer(),
@@ -42,6 +45,9 @@ def training_info(request, training_id, **kwargs):
 
 @extend_schema(
     methods=["POST"],
+    tags=["Trainings"],
+    summary="Check in to training",
+    description="Check in to a training session. Students can only check in during the allowed time window (1 week before to training end) and if there are available spots.",
     request=None,
     responses={
         status.HTTP_200_OK: EmptySerializer(),
@@ -80,6 +86,9 @@ def training_checkin(request, training_id, **kwargs):
 
 @extend_schema(
     methods=["POST"],
+    tags=["Trainings"],
+    summary="Cancel training check-in",
+    description="Cancel check-in from a training session. Only possible before the training has ended.",
     request=None,
     responses={
         status.HTTP_200_OK: EmptySerializer(),

@@ -21,6 +21,8 @@ services:
       - "django-auth-preserve:/opt/pysetup/.venv/lib/python3.12/site-packages/django/contrib/auth/migrations/"
       - "django-static:/static"
       - "/sport/media:/uploaded_media"
+    ports:
+      - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
@@ -85,7 +87,6 @@ services:
     volumes:
       - "grafana-data:/var/lib/grafana"
       - "./grafana-provisioning:/etc/grafana/provisioning/"
-
 
 volumes:
   db-data:

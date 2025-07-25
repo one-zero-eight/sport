@@ -6,14 +6,18 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
 from api.crud import get_group_info, get_sports
+from api.crud.crud_groups import get_sports_with_groups
 from api.permissions import IsStudent, IsTrainer
 from api.serializers import GroupInfoSerializer, NotFoundSerializer, SportsSerializer, EmptySerializer, ErrorSerializer
-from api.serializers.group import SportEnrollSerializer
+from api.serializers.group import SportsWithGroupsSerializer, DetailedSportSerializer
 from sport.models import Group, Schedule, Student, Sport
 
 
 @extend_schema(
     methods=["GET"],
+    tags=["Schedule & Organization"],
+    summary="Get sport group information",
+    description="Retrieve detailed information about a sport group including schedule, capacity, enrolled students, and enrollment status.",
     responses={
         status.HTTP_200_OK: GroupInfoSerializer,
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
@@ -33,40 +37,23 @@ def group_info_view(request, group_id, **kwargs):
 
 @extend_schema(
     methods=["GET"],
+    tags=["Schedule & Organization"],
+    summary="Get available clubs with detailed groups information",
+    description="Retrieve list of all available clubs with their groups, schedules, trainers, capacity, and enrollment information.",
     responses={
-        status.HTTP_200_OK: SportsSerializer,
+        status.HTTP_200_OK: DetailedSportSerializer(many=True),
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
     }
 )
 @api_view(["GET"])
 # @permission_classes([IsStudent]) Temporary off for academic_leave students
-def sports_view(request, **kwargs):
-    serializer = SportsSerializer({'sports': get_sports()})
+def clubs_view(request, **kwargs):
+    # Get student if authenticated
+    student = None
+    if hasattr(request.user, 'student'):
+        student = request.user.student
+    
+    sports_data = get_sports_with_groups(student)
+    serializer = DetailedSportSerializer(sports_data, many=True)
     return Response(serializer.data)
 
-
-@extend_schema(
-    methods=["POST"],
-    request=SportEnrollSerializer,
-    responses={
-        status.HTTP_200_OK: EmptySerializer,
-        status.HTTP_404_NOT_FOUND: NotFoundSerializer,
-        status.HTTP_400_BAD_REQUEST: ErrorSerializer,
-    },
-)
-@api_view(["POST"])
-@permission_classes([IsStudent])
-@transaction.atomic
-def select_sport(request, **kwargs):
-    serializer = SportEnrollSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    sport = get_object_or_404(
-        Sport,
-        pk=serializer.validated_data["sport_id"]
-    )
-
-    student: Student = request.user.student
-    student.sport = sport
-    student.save()
-
-    return Response({})

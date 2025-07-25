@@ -3,18 +3,13 @@ from rest_framework import serializers
 from sport.models import Schedule
 
 
-class ScheduleSerializer(serializers.ModelSerializer[Schedule]):
-    class Meta:
-        model = Schedule
-        fields = (
-            "weekday",
-            "start",
-            "end",
-            "training_class",
-        )
+class ScheduleSerializer(serializers.Serializer):
+    weekday = serializers.IntegerField()
+    start = serializers.TimeField()
+    end = serializers.TimeField()
+    training_class = serializers.CharField(allow_null=True)
 
-class SportEnrollSerializer(serializers.Serializer):
-    sport_id = serializers.IntegerField()
+
 
 class SportSerializer(serializers.Serializer):
     id = serializers.IntegerField()
@@ -26,9 +21,9 @@ class SportsSerializer(serializers.Serializer):
 
 
 class TrainerSerializer(serializers.Serializer):
-    trainer_first_name = serializers.CharField()
-    trainer_last_name = serializers.CharField()
-    trainer_email = serializers.CharField()
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+    email = serializers.EmailField()
 
 
 class GroupInfoSerializer(serializers.Serializer):
@@ -47,3 +42,56 @@ class GroupInfoSerializer(serializers.Serializer):
     can_enroll = serializers.BooleanField()
 
     schedule = ScheduleSerializer(many=True)
+
+
+class TrainingParticipantSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+    email = serializers.EmailField()
+    medical_group = serializers.CharField()
+    hours = serializers.FloatField()
+    attended = serializers.BooleanField()
+
+
+class TrainingParticipantsInfoSerializer(serializers.Serializer):
+    total_checked_in = serializers.IntegerField()
+    students = TrainingParticipantSerializer(many=True)
+
+
+class ClubTrainingSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    start = serializers.DateTimeField()
+    end = serializers.DateTimeField()
+    training_class = serializers.CharField(allow_null=True)
+    group_accredited = serializers.BooleanField()
+    can_grade = serializers.BooleanField()
+    can_check_in = serializers.BooleanField()
+    checked_in = serializers.BooleanField()
+    participants = TrainingParticipantsInfoSerializer()
+    capacity = serializers.IntegerField()
+    available_spots = serializers.IntegerField()
+
+
+class DetailedGroupSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+    description = serializers.CharField()
+    capacity = serializers.IntegerField()
+    current_enrollment = serializers.IntegerField()
+    is_club = serializers.BooleanField()
+    accredited = serializers.BooleanField()
+    trainings = ClubTrainingSerializer(many=True)
+    trainers = TrainerSerializer(many=True)
+    allowed_medical_groups = serializers.ListField(child=serializers.CharField())
+
+
+class DetailedSportSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+    description = serializers.CharField()
+    groups = DetailedGroupSerializer(many=True)
+    total_groups = serializers.IntegerField()
+
+
+class SportsWithGroupsSerializer(serializers.Serializer):
+    sports = DetailedSportSerializer(many=True)

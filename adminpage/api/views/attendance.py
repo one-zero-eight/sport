@@ -24,7 +24,7 @@ from api.serializers import SuggestionQuerySerializer, SuggestionSerializer, \
     NotFoundSerializer, InbuiltErrorSerializer, \
     TrainingGradesSerializer, AttendanceMarkSerializer, error_detail, \
     BadGradeReportGradeSerializer, BadGradeReport, LastAttendedDatesSerializer, HoursInfoSerializer, \
-    HoursInfoFullSerializer, AttendanceSerializer, ErrorSerializer
+    HoursInfoFullSerializer, AttendanceSerializer, ErrorSerializer, StudentHoursSummarySerializer
 from api.serializers.attendance import BetterThanInfoSerializer
 from sport.models import Group, Student, Attendance
 
@@ -63,6 +63,9 @@ def compose_bad_grade_report(email: str, hours: float) -> dict:
 
 @extend_schema(
     methods=["GET"],
+    tags=["Attendance"],
+    summary="Suggest students for attendance",
+    description="Suggest students based on search term for attendance marking. Only accessible by trainers.",
     parameters=[SuggestionQuerySerializer],
     responses={
         status.HTTP_200_OK: SuggestionSerializer(many=True),
@@ -93,6 +96,9 @@ def suggest_student(request, **kwargs):
 
 @extend_schema(
     methods=["GET"],
+    tags=["Trainings"],
+    summary="Get training grades",
+    description="Get student grades for a specific training session. Only accessible by trainers assigned to the group.",
     responses={
         status.HTTP_200_OK: TrainingGradesSerializer,
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
@@ -103,27 +109,23 @@ def suggest_student(request, **kwargs):
 @permission_classes([IsTrainer | IsSuperUser])
 def get_grades(request, training_id, **kwargs):
     trainer = request.user  # trainer.pk == trainer.user.pk
-    try:
-        training = Training.objects.select_related(
-            "group"
-        ).only("group", "start").get(pk=training_id)
-    except Training.DoesNotExist:
-        raise NotFound()
+
+    training = get_object_or_404(Training, pk=training_id)
+    group = training.group
 
     if not trainer.is_superuser:
-        is_training_group(training.group, trainer)
+        is_training_group(group, trainer)
 
     return Response({
-        "group_id": training.group_id,
-        "group_name": training.group.to_frontend_name(),
-        "start": training.start,
-        "grades": get_students_grades(training_id),
-        "academic_duration": training.academic_duration,
+        "students": get_students_grades(training_id)
     })
 
 
 @extend_schema(
     methods=["GET"],
+    tags=["Trainings"],
+    summary="Get training grades CSV",
+    description="Export student grades for a specific training session as CSV file. Only accessible by trainers assigned to the group.",
     responses={
         (status.HTTP_200_OK, 'text/csv'): OpenApiTypes.BINARY,
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
@@ -134,34 +136,35 @@ def get_grades(request, training_id, **kwargs):
 @permission_classes([IsTrainer | IsSuperUser])
 def get_grades_csv(request, training_id, **kwargs):
     trainer = request.user  # trainer.pk == trainer.user.pk
-    try:
-        training = Training.objects.select_related(
-            "group"
-        ).only("group", "start").get(pk=training_id)
-    except Training.DoesNotExist:
-        raise NotFound()
+
+    training = get_object_or_404(Training, pk=training_id)
+    group = training.group
 
     if not trainer.is_superuser:
-        is_training_group(training.group, trainer)
+        is_training_group(group, trainer)
 
-    # Prepare data for CSV
-    grades = get_students_grades(training_id)  # List of dictionaries or objects
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = f'attachment; filename="grades_training_{training_id}.csv"'
+    response['Content-Disposition'] = f'attachment; filename="training-{training_id}.csv"'
+    writer = csv.writer(response)
 
-    # Writing to CSV
-    writer = csv.DictWriter(response, ["full_name", "email", "hours", "med_group"], extrasaction="ignore")
-    writer.writeheader()
-
-    # Data rows
-    for grade in grades:
-        writer.writerow(grade)
+    writer.writerow(['Student ID', 'Full Name', 'Email', 'Medical Group', 'Hours'])
+    for student in get_students_grades(training_id):
+        writer.writerow([
+            student['student_id'],
+            student['full_name'],
+            student['email'],
+            student['med_group'],
+            student['hours']
+        ])
 
     return response
 
 
 @extend_schema(
     methods=["GET"],
+    tags=["Attendance"],
+    summary="Get last attended dates",
+    description="Get the last attendance dates for students in a specific group. Only accessible by trainers assigned to the group.",
     responses={
         status.HTTP_200_OK: LastAttendedDatesSerializer,
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
@@ -185,34 +188,59 @@ def get_last_attended_dates(request, group_id, **kwargs):
 
 @extend_schema(
     methods=["GET"],
+    tags=["Attendance"],
+    summary="Get student negative hours",
+    description="Get student's negative hours information (hours debt) for the current semester.",
     responses={
         status.HTTP_200_OK: HoursInfoFullSerializer,
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
         status.HTTP_403_FORBIDDEN: InbuiltErrorSerializer,
     }
 )
-@api_view(["GET"])
-@permission_classes([IsStudent | IsStaff | IsSuperUser])
-def get_negative_hours_info(request, student_id, **kwargs):
-    return Response({"final_hours": get_negative_hours(student_id)})
-
-
 @extend_schema(
     methods=["GET"],
+    tags=["Attendance"],
+    summary="Get student hours summary",
+    description="Get comprehensive student hours summary including debt, self-sport hours, hours from groups, and required hours. Use 'current_semester_only' parameter to get data for current semester only or all semesters.",
+    parameters=[
+        OpenApiParameter(
+            name='current_semester_only',
+            type=bool,
+            location=OpenApiParameter.QUERY,
+            description='If true, returns data for current semester only. If false, returns data for all semesters.',
+            default=True
+        )
+    ],
     responses={
-        status.HTTP_200_OK: HoursInfoSerializer,
+        status.HTTP_200_OK: StudentHoursSummarySerializer,
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
         status.HTTP_403_FORBIDDEN: InbuiltErrorSerializer,
     }
 )
 @api_view(["GET"])
 @permission_classes([IsStudent | IsStaff | IsSuperUser])
-def get_student_hours_info(request, student_id, **kwargs):
-    return Response(get_student_hours(student_id))
+def get_student_hours_summary(request, student_id, **kwargs):
+    """
+    Get comprehensive student hours summary
+    """
+    current_semester_only = request.GET.get('current_semester_only', 'true').lower() == 'true'
+    
+    try:
+        from api.crud.crud_attendance import get_student_hours_summary
+        summary = get_student_hours_summary(student_id, current_semester_only)
+        return Response(summary)
+    except Student.DoesNotExist:
+        return Response(
+            {"detail": "Student not found"}, 
+            status=status.HTTP_404_NOT_FOUND
+        )
 
 
 @extend_schema(
     methods=["GET"],
+    tags=["Attendance"],
+    summary="Get student performance ranking",
+    description="Get student's performance ranking compared to other students (percentage of students performing worse).",
     responses={
         status.HTTP_200_OK: BetterThanInfoSerializer,
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
@@ -228,6 +256,9 @@ def get_better_than_info(request, student_id, **kwargs):
 
 @extend_schema(
     methods=["POST"],
+    tags=["Attendance"],
+    summary="Mark student attendance",
+    description="Mark attendance and assign hours for students in a training session. Only accessible by trainers assigned to the group.",
     request=AttendanceMarkSerializer,
     responses={
         status.HTTP_200_OK: BadGradeReportGradeSerializer(many=True),
@@ -313,6 +344,9 @@ def mark_attendance(request, **kwargs):
 
 @extend_schema(
     methods=["GET"],
+    tags=["Attendance"],
+    summary="Get student trainings between dates",
+    description="Retrieve student's attended trainings within a specific date range with hours and group information.",
     responses={
         status.HTTP_200_OK: AttendanceSerializer(many=True),
         status.HTTP_400_BAD_REQUEST: ErrorSerializer,
@@ -321,13 +355,13 @@ def mark_attendance(request, **kwargs):
         OpenApiParameter(
             name='date_start',
             type=OpenApiTypes.DATE,
-            description='date in format YYYY-MM-DD',
+            description='Start date in format YYYY-MM-DD',
             required=True,
         ),
         OpenApiParameter(
             name='date_end',
             type=OpenApiTypes.DATE,
-            description='date in format YYYY-MM-DD',
+            description='End date in format YYYY-MM-DD',
             required=True,
         ),
     ],

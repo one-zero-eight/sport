@@ -8,8 +8,10 @@ from rest_framework.response import Response
 from django.utils import timezone
 
 from api.crud import get_sport_schedule, get_trainings_for_student, get_trainings_for_trainer
+from api.crud.crud_training import get_weekly_schedule_with_participants
 from api.permissions import IsStudent, IsTrainer
 from api.serializers import CalendarRequestSerializer, CalendarSerializer
+from api.serializers.calendar import WeeklyTrainingSerializer
 
 
 def convert_training_schedule(t) -> dict:
@@ -59,6 +61,9 @@ def convert_personal_training(t) -> dict:
 
 @extend_schema(
     methods=["GET"],
+    tags=["Schedule & Organization"],
+    summary="Get sport schedule",
+    description="Retrieve training schedule for a specific sport. Use sport_id=-1 to get all sports without specific sport type.",
     parameters=[CalendarRequestSerializer],
     responses={
         status.HTTP_200_OK: CalendarSerializer,
@@ -79,6 +84,9 @@ def get_schedule(request, sport_id, **kwargs):
 
 @extend_schema(
     methods=["GET"],
+    tags=["Schedule & Organization"],
+    summary="Get personal schedule",
+    description="Retrieve personal training schedule for the current user (student or trainer). Shows trainings relevant to the user's role.",
     parameters=[CalendarRequestSerializer],
     responses={
         status.HTTP_200_OK: CalendarSerializer,
@@ -115,3 +123,41 @@ def get_personal_schedule(request, **kwargs):
     return Response(
         list(map(convert_personal_training, result_dict.values()))
     )
+
+
+@extend_schema(
+    methods=["GET"],
+    tags=["Schedule & Organization"],
+    summary="Get weekly schedule with participants",
+    description="Retrieve weekly training schedule with detailed participant information for each training session, including attendance status and available spots.",
+    parameters=[CalendarRequestSerializer],
+    responses={
+        status.HTTP_200_OK: WeeklyTrainingSerializer(many=True),
+    }
+)
+@api_view(["GET"])
+@permission_classes([IsStudent | IsTrainer])
+def get_weekly_schedule_with_participants_view(request, **kwargs):
+    """
+    Get weekly schedule with participants information for each training
+    """
+    serializer = CalendarRequestSerializer(data=request.GET)
+    serializer.is_valid(raise_exception=True)
+
+    # Get user info (student or trainer)
+    user = request.user
+    student = getattr(user, "student", None)
+    trainer = getattr(user, "trainer", None)
+    
+    if not student and not trainer:
+        return Response({"error": "User must be either a student or trainer"}, status=status.HTTP_400_BAD_REQUEST)
+
+    trainings = get_weekly_schedule_with_participants(
+        user=user,
+        student=student,
+        trainer=trainer,
+        start=serializer.validated_data["start"],
+        end=serializer.validated_data["end"],
+    )
+
+    return Response(trainings)

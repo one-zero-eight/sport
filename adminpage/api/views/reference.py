@@ -11,6 +11,7 @@ from api.crud import get_ongoing_semester
 from api.permissions import IsStudent
 from api.serializers import (
     ReferenceUploadSerializer,
+    ReferenceUploadResponseSerializer,
     EmptySerializer,
     ErrorSerializer,
     error_detail,
@@ -27,9 +28,12 @@ class ReferenceErrors:
 
 @extend_schema(
     methods=["POST"],
+    tags=["Medical"],
+    summary="Upload medical certificate",
+    description="Upload a medical certificate for sick leave. The system automatically calculates hours based on the duration of illness. Only one upload per day is allowed.",
     request=ReferenceUploadSerializer,
     responses={
-        status.HTTP_200_OK: EmptySerializer,
+        status.HTTP_200_OK: ReferenceUploadResponseSerializer,
         status.HTTP_400_BAD_REQUEST: ErrorSerializer,
     },
 )
@@ -61,4 +65,13 @@ def reference_upload(request, **kwargs):
             status=status.HTTP_400_BAD_REQUEST,
             data=error_detail(*ReferenceErrors.TOO_MUCH_UPLOADS_PER_DAY)
         )
-    return Response({})
+    
+    # Return informative response
+    return Response({
+        "message": "Medical certificate uploaded successfully",
+        "reference_id": ref.id,
+        "hours": ref.hours,
+        "start": ref.start,
+        "end": ref.end,
+        "uploaded": ref.uploaded
+    })

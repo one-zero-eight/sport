@@ -1,6 +1,6 @@
 async function openGroupInfoModal(info) {
     const {group_id, current_load} = await openGroupInfoModalForStudent(
-        `/api/group/${info.event.extendedProps.group_id}`,
+        `/api/sport-groups/${info.event.extendedProps.group_id}`,
         update_rendered_events_load
     )
     update_rendered_events_load(group_id, current_load, false);
@@ -50,7 +50,7 @@ $(function () {
         eventClick: openGroupInfoModal,
         eventRender: render,
         // Event format: yyyy-mm-dd
-        events: '/api/calendar/' + calendarEl.getAttribute('data-sport') + '/schedule',
+        events: '/api/sports/' + calendarEl.getAttribute('data-sport') + '/schedule',
         eventTimeFormat: { // like '14:30'
             hour: '2-digit',
             minute: '2-digit',

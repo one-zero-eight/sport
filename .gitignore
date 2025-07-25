@@ -2,8 +2,8 @@ __pycache__/
 
 /deploy/nginx-logs
 
-.env
-.env.local
+*.env
+*.env.local
 .sql
 
 .coverage
@@ -20,4 +20,4 @@ venv/
 
 .DS_Store
 
-sport_demo_dump_2025_06.sql
+sport_dump*.sql

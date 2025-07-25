@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from typing import Optional
 
 from django.db import connection
 from django.db.models import Q, Prefetch
@@ -7,6 +8,7 @@ from django.utils import timezone
 from api.crud.crud_semester import get_ongoing_semester
 from api.crud.utils import dictfetchone, dictfetchall, get_trainers_group
 from sport.models import Student, Trainer, Group, Training, TrainingCheckIn
+from accounts.models import User
 
 
 def get_group_info(group_id: int, student: Student):
@@ -35,6 +37,9 @@ def get_group_info(group_id: int, student: Student):
             'GROUP BY g.id, d.id', {"group_id": group_id, "student_id": student.pk})
 
         info = dictfetchone(cursor)
+        if info is None:
+            return None
+            
         info['trainers'] = get_trainers_group(group_id)
 
         info['can_enroll'] = student.sport is not None and \
@@ -107,7 +112,7 @@ def can_check_in(
     )
 
 
-def get_trainings_for_student(student: Student, start: datetime, end: datetime):
+def get_trainings_for_student(student: Student, start: Optional[datetime], end: Optional[datetime], trainer: Optional[Trainer] = None):
     # Assume current_semester() is a function that retrieves the current semester object.
     # Prefetch groups and allowed medical groups.
     group_prefetch = Prefetch("group", queryset=Group.objects.select_related("sport").prefetch_related(
@@ -156,6 +161,11 @@ def get_trainings_for_student(student: Student, start: datetime, end: datetime):
         can_check_in_result = can_check_in(student, t, student_checkins, time_now)
         group_frontend_name = t.group.to_frontend_name()
 
+        # Determine can_grade based on whether trainer is assigned to this group
+        can_grade = False
+        if trainer and t.group.trainers.filter(user_id=trainer.user.id).exists():
+            can_grade = True
+
         training_dict = {
             "id": t.id,
             "start": t.start,
@@ -164,7 +174,7 @@ def get_trainings_for_student(student: Student, start: datetime, end: datetime):
             "group_name": group_frontend_name,
             "training_class": t.training_class.name if t.training_class else None,
             "group_accredited": t.group.accredited,
-            "can_grade": False,
+            "can_grade": can_grade,
             "can_check_in": can_check_in_result,
             "checked_in": student_checkins_map.get(t.id) is not None,
         }
@@ -172,7 +182,7 @@ def get_trainings_for_student(student: Student, start: datetime, end: datetime):
     return trainings_data
 
 
-def get_trainings_for_trainer(trainer: Trainer, start: datetime, end: datetime):
+def get_trainings_for_trainer(trainer: Trainer, start: Optional[datetime], end: Optional[datetime]):
     """
     Retrieves existing trainings in the given range for given student
     @param trainer - searched trainer
@@ -264,3 +274,83 @@ def get_student_last_attended_dates(group_id: int):
                        'AND e.student_id = d.id '
                        'GROUP BY d.id', {"group_id": group_id})
         return dictfetchall(cursor)
+
+
+def get_weekly_schedule_with_participants(user: User, student: Optional[Student] = None, trainer: Optional[Trainer] = None, start: Optional[datetime] = None, end: Optional[datetime] = None):
+    """
+    Retrieves weekly schedule with participants information for each training
+    @param user - requesting user
+    @param student - student object (if user is a student)
+    @param trainer - trainer object (if user is a trainer)
+    @param start - week start date
+    @param end - week end date
+    @return list of trainings with participants info
+    """
+    # Validate required parameters
+    if start is None or end is None:
+        return []
+    
+    # Get trainings for the week based on user type(s)
+    student_trainings = []
+    trainer_trainings = []
+    
+    if student:
+        student_trainings = get_trainings_for_student(student, start, end, trainer)
+    
+    if trainer:
+        trainer_trainings = get_trainings_for_trainer(trainer, start, end)
+    
+    # Combine trainings, giving priority to trainer role for can_grade
+    combined_trainings = {}
+    
+    # Add student trainings first
+    for training in student_trainings:
+        combined_trainings[training['id']] = training
+    
+    # Add trainer trainings, overwriting can_grade if user is trainer for this group
+    for training in trainer_trainings:
+        if training['id'] in combined_trainings:
+            # User is both student and trainer for this training
+            # Keep trainer's can_grade=True
+            combined_trainings[training['id']]['can_grade'] = True
+        else:
+            # User is only trainer for this training
+            combined_trainings[training['id']] = training
+    
+    trainings = list(combined_trainings.values())
+    
+    # For each training, get participants info
+    for training in trainings:
+        training_id = training['id']
+        
+        # Get checked-in students and those who received grades
+        participants = get_students_grades(training_id)
+        
+        # Add participants info to training
+        training['participants'] = {
+            'total_checked_in': len([p for p in participants if p.get('hours', 0) >= 0]),
+            'students': [
+                {
+                    'id': p['student_id'],
+                    'name': p['full_name'],
+                    'email': p['email'],
+                    'medical_group': p['med_group'],
+                    'hours': p.get('hours', 0),
+                    'attended': p.get('hours', 0) > 0
+                }
+                for p in participants
+            ]
+        }
+        
+        # Add group capacity info
+        try:
+            group = Group.objects.get(id=training['group_id'])
+            training['capacity'] = group.capacity
+            training['available_spots'] = group.capacity - training['participants']['total_checked_in']
+        except Group.DoesNotExist:
+            training['capacity'] = 0
+            training['available_spots'] = 0
+
+    # Sort trainings by start time
+    trainings.sort(key=lambda t: t['start'])
+    return trainings
