@@ -1,4 +1,4 @@
-name: Production deploy
+name: Deploy
 
 on:
   workflow_dispatch:
@@ -12,7 +12,7 @@ on:
 jobs:
   deploy:
     if: github.repository_owner == 'inno-sport-inh' && (github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/cicd')
-    name: Deploy to production server
+    name: Deploy to the server
     runs-on: ubuntu-latest
     steps:
       - name: Deploy via SSH
@@ -24,4 +24,4 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           command_timeout: 30m
           script: |
-            bash "${{ secrets.DEPLOY_SCRIPT }}"
+            sh -c "${{ secrets.DEPLOY_SCRIPT }}"
