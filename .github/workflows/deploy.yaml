@@ -1,13 +1,19 @@
 name: Production deploy
+
 on:
   workflow_dispatch:
+
   push:
-    tags:
-      - v**
+    branches:
+      - cicd
+
+  pull_request:
+
 jobs:
   deploy:
+    if: github.repository_owner == 'inno-sport-inh' && (github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/cicd')
     name: Deploy to production server
-    runs-on: [self-hosted, innosport]
+    runs-on: [ innosport ]
     environment:
       name: production
       url: ${{ vars.DEPLOY_URL }}
@@ -22,5 +28,4 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           command_timeout: 30m
           script: |
-            cd "${{ secrets.DEPLOY_DIRECTORY }}"
-            bash "${{ secrets.DEPLOY_SCRIPT }}" "${{ github.ref_name }}"
+            bash "${{ secrets.DEPLOY_SCRIPT }}"
