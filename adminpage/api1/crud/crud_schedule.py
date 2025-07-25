@@ -6,8 +6,8 @@ from django.db.models import Q
 from django.db.models import Count
 from django.db.models import Prefetch
 
-from api.crud.utils import dictfetchall
-from api.crud import get_ongoing_semester
+from api1.crud.utils import dictfetchall
+from api1.crud import get_ongoing_semester
 from sport.models import Student, Group, Schedule
 
 

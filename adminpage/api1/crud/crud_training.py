@@ -4,8 +4,8 @@ from django.db import connection
 from django.db.models import Q, Prefetch
 from django.utils import timezone
 
-from api.crud.crud_semester import get_ongoing_semester
-from api.crud.utils import dictfetchone, dictfetchall, get_trainers_group
+from api1.crud.crud_semester import get_ongoing_semester
+from api1.crud.utils import dictfetchone, dictfetchall, get_trainers_group
 from sport.models import Student, Trainer, Group, Training, TrainingCheckIn
 
 

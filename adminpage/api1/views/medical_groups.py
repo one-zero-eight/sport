@@ -3,8 +3,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from drf_spectacular.utils import extend_schema
 
-from api.serializers import MedicalGroupsSerializer, NotFoundSerializer
-from api.crud import get_medical_groups
+from api1.serializers import MedicalGroupsSerializer, NotFoundSerializer
+from api1.crud import get_medical_groups
 
 
 @extend_schema(

@@ -7,8 +7,8 @@ from django.db.models import Q
 from django.db.models import Count, Sum, IntegerField
 
 import api.crud
-from api.crud.utils import dictfetchall, get_trainers_group
-from api.crud.crud_semester import get_ongoing_semester
+from api1.crud.utils import dictfetchall, get_trainers_group
+from api1.crud.crud_semester import get_ongoing_semester
 from sport.models import Sport, Student, Trainer, Group, Enroll
 
 

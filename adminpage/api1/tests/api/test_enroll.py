@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from api.views.enroll import EnrollErrors
+from api1.views.enroll import EnrollErrors
 from sport.models import Enroll, Group, MedicalGroups, Sport
 
 User = get_user_model()

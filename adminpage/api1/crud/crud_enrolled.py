@@ -2,7 +2,7 @@ from typing import List, Dict
 
 from django.db import transaction, connection
 
-from api.crud import dictfetchall
+from api1.crud import dictfetchall
 from sport.models import Student, Enroll, Group
 
 

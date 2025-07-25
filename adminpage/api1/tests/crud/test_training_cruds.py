@@ -2,7 +2,7 @@ import pytest
 import unittest
 from datetime import date, time, datetime
 
-from api.crud import enroll_student, \
+from api1.crud import enroll_student, \
     get_group_info, \
     get_trainings_for_student, get_trainings_for_trainer, get_students_grades
 from sport.models import Training, Schedule

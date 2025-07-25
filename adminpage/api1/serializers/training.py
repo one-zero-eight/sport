@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
-from api.serializers.sport import NewSportSerializer
-from api.serializers.semester import SemesterSerializer
+from api1.serializers.sport import NewSportSerializer
+from api1.serializers.semester import SemesterSerializer
 from sport.models import Training, Group, Trainer
 
 
