@@ -5,7 +5,7 @@ on:
 
   push:
     branches:
-      - cicd
+      - main
 
   pull_request:
 
