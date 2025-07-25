@@ -5,7 +5,7 @@ import pytest
 from django.conf import settings
 from django.forms.models import model_to_dict
 
-from api.crud import get_student_groups, get_trainer_groups, get_sports
+from api1.crud import get_student_groups, get_trainer_groups, get_sports
 from sport.models import Enroll, Group, MedicalGroups
 
 assertMembers = unittest.TestCase().assertCountEqual

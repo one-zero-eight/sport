@@ -16,16 +16,16 @@ from rest_framework.response import Response
 from django.views.decorators.cache import cache_page
 from django.utils.dateparse import parse_date
 
-from api.crud import Training, \
+from api1.crud import Training, \
     get_students_grades, mark_hours, get_student_last_attended_dates, \
     get_student_hours, get_negative_hours, better_than, get_email_name_like_students_filtered_by_group
-from api.permissions import IsStaff, IsStudent, IsTrainer, IsSuperUser
-from api.serializers import SuggestionQuerySerializer, SuggestionSerializer, \
+from api1.permissions import IsStaff, IsStudent, IsTrainer, IsSuperUser
+from api1.serializers import SuggestionQuerySerializer, SuggestionSerializer, \
     NotFoundSerializer, InbuiltErrorSerializer, \
     TrainingGradesSerializer, AttendanceMarkSerializer, error_detail, \
     BadGradeReportGradeSerializer, BadGradeReport, LastAttendedDatesSerializer, HoursInfoSerializer, \
     HoursInfoFullSerializer, AttendanceSerializer, ErrorSerializer
-from api.serializers.attendance import BetterThanInfoSerializer
+from api1.serializers.attendance import BetterThanInfoSerializer
 from sport.models import Group, Student, Attendance
 
 User = get_user_model()

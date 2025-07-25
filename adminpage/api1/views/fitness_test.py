@@ -6,20 +6,20 @@ from rest_framework import status, serializers
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
-from api.permissions import (
+from api1.permissions import (
     IsTrainer, IsStudent, IsSuperUser,
 )
-from api.serializers import (
+from api1.serializers import (
     NotFoundSerializer,
     ErrorSerializer, SuggestionSerializer,
 )
 
-from api.crud import get_exercises_crud, post_student_exercises_result_crud, \
+from api1.crud import get_exercises_crud, post_student_exercises_result_crud, \
     get_email_name_like_students, get_ongoing_semester, get_score, get_max_score
-from api.serializers.attendance import SuggestionQueryFTSerializer
-from api.serializers.fitness_test import FitnessTestExerciseSerializer, FitnessTestSessionSerializer, \
+from api1.serializers.attendance import SuggestionQueryFTSerializer
+from api1.serializers.fitness_test import FitnessTestExerciseSerializer, FitnessTestSessionSerializer, \
     FitnessTestSessionWithResult, FitnessTestStudentResult, FitnessTestUpload
-from api.serializers.semester import SemesterInSerializer
+from api1.serializers.semester import SemesterInSerializer
 from sport.models import FitnessTestSession, FitnessTestResult, FitnessTestExercise, Semester, Student
 
 

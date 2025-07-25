@@ -7,9 +7,9 @@ from rest_framework.decorators import api_view, permission_classes, \
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 
-from api.crud import get_ongoing_semester
-from api.permissions import IsStudent
-from api.serializers import (
+from api1.crud import get_ongoing_semester
+from api1.permissions import IsStudent
+from api1.serializers import (
     ReferenceUploadSerializer,
     EmptySerializer,
     ErrorSerializer,

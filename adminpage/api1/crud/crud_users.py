@@ -4,7 +4,7 @@ from django.db.models import Q
 from django.db.models import Value
 from django.db.models.functions import Concat
 
-from api.crud.utils import dictfetchall
+from api1.crud.utils import dictfetchall
 from sport.models import Student, Group
 
 

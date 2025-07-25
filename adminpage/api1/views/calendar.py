@@ -7,9 +7,9 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from django.utils import timezone
 
-from api.crud import get_sport_schedule, get_trainings_for_student, get_trainings_for_trainer
-from api.permissions import IsStudent, IsTrainer
-from api.serializers import CalendarRequestSerializer, CalendarSerializer
+from api1.crud import get_sport_schedule, get_trainings_for_student, get_trainings_for_trainer
+from api1.permissions import IsStudent, IsTrainer
+from api1.serializers import CalendarRequestSerializer, CalendarSerializer
 
 
 def convert_training_schedule(t) -> dict:
