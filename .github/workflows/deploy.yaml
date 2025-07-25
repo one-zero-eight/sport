@@ -1,0 +1,27 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches:
+      - main
+
+  pull_request:
+
+jobs:
+  deploy:
+    if: github.repository_owner == 'inno-sport-inh' && (github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/cicd')
+    name: Deploy to the server
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          command_timeout: 30m
+          script: |
+            sh -c "${{ secrets.DEPLOY_SCRIPT }}"
