@@ -8,10 +8,10 @@ from typing import TypedDict
 
 from django.db import connection
 
-from api.crud.utils import dictfetchall
+from api1.crud.utils import dictfetchall
 from sport.models import Student, Semester, Training, SelfSportReport, Reference, Debt
 
-from api.crud.crud_semester import get_ongoing_semester
+from api1.crud.crud_semester import get_ongoing_semester
 from sport.models import Attendance
 from .utils import SumSubquery
 

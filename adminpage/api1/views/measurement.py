@@ -4,11 +4,11 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
-from api.crud import get_ongoing_semester
+from api1.crud import get_ongoing_semester
 
-from api.permissions import IsStudent, IsTrainer
+from api1.permissions import IsStudent, IsTrainer
 
-from api.serializers import (
+from api1.serializers import (
     MeasurementPostSerializer,
     MeasurementResultsSerializer,
     NotFoundSerializer,

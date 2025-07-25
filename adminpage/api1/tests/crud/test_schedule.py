@@ -3,7 +3,7 @@ import unittest
 import pytest
 from datetime import time, date
 
-from api.crud import get_sport_schedule, enroll_student
+from api1.crud import get_sport_schedule, enroll_student
 from sport.models import Schedule, Training, MedicalGroups
 
 assertMembers = unittest.TestCase().assertCountEqual
