@@ -8,7 +8,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from api1.views.attendance import AttendanceErrors
+from api.views.attendance import AttendanceErrors
 from sport.models import Trainer, Training, Attendance
 
 User = get_user_model()

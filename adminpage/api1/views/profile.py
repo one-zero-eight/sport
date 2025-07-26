@@ -5,20 +5,20 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
-from api11.crud.crud_attendance import (
+from api.crud.crud_attendance import (
     toggle_has_QR,
     get_detailed_hours, get_detailed_hours_and_self,
 )
-from api1.permissions import (
+from api.permissions import (
     IsStudent, IsStaff,
 )
-from api1.serializers import (
+from api.serializers import (
     get_error_serializer,
     TrainingHourSerializer, EmptySerializer,
     HasQRSerializer,
 )
-from api1.serializers.profile import GenderSerializer
-from api1.serializers.student import StudentSerializer
+from api.serializers.profile import GenderSerializer
+from api.serializers.student import StudentSerializer
 from sport.models import Semester, Student, Group
 
 

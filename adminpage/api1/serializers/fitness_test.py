@@ -1,8 +1,8 @@
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from api1.serializers.semester import SemesterSerializer
-from api1.serializers.student import StudentSerializer
+from api.serializers.semester import SemesterSerializer
+from api.serializers.student import StudentSerializer
 from sport.models import FitnessTestExercise, FitnessTestSession, FitnessTestResult
 
 

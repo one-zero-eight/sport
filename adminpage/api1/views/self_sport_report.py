@@ -9,15 +9,15 @@ from rest_framework.decorators import (
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 
-from api1.crud import get_ongoing_semester, get_student_hours, get_negative_hours
-from api1.permissions import IsStudent
-from api1.serializers import (
+from api.crud import get_ongoing_semester, get_student_hours, get_negative_hours
+from api.permissions import IsStudent
+from api.serializers import (
     SelfSportReportUploadSerializer,
     EmptySerializer,
     ErrorSerializer,
     error_detail,
 )
-from api1.serializers.self_sport_report import SelfSportTypes, ParseStrava, ParsedStravaSerializer
+from api.serializers.self_sport_report import SelfSportTypes, ParseStrava, ParsedStravaSerializer
 from sport.models import SelfSportType, SelfSportReport
 import requests
 from bs4 import BeautifulSoup, SoupStrainer

@@ -4,7 +4,7 @@ from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import status
 
-from api1.permissions import IsStaff, IsSuperUser
+from api.permissions import IsStaff, IsSuperUser
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response

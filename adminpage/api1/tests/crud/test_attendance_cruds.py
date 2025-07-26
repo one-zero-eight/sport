@@ -3,7 +3,7 @@ import unittest
 from datetime import date
 from django.utils import timezone
 
-from api1.crud import get_detailed_hours, get_brief_hours, mark_hours
+from api.crud import get_detailed_hours, get_brief_hours, mark_hours
 from sport.models import Attendance
 
 dummy_date = date(2020, 1, 1)

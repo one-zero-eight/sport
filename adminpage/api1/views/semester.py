@@ -4,9 +4,9 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from api1.crud import get_semester_crud
-from api1.serializers import NotFoundSerializer
-from api1.serializers.semester import SemesterSerializer
+from api.crud import get_semester_crud
+from api.serializers import NotFoundSerializer
+from api.serializers.semester import SemesterSerializer
 
 
 @extend_schema(

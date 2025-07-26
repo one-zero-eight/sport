@@ -2,7 +2,7 @@ import datetime
 
 from django.db.models import Q
 
-from api1.crud import get_ongoing_semester
+from api.crud import get_ongoing_semester
 from sport.models import FitnessTestResult, FitnessTestExercise, FitnessTestGrading, Student, FitnessTestSession, \
     Semester
 

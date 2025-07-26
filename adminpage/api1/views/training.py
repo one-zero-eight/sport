@@ -7,10 +7,10 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
-from api1.crud.crud_training import can_check_in
-from api1.permissions import IsStudent
-from api1.serializers import NotFoundSerializer, EmptySerializer, ErrorSerializer, error_detail
-from api1.serializers.training import NewTrainingInfoStudentSerializer
+from api.crud.crud_training import can_check_in
+from api.permissions import IsStudent
+from api.serializers import NotFoundSerializer, EmptySerializer, ErrorSerializer, error_detail
+from api.serializers.training import NewTrainingInfoStudentSerializer
 from sport.models import Training, Student, TrainingCheckIn, Attendance
 
 

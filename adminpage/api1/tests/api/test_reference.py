@@ -8,8 +8,8 @@ from rest_framework import status
 from rest_framework.test import APIClient
 from PIL import Image
 
-from api1.views.reference import ReferenceErrors
-from api1.views.utils import ImageErrors
+from api.views.reference import ReferenceErrors
+from api.views.utils import ImageErrors
 from sport.models import Attendance, Reference, Training
 
 

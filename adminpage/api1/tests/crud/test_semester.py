@@ -1,7 +1,7 @@
 import pytest
 from datetime import date
 
-from api1.crud import get_ongoing_semester
+from api.crud import get_ongoing_semester
 
 
 @pytest.mark.django_db

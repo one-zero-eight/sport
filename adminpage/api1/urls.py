@@ -3,7 +3,7 @@ from django.views.generic import RedirectView
 from django.urls import path, re_path, register_converter
 from drf_spectacular.views import SpectacularSwaggerView, SpectacularJSONAPIView, SpectacularYAMLAPIView
 
-from api1.views import (
+from api.views import (
     profile,
     enroll,
     group,

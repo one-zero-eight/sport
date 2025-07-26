@@ -5,10 +5,10 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
-from api1.crud import get_group_info, get_sports
-from api1.permissions import IsStudent, IsTrainer
-from api1.serializers import GroupInfoSerializer, NotFoundSerializer, SportsSerializer, EmptySerializer, ErrorSerializer
-from api1.serializers.group import SportEnrollSerializer
+from api.crud import get_group_info, get_sports
+from api.permissions import IsStudent, IsTrainer
+from api.serializers import GroupInfoSerializer, NotFoundSerializer, SportsSerializer, EmptySerializer, ErrorSerializer
+from api.serializers.group import SportEnrollSerializer
 from sport.models import Group, Schedule, Student, Sport
 
 
