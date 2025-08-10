@@ -12,6 +12,7 @@ from .attendance import (
     HoursInfoSerializer,
     HoursInfoFullSerializer,
     AttendanceSerializer,
+
 )
 from .calendar import (
     CalendarRequestSerializer,
@@ -62,4 +63,8 @@ from .measurement import (
 from .medical_groups import (
     MedicalGroupSerializer,
     MedicalGroupsSerializer
+)
+
+from .training_class import (
+    TrainingClassSerializer
 )

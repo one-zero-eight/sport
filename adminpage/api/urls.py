@@ -17,6 +17,7 @@ from api.views import (
     semester,
     analytics,
     medical_groups,
+    training_class
 )
 
 
@@ -99,6 +100,9 @@ urlpatterns = [
 
     # medical groups
     path(r"medical_groups/", medical_groups.medical_groups_view),
+
+    # training class
+    path(r"training_class", training_class.get_training_class_view),
 ]
 
 urlpatterns.extend([
