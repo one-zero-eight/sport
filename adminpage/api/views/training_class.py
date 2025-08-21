@@ -13,7 +13,7 @@ from api.serializers import TrainingClassSerializer, NotFoundSerializer
 @extend_schema(
     methods=["GET"],
     responses={
-        status.HTTP_200_OK: TrainingClassSerializer,
+        status.HTTP_200_OK: TrainingClassSerializer(many=True),
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
     }
 )

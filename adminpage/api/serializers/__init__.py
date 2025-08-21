@@ -12,7 +12,6 @@ from .attendance import (
     HoursInfoSerializer,
     HoursInfoFullSerializer,
     AttendanceSerializer,
-
 )
 from .calendar import (
     CalendarRequestSerializer,
