@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.forms import ModelForm, CheckboxSelectMultiple, BooleanField
+from django.forms import ModelForm, CheckboxSelectMultiple, ModelChoiceField
 
 from sport.models import Semester
 from .site import site
@@ -7,7 +7,12 @@ from .utils import copy_sport_groups_and_schedule_from_previous_semester
 
 
 class SemesterAdminForm(ModelForm):
-    copy_groups = BooleanField(required=False, label='Copy groups and schedule from previous semester')
+    semester_to_copy = ModelChoiceField(
+        queryset=Semester.objects.all(),
+        required=False,
+        label='Semester to copy groups and schedule from'
+    )
+
     class Meta:
         model = Semester
         fields = '__all__'  # will be overridden by ModelAdmin
@@ -37,8 +42,12 @@ class SemesterAdmin(admin.ModelAdmin):
     )
 
     def save_model(self, request, obj, form, change):
-        if form.cleaned_data.get('copy_groups', False) and not change:
-            copy_sport_groups_and_schedule_from_previous_semester(obj)
+        source_semester = form.cleaned_data.get('semester_to_copy')
+        if source_semester and not change:
+            copy_sport_groups_and_schedule_from_previous_semester(
+                obj,
+                source_semester
+            )
         else:
             super().save_model(request, obj, form, change)
 
@@ -54,7 +63,7 @@ class SemesterAdmin(admin.ModelAdmin):
                 "participating_courses",
                 "number_hours_one_week_ill",
                 "nullify_groups",
-                "copy_groups",
+                "semester_to_copy",
                 # "increase_course"
             )
         return (
@@ -66,7 +75,7 @@ class SemesterAdmin(admin.ModelAdmin):
             "academic_leave_students",
             "number_hours_one_week_ill",
             "participating_courses",
-            "copy_groups",
+            "semester_to_copy",
         )
 
     autocomplete_fields = ('academic_leave_students',)

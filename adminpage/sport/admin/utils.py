@@ -292,9 +292,8 @@ def get_new_schedule_for_sport_group(sport_group: Group, new_sport_group: Group)
     return new_timeslots
 
 
-def copy_sport_groups_and_schedule_from_previous_semester(semester: Semester) -> None:
+def copy_sport_groups_and_schedule_from_semester(semester: Semester, prev_semester: Semester) -> None:
     semester.save()
-    prev_semester = Semester.objects.filter(start__lt=semester.start).order_by('-start').first()
     sport_groups = Group.objects.filter(semester__pk=prev_semester.pk).prefetch_related('trainers', 'allowed_medical_groups', 'schedule').select_related('trainer').order_by('pk')
     new_sport_groups = get_new_sport_groups(semester, sport_groups)
     Group.objects.bulk_create(new_sport_groups)
