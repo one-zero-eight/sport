@@ -85,6 +85,7 @@ def create_trainings_current_semester(instance: Schedule, created, **kwargs):
     today = get_today()
     server_timezone = timezone.localtime().tzinfo
     server_time = datetime.now(server_timezone)
+    trainings = []
     for week_start in week_generator(max(get_current_monday(), semester.start), semester.end):
         training_date = week_start + timedelta(days=instance.weekday)
         if today <= training_date <= semester.end:
@@ -99,11 +100,11 @@ def create_trainings_current_semester(instance: Schedule, created, **kwargs):
                     time=instance.end,
                     tzinfo=server_timezone
                 )
-
-                Training.objects.create(
+                trainings.append(Training(
                     group=instance.group,
                     schedule=instance,
                     start=training_start,
                     end=training_end,
                     training_class=instance.training_class,
-                )
+                ))
+    Training.objects.bulk_create(trainings)
