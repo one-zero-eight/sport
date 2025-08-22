@@ -3,7 +3,7 @@ from django.forms import ModelForm, CheckboxSelectMultiple, ModelChoiceField
 
 from sport.models import Semester
 from .site import site
-from .utils import copy_sport_groups_and_schedule_from_previous_semester
+from .utils import copy_sport_groups_and_schedule_from_semester
 
 
 class SemesterAdminForm(ModelForm):
@@ -44,7 +44,7 @@ class SemesterAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         source_semester = form.cleaned_data.get('semester_to_copy')
         if source_semester and not change:
-            copy_sport_groups_and_schedule_from_previous_semester(
+            copy_sport_groups_and_schedule_from_semester(
                 obj,
                 source_semester
             )
