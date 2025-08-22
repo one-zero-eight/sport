@@ -12,9 +12,9 @@ from django import forms
 import datetime
 
 from api.crud import get_ongoing_semester
+from sport.signals.schedule import create_trainings_current_semester
 from sport.models import Schedule, Semester, Group
 from adminpage.settings import NOT_COPYABLE_GROUPS
-from adminpage.sport.signals.schedule import create_trainings_current_semester
 
 
 class DurationWidget(forms.TimeInput):
