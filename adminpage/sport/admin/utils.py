@@ -14,6 +14,7 @@ import datetime
 from api.crud import get_ongoing_semester
 from sport.models import Schedule, Semester, Group
 from adminpage.settings import NOT_COPYABLE_GROUPS
+from adminpage.sport.signals.schedule import create_trainings_current_semester
 
 
 class DurationWidget(forms.TimeInput):
@@ -307,3 +308,5 @@ def copy_sport_groups_and_schedule_from_semester(semester: Semester, prev_semest
             new_group.allowed_medical_groups.add(medical_group)
         new_schedule_timeslots.extend(get_new_schedule_for_sport_group(old_group, new_group))
     Schedule.objects.bulk_create(new_schedule_timeslots)
+    for timeslot in new_schedule_timeslots:
+        create_trainings_current_semester(timeslot, True)
