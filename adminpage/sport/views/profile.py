@@ -10,19 +10,9 @@ from api.crud import get_ongoing_semester, get_student_groups, \
     get_brief_hours, \
     get_trainer_groups, get_negative_hours, get_student_hours, get_faq, get_sports
 from api.permissions import IsStudent
-from sport.models import Student, MedicalGroupReference, Debt
+from sport.forms.medical import MedicalGroupReferenceForm
+from sport.models import Student, MedicalGroupReference, Debt, MedicalGroupReferenceImage
 from sport.utils import set_session_notification
-
-
-class MedicalGroupReferenceForm(forms.Form):
-    reference = forms.ImageField()
-    student_comment = forms.CharField(
-        widget=forms.Textarea,
-        max_length=1024,
-        label="Comments (optional)",
-        required=False,
-        empty_value='-'
-    )
 
 
 @login_required
@@ -119,12 +109,16 @@ def profile_view(request, **kwargs):
 def process_med_group_form(request, *args, **kwargs):
     form = MedicalGroupReferenceForm(request.POST, request.FILES)
     if form.is_valid():
-        MedicalGroupReference.objects.create(
+        reference = MedicalGroupReference.objects.create(
             student_id=request.user.pk,
             semester=get_ongoing_semester(),
-            image=form.cleaned_data["reference"],
             student_comment=form.cleaned_data['student_comment']
         )
+
+        reference_images = []
+        for image in request.FILES.getlist('references'):
+            reference_images.append(MedicalGroupReferenceImage(reference=reference, image=image))
+        MedicalGroupReferenceImage.objects.bulk_create(reference_images)
 
         set_session_notification(
             request,

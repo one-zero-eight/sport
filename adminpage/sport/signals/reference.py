@@ -2,15 +2,24 @@ from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
 
-from sport.models import Reference, Group, MedicalGroupReference
+from sport.models import Reference, Group, MedicalGroupReference, MedicalGroupReferenceImage
 from sport.signals.utils import create_attendance_record
-from sport.utils import format_submission_html
+from sport.utils import format_submission_html, SubmissionType
 
 
 @receiver(post_save, sender=Reference)
 def update_hours_for_reference(sender, instance: Reference, created, **kwargs):
     if created:
         return
+    
+    submissions_urls = '\n'.join(
+        [
+            format_submission_html(SubmissionType.IMAGE, image.image.path)
+            for image in MedicalGroupReferenceImage.objects.filter(
+                reference_id=instance.pk
+            )
+        ]
+    )
 
     # get_or_create returns (object: Model, created: bool)
     group = Group.objects.get(
@@ -35,18 +44,14 @@ def update_hours_for_reference(sender, instance: Reference, created, **kwargs):
             *settings.EMAIL_TEMPLATES['medical_leave_success'],
             date=instance.uploaded.date(),
             hours=instance.hours,
-            submission=format_submission_html(
-                *instance.get_submission_url()
-            ),
+            submission=submissions_urls,
         )
     else:
         instance.student.notify(
             *settings.EMAIL_TEMPLATES['medical_leave_reject'],
             date=instance.uploaded.date(),
             comment=instance.comment,
-            submission=format_submission_html(
-                *instance.get_submission_url()
-            ),
+            submission=submissions_urls,
         )
 
 
