@@ -2,6 +2,7 @@ import uuid
 
 from django.conf import settings
 from django.db import models
+from sport.utils import format_submission_html, SubmissionType
 
 
 def get_reference_path(instance, filename):
@@ -32,6 +33,16 @@ class MedicalGroupReference(models.Model):
     
     def __str__(self):
         return f"{self.student} {self.uploaded.strftime('%Y-%m-%d %H:%M:%S')} for {self.semester}"
+
+    def get_submission_url(self):
+        return '\n'.join(
+            [
+                format_submission_html(SubmissionType.IMAGE, image.image.path)
+                for image in MedicalGroupReferenceImage.objects.filter(
+                    reference_id=self.pk
+                )
+            ]
+        )
 
     class Meta:
         db_table = "medical_group_reference"
