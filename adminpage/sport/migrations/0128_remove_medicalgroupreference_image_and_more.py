@@ -5,6 +5,19 @@ import sport.models.medical_group_reference
 from django.db import migrations, models
 
 
+def transfer_existing_images(apps, schema_editor):
+    """Transfer existing image data from MedicalGroupReference to MedicalGroupReferenceImage"""
+    MedicalGroupReference = apps.get_model('sport', 'MedicalGroupReference')
+    MedicalGroupReferenceImage = apps.get_model('sport', 'MedicalGroupReferenceImage')
+    
+    for reference in MedicalGroupReference.objects.exclude(image__isnull=True).exclude(image=''):
+        # Create a new MedicalGroupReferenceImage for each existing image
+        MedicalGroupReferenceImage.objects.create(
+            reference=reference,
+            image=reference.image
+        )
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -12,10 +25,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='medicalgroupreference',
-            name='image',
-        ),
         migrations.CreateModel(
             name='MedicalGroupReferenceImage',
             fields=[
@@ -28,5 +37,11 @@ class Migration(migrations.Migration):
                 'verbose_name_plural': 'medical group reference images',
                 'db_table': 'medical_group_reference_image',
             },
+        ),
+        # First create the new model, then transfer data, then remove the old field
+        migrations.RunPython(transfer_existing_images),
+        migrations.RemoveField(
+            model_name='medicalgroupreference',
+            name='image',
         ),
     ]
