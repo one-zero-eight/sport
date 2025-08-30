@@ -13,7 +13,7 @@ def transfer_existing_images(apps, schema_editor):
     for reference in MedicalGroupReference.objects.exclude(image__isnull=True).exclude(image=''):
         # Create a new MedicalGroupReferenceImage for each existing image
         MedicalGroupReferenceImage.objects.create(
-            reference=reference,
+            medical_reference=reference,
             image=reference.image
         )
 
