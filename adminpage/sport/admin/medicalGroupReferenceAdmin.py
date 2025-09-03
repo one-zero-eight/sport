@@ -15,6 +15,14 @@ class StudentTextFilter(AutocompleteFilter):
 class MedicalGroupReferenceAdminImage(admin.TabularInline):
     model = MedicalGroupReferenceImage
     extra = 0
+    fields = ("thumbnail_image",)  # This should reference the method below
+    readonly_fields = ("thumbnail_image",)  # Add this line
+
+    def thumbnail_image(self, obj):
+        return format_html(
+            '<img src="{}" width="100" height="100" />',
+            obj.image.url,
+        )
 
 
 class MedicalGroupReferenceForm(forms.ModelForm):
