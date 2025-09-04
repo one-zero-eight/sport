@@ -20,7 +20,7 @@ class MedicalGroupReferenceAdminImage(admin.TabularInline):
 
     def thumbnail_image(self, obj):
         return format_html(
-            '<img src="{}" width="100" height="100" />',
+            '<img src="{}" width="50%" />',
             obj.image.url,
         )
 
@@ -46,7 +46,7 @@ class MedicalGroupReferenceForm(forms.ModelForm):
         instance = super().save(commit)
         instance.student.medical_group_id = self.cleaned_data['medical_group'].pk
         instance.student.save()
-        
+
         # FIXME: Подумать как сделать менее костыльно
         student_history = MedicalGroupHistory.objects.filter(student=instance.student)
         if student_history:
