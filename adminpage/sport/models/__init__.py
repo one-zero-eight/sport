@@ -6,7 +6,7 @@ from .enroll import Enroll
 from .enums import MedicalGroups, StudentStatuses, Gender
 from .group import Group
 from .medical_group import MedicalGroup
-from .medical_group_reference import MedicalGroupReference
+from .medical_group_reference import MedicalGroupReference, MedicalGroupReferenceImage
 from .medical_group_history import MedicalGroupHistory
 from .reference import Reference
 from .schedule import Schedule

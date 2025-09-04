@@ -4,7 +4,7 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django_sendfile import sendfile
 
-from sport.models import Reference, SelfSportReport, MedicalGroupReference
+from sport.models import Reference, SelfSportReport, MedicalGroupReferenceImage
 
 
 def download_student_object(
@@ -66,9 +66,13 @@ def medical_group_reference_download(
         filename: str,
 ):
     requested_path = request.path[len(settings.MEDIA_URL):]
-    return download_student_object(
-        request,
-        MedicalGroupReference,
-        student_id,
-        image=requested_path
-    )
+    user = request.user
+    if user.is_staff or user.pk == student_id:
+        obj = get_object_or_404(
+            klass=MedicalGroupReferenceImage,
+            reference__student__pk=student_id,
+            image=requested_path,
+        )
+        return sendfile(request, obj.image.path)
+    else:
+        raise Http404()
