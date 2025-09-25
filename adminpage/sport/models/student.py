@@ -2,8 +2,11 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.db.models import OuterRef, ExpressionWrapper, F
+from django.db.models.functions import Coalesce
 from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
+from django.db.models import IntegerField
 from tinymce.models import HTMLField
 
 from sport.models import MedicalGroupHistory, Gender
@@ -16,6 +19,40 @@ def validate_course(course):
     if course < 1 or course > 4:
         raise ValidationError('Course is bounded by 1 and 4')
 
+
+class StudentManager(models.Manager):
+    def get_queryset(self):
+        from api.crud import get_ongoing_semester
+        from api.crud import SumSubquery
+        from sport.models import Attendance, Debt
+        from django.db.utils import ProgrammingError
+
+        qs = super().get_queryset()
+
+        try:
+            qs = qs.annotate(_debt=Coalesce(
+                SumSubquery(Debt.objects.filter(
+                    semester_id=get_ongoing_semester().pk,
+                    student_id=OuterRef("pk")),
+                    'debt',
+                ),
+                0
+            ))
+            qs = qs.annotate(_ongoing_semester_hours=Coalesce(
+                SumSubquery(Attendance.objects.filter(
+                    training__group__semester_id=get_ongoing_semester().pk,
+                    student_id=OuterRef("pk")),
+                    'hours',
+                ),
+                0
+            ))
+            qs = qs.annotate(hours=ExpressionWrapper(
+                F('_ongoing_semester_hours') - F('_debt'), output_field=IntegerField()
+            ))
+        except (ProgrammingError, IndexError):
+            pass
+
+        return qs
 
 class Student(models.Model):
     user = models.OneToOneField(
@@ -77,6 +114,8 @@ class Student(models.Model):
     )
 
     comment = HTMLField(null=True, blank=True, default='')
+
+    objects = StudentManager()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
