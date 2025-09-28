@@ -128,6 +128,7 @@ class StudentResource(resources.ModelResource):
             "medical_group",
             "gender",
             "student_status",
+            "is_college",
         )
         export_order = (
             "user",
@@ -143,6 +144,7 @@ class StudentResource(resources.ModelResource):
             'sport',
             'complex_hours',
             "telegram",
+            "is_college",
         )
         import_id_fields = ("user",)
         skip_unchanged = False
@@ -184,6 +186,7 @@ class StudentResource(resources.ModelResource):
                 row.get('medical_group'),
                 row.get('gender'),
                 row.get('student_status'),
+                row.get('is_college'),
             ]
             # Add a column with the error message
             import_result.diff.append(mark_safe(
@@ -217,6 +220,7 @@ class StudentAdmin(HijackUserAdminMixin, ImportExportActionModelAdmin, DefaultFi
             "has_QR",
             "is_online",
             "medical_group",
+            "is_college",
             "enrollment_year",
             "course",
             "sport",
@@ -238,6 +242,7 @@ class StudentAdmin(HijackUserAdminMixin, ImportExportActionModelAdmin, DefaultFi
     )
 
     list_filter = (
+        "is_college",
         "course",
         "enrollment_year",
         "is_online",
@@ -250,6 +255,7 @@ class StudentAdmin(HijackUserAdminMixin, ImportExportActionModelAdmin, DefaultFi
 
     list_display = (
         "__str__",
+        "is_college",
         user__role,
         "has_QR",
         "is_online",
@@ -262,6 +268,7 @@ class StudentAdmin(HijackUserAdminMixin, ImportExportActionModelAdmin, DefaultFi
     )
 
     readonly_fields = (
+        "is_college",
         "write_to_telegram",
     )
 

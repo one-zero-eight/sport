@@ -25,6 +25,15 @@ def get_or_create_student_group():
     )[0]
 
 
+def get_or_create_college_group():
+    return AuthGroup.objects.get_or_create(
+        verbose_name=settings.COLLEGE_AUTH_GROUP_VERBOSE_NAME,
+        defaults={
+            "name": settings.COLLEGE_AUTH_GROUP_NAME,
+        }
+    )[0]
+
+
 def get_or_create_trainer_group():
     return AuthGroup.objects.get_or_create(
         verbose_name=settings.TRAINER_AUTH_GROUP_VERBOSE_NAME,

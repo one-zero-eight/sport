@@ -17,21 +17,6 @@ from api.crud import unenroll_student, get_student_groups
 User = get_user_model()
 
 
-def get_current_group_mapping():
-    group_mapping = {}
-    user_groups = Group.objects.filter(
-        verbose_name__in=[
-            settings.STUDENT_AUTH_GROUP_VERBOSE_NAME,
-            settings.TRAINER_AUTH_GROUP_VERBOSE_NAME,
-        ],
-    ).all()
-
-    for group in user_groups:
-        group_mapping.update({group.verbose_name: group.pk})
-
-    return group_mapping
-
-
 @receiver(
     m2m_changed,
     sender=User.groups.through
@@ -39,28 +24,43 @@ def get_current_group_mapping():
 # if user is add to a group, this will create a corresponding profile
 def create_student_profile(instance, action, reverse, pk_set, **kwargs):
     if not reverse:
-        group_mapping = get_current_group_mapping()
-        if group_mapping.get(
+        current_user_groups = [v.verbose_name for v in instance.groups.filter(
+            verbose_name__in=[
                 settings.STUDENT_AUTH_GROUP_VERBOSE_NAME,
-                None
-        ) in pk_set:
-            if action == "post_add":
-                Student.objects.get_or_create(pk=instance.pk)
-            if action == "pre_remove":
-                Student.objects.filter(pk=instance.pk).delete()
-
-        if group_mapping.get(
+                settings.COLLEGE_AUTH_GROUP_VERBOSE_NAME,
                 settings.TRAINER_AUTH_GROUP_VERBOSE_NAME,
-                None
-        ) in pk_set:
-            if action == "post_add":
-                Trainer.objects.get_or_create(pk=instance.pk)
+            ],
+        ).all()]
+        has_student_group = settings.STUDENT_AUTH_GROUP_VERBOSE_NAME in current_user_groups
+        has_college_group = settings.COLLEGE_AUTH_GROUP_VERBOSE_NAME in current_user_groups
+        has_trainer_group = settings.TRAINER_AUTH_GROUP_VERBOSE_NAME in current_user_groups
+
+        if has_student_group or has_college_group:
+            student, _ = Student.objects.get_or_create(pk=instance.pk)
+            if student.is_college != has_college_group:
+                student.is_college = has_college_group
+                student.save()
+        else:
+            Student.objects.filter(pk=instance.pk).delete()
+
+        if action == "post_add" and has_trainer_group:
+            Trainer.objects.get_or_create(pk=instance.pk)
 
 
 @receiver(post_save, sender=Student)
 def add_group_for_student_status(instance: Student, sender, using, **kwargs):
-    instance.user.groups.remove(*instance.user.groups.filter(name__startswith="STUDENT_STATUS"))
-    new_group, created = Group.objects.get_or_create(name="STUDENT_STATUS_{}".format(instance.student_status.id),
+    expected_group_name = "STUDENT_STATUS_{}".format(instance.student_status.id)
+    current_groups = instance.user.groups.filter(name__startswith="STUDENT_STATUS")
+
+    # Check if user already has the correct group
+    if current_groups.filter(name=expected_group_name).exists():
+        return
+
+    # Remove old student status groups only if they exist
+    if current_groups.exists():
+        instance.user.groups.remove(*current_groups)
+
+    new_group, created = Group.objects.get_or_create(name=expected_group_name,
                                             defaults={'verbose_name': "[Student status] {}".format(instance.student_status.name)})
     content_type = ContentType.objects.get_for_model(CustomPermission)
     if instance.student_status.name == "Normal":
@@ -123,4 +123,9 @@ def verify_bachelor_role(user, claims, adfs_response, *args, **kwargs):
     if settings.STUDENT_AUTH_GROUP_VERBOSE_NAME in claims["group"]:
         student_group = Group.objects.get(verbose_name=settings.STUDENT_AUTH_GROUP_VERBOSE_NAME)
         user.groups.add(student_group)
+        user.save()
+
+    if settings.COLLEGE_AUTH_GROUP_VERBOSE_NAME in claims["group"]:
+        college_group = Group.objects.get(verbose_name=settings.COLLEGE_AUTH_GROUP_VERBOSE_NAME)
+        user.groups.add(college_group)
         user.save()

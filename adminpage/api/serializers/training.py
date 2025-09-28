@@ -26,7 +26,7 @@ class NewGroupSerializer(serializers.ModelSerializer[Group]):
     class Meta:
         model = Group
         fields = ('id', 'name', 'capacity', 'is_club', 'sport',
-                  'semester', 'teachers', 'accredited')
+                  'semester', 'teachers', 'accredited', 'allowed_education_level')
 
 
 class NewTrainingInfoSerializer(serializers.ModelSerializer[Training]):

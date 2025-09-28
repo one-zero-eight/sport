@@ -264,12 +264,18 @@ function add_student_row(
     student_id,
     full_name,
     email,
+    is_college,
     med_group,
     hours,
     maxHours
 ) {
     const row = `<tr id="student_${student_id}">
                     <td class="trainer-table-width show-name-in-trainer-table" onclick="show_email_hide_name()">${full_name}
+                    ${
+                        is_college
+                            ? `<span class="badge badge-pill badge-info text-uppercase">College</span>`
+                            : ''
+                    }
                     ${
                         med_group === 'Special 1'
                             ? `<span class="badge badge-pill badge-danger text-uppercase">${med_group}</span>`
@@ -351,11 +357,12 @@ function make_grades_table(grades, maxHours) {
         );
     student_hours_tbody = table.append('<tbody>').children('tbody');
     grades.sort((a, b) => b.full_name.localeCompare(a.full_name));
-    grades.forEach(({ student_id, full_name, email, med_group, hours }) => {
+    grades.forEach(({ student_id, full_name, email, is_college, med_group, hours }) => {
         add_student_row(
             student_id,
             full_name,
             email,
+            is_college,
             med_group,
             hours,
             maxHours
@@ -487,13 +494,14 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function parse_student_from_server(data, hours = 0) {
-    const [student_id, full_name, email, med_group] = data.split('_');
+    const [student_id, full_name, email, med_group, is_college] = data.split('_');
     // check if current student is in the table
     if ($(`#student_${student_id}`).length === 0) {
         add_student_row(
             student_id,
             full_name,
             email,
+            is_college === 'True',
             med_group,
             hours,
             current_duration_academic_hours,

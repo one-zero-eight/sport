@@ -37,3 +37,9 @@ class GenderInFTGrading(models.IntegerChoices):
     BOTH = -1, "both"
     MALE = 0, "male"
     FEMALE = 1, "female"
+
+
+class EducationLevelChoice(models.IntegerChoices):
+    BOTH = -1, "both"
+    STUDENTS = 1, "students"
+    COLLEGE = 2, "college"

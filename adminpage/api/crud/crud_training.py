@@ -59,6 +59,10 @@ def can_check_in(
     if not (training.start < (time_now + _week_delta) and time_now < training.end):
         return False
 
+    # The training must be for college/students, depending on student's education level
+    if training.group.allowed_education_level not in (-1, 2 if student.is_college else 1):
+        return False
+
     # The training must have free places left
     free_places = training.group.capacity - training.checkins.count()
     if free_places <= 0:
@@ -124,6 +128,8 @@ def get_trainings_for_student(student: Student, start: datetime, end: datetime):
             | (Q(start__lte=start) & Q(end__gte=end)),
             # Do not show 'Self training', 'Extra sport events', 'Medical leave', etc. trainings
             ~Q(group__sport=None),
+            # Check college/students
+            Q(group__allowed_education_level__in=[-1, 2 if student.is_college else 1]),
             # The student must either have acceptable medical group
             Q(group__allowed_medical_groups=student.medical_group)
             # ... or be in 'Allowed students' list
@@ -217,6 +223,7 @@ def get_students_grades(training_id: int):
                        'd.email AS email, '
                        'a.hours AS hours, '
                        'm.name AS med_group, '
+                       's.is_college AS is_college, '
                        'concat(d.first_name, \' \', d.last_name) as full_name '
                        'FROM training t, attendance a, auth_user d, student s '
                        'LEFT JOIN medical_group m ON m.id = s.medical_group_id '
@@ -232,6 +239,7 @@ def get_students_grades(training_id: int):
                        'd.email AS email, '
                        'COALESCE(a.hours, 0) AS hours, '
                        'm.name AS med_group, '
+                       's.is_college AS is_college, '
                        'concat(d.first_name, \' \', d.last_name) as full_name '
                        'FROM training t, sport_trainingcheckin e, auth_user d, student s '
                        'LEFT JOIN attendance a ON a.student_id = s.user_id AND a.training_id = %(training_id)s '

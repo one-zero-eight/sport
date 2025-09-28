@@ -5,6 +5,8 @@ from .schedule import (
 from .semester import (
     special_groups_create,
     get_or_create_student_group,
+    get_or_create_college_group,
+    get_or_create_trainer_group,
     nullify_medical_groups,
     increase_course
 )

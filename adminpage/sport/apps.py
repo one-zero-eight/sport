@@ -14,5 +14,6 @@ class SportConfig(AppConfig):
         try:
             sport.signals.get_or_create_trainer_group()
             sport.signals.get_or_create_student_group()
-        except:
-            pass
+            sport.signals.get_or_create_college_group()
+        except Exception as e:
+            print(e)

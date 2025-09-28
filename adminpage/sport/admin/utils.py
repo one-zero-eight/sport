@@ -272,6 +272,7 @@ def get_new_sport_groups(new_semester: Semester, sport_groups: list[Group]) -> l
             is_club=group.is_club,
             trainer=group.trainer,
             accredited=group.accredited,
+            allowed_education_level=group.allowed_education_level,
             allowed_gender=group.allowed_gender,
             allowed_qr=group.allowed_qr,
         )

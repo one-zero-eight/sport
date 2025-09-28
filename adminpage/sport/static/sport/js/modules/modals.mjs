@@ -197,11 +197,16 @@ async function openTrainingInfoModalForStudent(apiUrl, checkinErrorCb = () => 0)
         body.append(`<div>Place: <b>${training.place}</b></div>`);
     }
     body.append(`<div>Accredited: <b>${group.accredited ? 'Yes' : 'No'}</b></div>`);
+    if (group.allowed_education_level === -1) {
+        body.append(`<div>Education level: <b>Both higher education and college</b></div>`);
+    } else if (group.allowed_education_level === 2) {
+        body.append(`<div>Education level: <b>College only</b></div>`);
+    }
     body.append('<br>')
     if (!group.accredited) {
         body.append(`<div class="alert alert-warning" role="alert">You <b>can't get</b> sport hours for this training.</div>`);
     }
-        
+
 
     body.append('<br><b>Description</b>:')
     if (group.sport.description) {

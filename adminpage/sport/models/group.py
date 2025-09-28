@@ -1,7 +1,7 @@
 from django.db import models
 from django.db.models import Q
 
-from sport.models.enums import GroupQR, GenderInFTGrading
+from sport.models.enums import GroupQR, GenderInFTGrading, EducationLevelChoice
 from sport.utils import str_or_empty
 
 
@@ -16,6 +16,11 @@ class Group(models.Model):
     accredited = models.BooleanField(default=True, null=False)
 
     # minimum_medical_group = models.ForeignKey('MedicalGroup', on_delete=models.DO_NOTHING, null=True, blank=True)
+    allowed_education_level = models.IntegerField(
+        choices=EducationLevelChoice.choices,
+        default=EducationLevelChoice.STUDENTS,
+        help_text='Is the training for college, higher education students, or both?'
+    )
     allowed_medical_groups = models.ManyToManyField(
         'MedicalGroup',
         blank=True,

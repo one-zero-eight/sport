@@ -35,7 +35,8 @@ def get_email_name_like_students(pattern: str, limit: int = 5, requirement=~Q(pk
         'email',
         'full_name',
         'medical_group__name',
-        'gender'
+        'gender',
+        'is_college'
     )[:limit]
     return list(query)
 
@@ -46,4 +47,9 @@ def get_email_name_like_students_filtered_by_group(pattern: str, limit: int = 5,
     not_banned_condition = ~Q(user_id__in=group.banned_students.values_list('user_id', flat=True))
     # The student must either be in 'Allowed students' list, or have acceptable medical group
     allowed_condition = Q(user_id__in=group.allowed_students.values_list('user_id', flat=True)) | Q(medical_group__in=group.allowed_medical_groups.all())
+    # Check college/students
+    if group.allowed_education_level == 1:
+        allowed_condition &= Q(is_college=False)
+    elif group.allowed_education_level == 2:
+        allowed_condition &= Q(is_college=True)
     return get_email_name_like_students(pattern, limit, not_banned_condition & allowed_condition)

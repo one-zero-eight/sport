@@ -110,6 +110,11 @@
                                     });
                             </script>
                             <span id="debtor_status" class="d-none badge badge-pill badge-danger mx-1 my-1">DEBTOR</span>
+                            {% if student.obj.is_college %}
+                                <span class="badge badge-pill badge-info text-uppercase mx-1 my-1">
+                                    College
+                                </span>
+                            {% endif %}
                             {% if student.obj.medical_group.id != -2 %}
                                 <span id="medical-group" class="badge badge-pill badge-success text-uppercase my-1 mx-1"
                                     onclick="openMedicalInfoModal(
@@ -348,7 +353,7 @@
                         </div>
                     {% endfor %}
                 </div>
-                    {% if student.obj.course is not None and student.obj.course != 4 %}
+                    {% if not student.obj.is_college and student.obj.course is not None and student.obj.course != 4 %}
                         <p>
                             <b>Any other questions?</b> Please contact your course curator
                             {% if student.obj.course == 1 %}
@@ -362,7 +367,7 @@
                     {% endif %}
                 {% endif %}
 
-                {% if student %}
+                {% if student and not student.obj.is_college %}
                 <hr>
                 <h2>Sport bot in Telegram 🔥</h2>
                 <p>

@@ -128,6 +128,7 @@ class GroupAdmin(DefaultFilterMixIn):
         "accredited",
         "capacity",
         "trainers",
+        "allowed_education_level",
         "allowed_medical_groups",
         "allowed_gender",
         "allowed_students",

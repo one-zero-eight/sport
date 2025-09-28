@@ -22,6 +22,18 @@ def student_group() -> Group:
 
 @pytest.fixture
 @pytest.mark.django_db
+def college_group() -> Group:
+    group, created = Group.objects.get_or_create(
+        verbose_name=settings.COLLEGE_AUTH_GROUP_VERBOSE_NAME,
+        defaults={
+            "name": settings.COLLEGE_AUTH_GROUP_NAME,
+        }
+    )
+    return group
+
+
+@pytest.fixture
+@pytest.mark.django_db
 def trainer_group() -> Group:
     group, created = Group.objects.get_or_create(
         verbose_name=settings.TRAINER_AUTH_GROUP_VERBOSE_NAME,
@@ -70,6 +82,13 @@ def user_factory():
 def student_factory(student_group):
     return create_user_in_groups(
         predefined_groups=(student_group,)
+    )
+
+
+@pytest.fixture
+def college_factory(college_group):
+    return create_user_in_groups(
+        predefined_groups=(college_group,)
     )
 
 

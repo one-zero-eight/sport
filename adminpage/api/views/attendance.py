@@ -83,7 +83,8 @@ def suggest_student(request, **kwargs):
             "value": f"{student['id']}_"
                      f"{student['full_name']}_"
                      f"{student['email']}_"
-                     f"{student['medical_group__name']}",
+                     f"{student['medical_group__name']}_"
+                     f"{student['is_college']}",
             "label": f"{student['full_name']} "
                      f"({student['email']})",
         }

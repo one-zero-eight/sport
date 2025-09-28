@@ -2,6 +2,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
 from tinymce.models import HTMLField
@@ -21,9 +22,8 @@ class Student(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
         null=False,
-        limit_choices_to={
-            'groups__verbose_name': settings.STUDENT_AUTH_GROUP_VERBOSE_NAME
-        },
+        limit_choices_to=Q(groups__verbose_name=settings.STUDENT_AUTH_GROUP_VERBOSE_NAME) |
+                         Q(groups__verbose_name=settings.COLLEGE_AUTH_GROUP_VERBOSE_NAME),
         primary_key=True,
     )
 
@@ -37,6 +37,10 @@ class Student(models.Model):
     )
 
     is_online = models.BooleanField(
+        default=False,
+    )
+
+    is_college = models.BooleanField(
         default=False,
     )
 
