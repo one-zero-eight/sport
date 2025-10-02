@@ -33,7 +33,7 @@ The platform for conducting, tracking and checking students' sports activity at 
 
 - Dump database
   ```bash
-  docker compose -f ./deploy/docker-compose.yaml exec -t db pg_dumpall -c -U user > ./sport_dump.sql
+  docker compose -f ./deploy/docker-compose.yaml exec -t db pg_dumpall -c -U postgres > ./sport_dump.sql
   ```
 - Drop database (**dangerous!**)
   ```bash

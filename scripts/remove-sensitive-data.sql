@@ -4,6 +4,7 @@
 DELETE FROM django_session WHERE bool(1)=true;
 DELETE FROM django_admin_log WHERE bool(1)=true;
 DELETE FROM medical_group_history WHERE bool(1)=true;
+DELETE FROM medical_group_reference_image WHERE bool(1)=true;
 DELETE FROM medical_group_reference WHERE bool(1)=true;
 DELETE FROM auth_user_groups WHERE group_id IN (
     SELECT id FROM auth_group
