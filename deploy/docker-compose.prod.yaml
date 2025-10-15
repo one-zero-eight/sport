@@ -2,7 +2,7 @@ name: sport
 
 services:
   nginx:
-    # See more: https://registry.hub.docker.com/_/nginx
+    # See more: https://hub.docker.com/_/nginx
     image: "nginx:1.27"
     restart: always
     ports: [ "80:80" ]
@@ -28,7 +28,7 @@ services:
       - .env
 
   db:
-    # See more: https://registry.hub.docker.com/_/postgres
+    # See more: https://hub.docker.com/_/postgres
     image: "postgres:17.1-alpine"
     restart: always
     volumes:
@@ -43,7 +43,7 @@ services:
       timeout: 10s
 
   prometheus:
-    # See more: https://registry.hub.docker.com/r/prom/prometheus
+    # See more: https://hub.docker.com/r/prom/prometheus
     image: "prom/prometheus:v2.55.1"
     restart: always
     volumes:
@@ -66,7 +66,7 @@ services:
       - db
 
   grafana:
-    # See more: https://registry.hub.docker.com/r/grafana/grafana
+    # See more: https://hub.docker.com/r/grafana/grafana
     image: "grafana/grafana:11.3.1"
     restart: always
     ports:

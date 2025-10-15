@@ -2,7 +2,7 @@ name: sport
 
 services:
   nginx:
-    # See more: https://registry.hub.docker.com/_/nginx
+    # See more: https://hub.docker.com/_/nginx
     image: "nginx:1.27"
     restart: unless-stopped
     ports: [ "80:80" ]
@@ -20,7 +20,7 @@ services:
     command: python manage.py runserver 0.0.0.0:8000
     restart: unless-stopped
     volumes:
-      - "../adminpage:/code"
+      - "../adminpage:/app"
       - "django-auth-preserve:/opt/pysetup/.venv/lib/python3.12/site-packages/django/contrib/auth/migrations/"
       - "django-static:/static"
       - "uploaded_media:/uploaded_media"
@@ -35,7 +35,7 @@ services:
       DEBUG: 'true'
 
   db:
-    # See more: https://registry.hub.docker.com/_/postgres
+    # See more: https://hub.docker.com/_/postgres
     image: "postgres:17.1-alpine"
     restart: unless-stopped
     ports:

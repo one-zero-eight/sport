@@ -59,8 +59,8 @@ COPY --from=builder $VENV_PATH $VENV_PATH
 
 COPY --chmod=755 ./docker-entrypoint.sh /
 
-COPY --chmod=644 . /code
-WORKDIR /code
+COPY --chmod=644 . /app
+WORKDIR /app
 
 EXPOSE 8000
 ENTRYPOINT [ "/docker-entrypoint.sh" ]

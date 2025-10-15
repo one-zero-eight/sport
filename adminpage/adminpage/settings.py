@@ -96,7 +96,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = getenv_boolean("DEBUG")
-PROJECT_ROOT = "/code/"
+PROJECT_ROOT = "/app/"
 ALLOWED_HOSTS = [HOSTNAME, 'adminpanel']
 
 if DEBUG:
