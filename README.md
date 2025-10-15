@@ -16,7 +16,7 @@ The platform for conducting, tracking and checking students' sports activity at 
    cd adminpage
    poetry install
    ```
-3. Copy environment variables: `cp deploy/.env.example deploy/.env` (leave default values in development)
+3. Copy environment variables: `cp deploy/.example.env deploy/.env` (leave default values in development)
 4. Start services: `docker compose -f ./deploy/docker-compose.yaml up --build`
 5. Make migrations and create superuser:
    - Enter shell: `docker compose -f ./deploy/docker-compose.yaml exec -it adminpanel bash`
@@ -82,7 +82,7 @@ The platform for conducting, tracking and checking students' sports activity at 
 │   ├── docker-compose.yaml - development Docker Compose file
 │   ├── docker-compose.prod.yaml - production Docker Compose file
 │   ├── docker-compose.test.yaml - services for automatic testing
-│   ├── .env.example - example of environment variables
+│   ├── .example.env - example of environment variables
 │   ├── nginx-conf - reverse proxy configuration
 │   ├── nginx-logs - request logs
 │   ├── grafana-provisioning - default dashboards for Grafana
