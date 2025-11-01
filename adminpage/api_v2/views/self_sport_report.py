@@ -9,7 +9,7 @@ from rest_framework.decorators import (
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 
-from api_v2.crud import get_ongoing_semester, get_student_hours, get_negative_hours
+from api_v2.crud import get_current_semester_crud, get_student_hours, get_negative_hours
 from api_v2.permissions import IsStudent
 from api_v2.serializers import (
     SelfSportReportUploadSerializer,
@@ -78,9 +78,9 @@ def get_self_sport_types(request, **kwargs):
 def self_sport_upload(request, **kwargs):
     current_time = datetime.now()
     semester_start = datetime.combine(
-        get_ongoing_semester().start, datetime.min.time())
+        get_current_semester_crud().start, datetime.min.time())
     semester_end = datetime.combine(
-        get_ongoing_semester().end, datetime.max.time())
+        get_current_semester_crud().end, datetime.max.time())
     if not semester_start <= current_time <= semester_end:
         return Response(
             status=status.HTTP_403_FORBIDDEN,
@@ -126,7 +126,7 @@ def self_sport_upload(request, **kwargs):
 
     serializer.save(
         # image=image,
-        semester=get_ongoing_semester(),
+        semester=get_current_semester_crud(),
         student_id=student.pk,
         debt=debt
     )

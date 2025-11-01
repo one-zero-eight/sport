@@ -16,7 +16,7 @@ from api_v2.serializers import (
 )
 
 from api_v2.crud import get_exercises_crud, post_student_exercises_result_crud, \
-    get_email_name_like_students, get_ongoing_semester, get_score, get_max_score
+    get_email_name_like_students, get_current_semester_crud, get_score, get_max_score
 from api_v2.serializers.attendance import SuggestionQueryFTSerializer
 from api_v2.serializers.fitness_test import FitnessTestExerciseSerializer, FitnessTestSessionSerializer, \
     FitnessTestSessionWithResult, FitnessTestStudentResult, FitnessTestUpload, FitnessTestSessionWithGroupedResults
@@ -43,7 +43,7 @@ def get_exercises(request, **kwargs):
     semester_id = serializer.validated_data.get('semester_id')
 
     if semester_id is None:
-        semester_id = get_ongoing_semester()
+        semester_id = get_current_semester_crud()
     exercises = get_exercises_crud(semester_id)
 
     return Response(FitnessTestExerciseSerializer(exercises, many=True).data)
@@ -123,7 +123,7 @@ def get_result(request, **kwargs):
             grade = grade and result_list[-1]['score'] >= result.exercise.threshold
             total_score += result_list[-1]['score']
 
-        if semester_id == get_ongoing_semester().id \
+        if semester_id == get_current_semester_crud().id \
                 and student.medical_group == 0 \
                 and result_list:
             grade = True
@@ -274,7 +274,7 @@ def suggest_fitness_test_student(request, **kwargs):
 
     suggested_students = get_email_name_like_students(
         serializer.validated_data["term"],
-        requirement=(~Q(fitnesstestresult__exercise__semester=get_ongoing_semester()))
+        requirement=(~Q(fitnesstestresult__exercise__semester=get_current_semester_crud()))
     )
     return Response([
         {

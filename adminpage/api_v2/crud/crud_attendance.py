@@ -11,7 +11,7 @@ from django.db import connection
 from api_v2.crud.utils import dictfetchall
 from sport.models import Student, Semester, Training, SelfSportReport, Reference, Debt
 
-from api_v2.crud.crud_semester import get_ongoing_semester
+from api_v2.crud.crud_semester import get_current_semester_crud
 from sport.models import Attendance
 from .utils import SumSubquery
 
@@ -171,13 +171,13 @@ def get_student_hours(student_id, **kwargs) -> StudentHours:
                     "hours_self_debt": 0.0, "hours_sem_max": 0.0, "debt": 0.0}
 
     query_attend_current_semester = Attendance.objects.filter(student_id=student_id,
-                                                              training__group__semester=get_ongoing_semester())
-    sem_info_cur['id_sem'] = get_ongoing_semester().id
-    sem_info_cur['hours_sem_max'] = get_ongoing_semester().hours
+                                                              training__group__semester=get_current_semester_crud())
+    sem_info_cur['id_sem'] = get_current_semester_crud().id
+    sem_info_cur['hours_sem_max'] = get_current_semester_crud().hours
 
     try:
         sem_info_cur['debt'] = Debt.objects.get(
-            semester_id=get_ongoing_semester().id, student_id=student_id).debt
+            semester_id=get_current_semester_crud().id, student_id=student_id).debt
     except Debt.DoesNotExist:
         sem_info_cur['debt'] = 0
 
@@ -194,7 +194,7 @@ def get_student_hours(student_id, **kwargs) -> StudentHours:
     last_sem_info_arr = []
 
     last_semesters = Semester.objects.filter(
-        end__lt=get_ongoing_semester().start).order_by('-end')
+        end__lt=get_current_semester_crud().start).order_by('-end')
 
     for sem in last_semesters:
         if student in sem.academic_leave_students.all():
@@ -203,7 +203,7 @@ def get_student_hours(student_id, **kwargs) -> StudentHours:
             sem_info["id_sem"] = sem.id
             sem_info["hours_sem_max"] = sem.hours
             try:
-                sem_info['debt'] = Debt.objects.get(semester_id=get_ongoing_semester().id,
+                sem_info['debt'] = Debt.objects.get(semester_id=get_current_semester_crud().id,
                                                     student_id=student_id).debt
             except Debt.DoesNotExist:
                 sem_info['debt'] = 0
@@ -231,7 +231,7 @@ def get_negative_hours(student_id, hours_info=None, **kwargs):
     sem_now = student_hours['ongoing_semester']
     try:
         debt = Debt.objects.get(
-            student=student_id, semester=get_ongoing_semester()).debt
+            student=student_id, semester=get_current_semester_crud()).debt
     except:
         debt = 0
     res = sem_now['hours_self_debt'] + sem_now['hours_not_self'] + \
@@ -247,14 +247,14 @@ def create_debt(last_semester, **kwargs):
 
 def better_than(student_id):
     qs = Student.objects.all().annotate(_debt=Coalesce(
-        SumSubquery(Debt.objects.filter(semester_id=get_ongoing_semester().pk,
+        SumSubquery(Debt.objects.filter(semester_id=get_current_semester_crud().pk,
                                         student_id=OuterRef("pk")), 'debt'),
         0
     ))
 
     qs = qs.annotate(_ongoing_semester_hours=Coalesce(
         SumSubquery(Attendance.objects.filter(
-            training__group__semester_id=get_ongoing_semester().pk, student_id=OuterRef("pk")), 'hours'),
+            training__group__semester_id=get_current_semester_crud().pk, student_id=OuterRef("pk")), 'hours'),
         0
     ))
 
@@ -361,7 +361,7 @@ def get_student_hours_summary(student_id: int, current_semester_only: bool = Fal
     
     if current_semester_only:
         # Current semester only
-        current_semester = get_ongoing_semester()
+        current_semester = get_current_semester_crud()
         
         # Get current semester attendance
         current_attendance = Attendance.objects.filter(

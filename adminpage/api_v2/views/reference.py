@@ -7,7 +7,7 @@ from rest_framework.decorators import api_view, permission_classes, \
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 
-from api_v2.crud import get_ongoing_semester
+from api_v2.crud import get_current_semester_crud
 from api_v2.permissions import IsStudent
 from api_v2.serializers import (
     ReferenceUploadSerializer,
@@ -51,9 +51,9 @@ def reference_upload(request, **kwargs):
     try:
         with transaction.atomic():
             ref = serializer.save(
-                semester=get_ongoing_semester(),
+                semester=get_current_semester_crud(),
                 student_id=student.pk,
-                hours=(serializer.validated_data['end'] - serializer.validated_data['start']).days // 7 * get_ongoing_semester().number_hours_one_week_ill
+                hours=(serializer.validated_data['end'] - serializer.validated_data['start']).days // 7 * get_current_semester_crud().number_hours_one_week_ill
             )
             count = Reference.objects.filter(
                 student_id=student.pk,

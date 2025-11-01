@@ -10,7 +10,7 @@ from django.utils.html import strip_tags
 
 import api_v2.crud
 from api_v2.crud.utils import dictfetchall, get_trainers_group
-from api_v2.crud.crud_semester import get_ongoing_semester
+from api_v2.crud.crud_semester import get_current_semester_crud
 from sport.models import Sport, Student, Trainer, Group, Enroll, Training
 from api_v2.crud.crud_training import can_check_in
 
@@ -22,7 +22,7 @@ def get_sports(all=False, student: Optional[Student] = None):
     @param student - if student passed, get sports applicable for student
     @return list of all sport types
     """
-    groups = Group.objects.filter(semester__pk=get_ongoing_semester().pk)
+    groups = Group.objects.filter(semester__pk=get_current_semester_crud().pk)
     if student:
         groups = groups.filter(allowed_medical_groups=student.medical_group)
         # groups = groups.filter(allowed_qr__in=[-1, int(student.has_QR)])
@@ -78,7 +78,7 @@ def get_trainer_groups(trainer: Trainer):
     @return list of group trainer is trainings in current semester
     """
     groups = Group.objects.filter(
-        semester__id=get_ongoing_semester().id,
+        semester__id=get_current_semester_crud().id,
         trainers__pk=trainer.pk,
     )
     return [{
@@ -95,7 +95,7 @@ def get_free_places_for_sport(sport_id: int) -> int:
     """
     groups = Group.objects.filter(
         sport=sport_id,
-        semester=get_ongoing_semester()
+        semester=get_current_semester_crud()
     )
     
     total_free = 0
@@ -121,7 +121,7 @@ def get_clubs_as_trainings(student: Optional[Student] = None):
     
     # Get groups for current semester that are clubs
     groups_query = Group.objects.filter(
-        semester__pk=get_ongoing_semester().pk,
+        semester__pk=get_current_semester_crud().pk,
         is_club=True  # Only clubs
     )
     
@@ -216,7 +216,7 @@ def get_sports_with_groups(student: Optional[Student] = None):
     from sport.models import Schedule, TrainingClass
     
     # Get groups for current semester
-    groups = Group.objects.filter(semester__pk=get_ongoing_semester().pk)
+    groups = Group.objects.filter(semester__pk=get_current_semester_crud().pk)
     if student:
         groups = groups.filter(allowed_medical_groups=student.medical_group)
     

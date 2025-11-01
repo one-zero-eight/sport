@@ -5,7 +5,7 @@ from django.db import connection
 from django.db.models import Q, Prefetch
 from django.utils import timezone
 
-from api_v2.crud.crud_semester import get_ongoing_semester
+from api_v2.crud.crud_semester import get_current_semester_crud
 from api_v2.crud.utils import dictfetchone, dictfetchall, get_trainers_group
 from sport.models import Student, Trainer, Group, Training, TrainingCheckIn
 from accounts.models import User
@@ -45,7 +45,7 @@ def get_group_info(group_id: int, student: Student):
         info['can_enroll'] = student.sport is not None and \
             student.sport == Group.objects.get(id=info['group_id']).sport and \
             not Group.objects.filter(enrolls__student=student,
-                                     semester=get_ongoing_semester()).exists()
+                                     semester=get_current_semester_crud()).exists()
 
         return info
 
@@ -120,7 +120,7 @@ def get_trainings_for_student(student: Student, start: Optional[datetime], end: 
 
     # Assuming TrainingCheckIn model has a 'student' and 'training' foreign key.
     # And Training has a 'group' foreign key with an 'allowed_medical_groups' many-to-many field.
-    semester_id = get_ongoing_semester().id
+    semester_id = get_current_semester_crud().id
     trainings = (
         Training.objects.filter(
             # Filter by requested time range
@@ -194,7 +194,7 @@ def get_trainings_for_trainer(trainer: Trainer, start: Optional[datetime], end: 
         'group',
         'training_class',
     ).filter(
-        Q(group__semester__id=get_ongoing_semester().id) &
+        Q(group__semester__id=get_current_semester_crud().id) &
         Q(group__trainers=trainer) & (
             Q(start__gt=start) & Q(start__lt=end) |
             Q(end__gt=start) & Q(end__lt=end) |

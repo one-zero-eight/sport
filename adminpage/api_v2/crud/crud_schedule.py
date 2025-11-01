@@ -7,7 +7,7 @@ from django.db.models import Count
 from django.db.models import Prefetch
 
 from api_v2.crud.utils import dictfetchall
-from api_v2.crud import get_ongoing_semester
+from api_v2.crud import get_current_semester_crud
 from sport.models import Student, Group, Schedule
 
 
@@ -39,7 +39,7 @@ def get_sport_schedule(
         medical_group_condition &
         # qr_condition &
         Q(schedule__isnull=False) &
-        Q(semester__id=get_ongoing_semester().id)
+        Q(semester__id=get_current_semester_crud().id)
     ).values(
         'id',
         'name',

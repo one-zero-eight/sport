@@ -23,7 +23,7 @@ from sport.models import Semester, Student, Group
 
 @extend_schema(
     methods=["GET"],
-    tags=["Profile"],
+    tags=["For any user"],
     summary="Get user profile information",
     description="Retrieve current user's profile information including user ID, statuses, and detailed information for each status (student info with hours, trainer info with groups, etc.).",
     responses={
@@ -31,8 +31,8 @@ from sport.models import Semester, Student, Group
     }
 )
 @api_view(["GET"])
-@permission_classes([IsStudent | IsStaff])
-def get_student_info(request, **kwargs):
+#@permission_classes([IsStudent | IsStaff]) #TODO: teachers rights matter!
+def get_user_info(request, **kwargs):
     """
     Get info about current user including all their statuses and corresponding information.
     """

@@ -8,7 +8,7 @@ class StudentSerializer(serializers.Serializer):
     user_statuses = serializers.SerializerMethodField()
     
     # Student-specific fields
-    student_info = serializers.SerializerMethodField()
+    user_info = serializers.SerializerMethodField()
     
     # Trainer-specific fields  
     trainer_info = serializers.SerializerMethodField()
@@ -48,7 +48,7 @@ class StudentSerializer(serializers.Serializer):
             
         return statuses
     
-    def get_student_info(self, obj):
+    def get_user_info(self, obj):
         """
         Return detailed student information if user is a student and has 'student' status
         """

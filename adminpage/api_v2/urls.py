@@ -14,6 +14,7 @@ from api_v2.views import (
     analytics,
     medical_groups,
     faq,
+    student_statuses,
 )
 
 
@@ -27,16 +28,39 @@ class NegativeIntConverter:
         return '%d' % value
 register_converter(NegativeIntConverter, 'negint')
 
-
 urlpatterns = [
+    
+    #for any user
+    path(r"users/me", profile.get_user_info),
+    path(r"users/me/schedule", calendar.get_personal_schedule),
+    path(r"sports", group.clubs_view), # TODO: probably remove info about trainings
+    path(r"sports/<int:sport_id>/schedule", calendar.get_schedule), # FIXME: returns []
+    path(r"sport-groups/<int:group_id>", group.group_info_view),
+    path(r"semesters", semester.get_semesters),
+    path(r"semesters/<int:semester_id>", semester.get_semester_by_id),
+    path(r"semesters/current", semester.get_current_semester),
+    path(r"medical-groups", medical_groups.medical_groups_view),
+    path(r"faq", faq.get_faq_dict),
+    # path(r"locations", ),
+    path(r"student-statuses", student_statuses.get_student_statuses),
+    #for teacher
+    
+    
+    #for student
+    
+    
+    #for admin
+    
+    
+    
     # profile
-    path(r"student/profile", profile.get_student_info),
+    #path(r"student/profile", profile.get_user_info),
     path(r"student/history/<int:semester_id>", profile.get_history_with_self),
     path(r"student/semester-history", profile.get_student_semester_history_view),
 
     # groups
-    path(r"sport-groups/<int:group_id>", group.group_info_view),
-    path(r"clubs", group.clubs_view),
+    #path(r"sport-groups/<int:group_id>", group.group_info_view),
+    #path(r"clubs", group.clubs_view),
 
     # trainings
     path(r"trainings/<int:training_id>", training.training_info),
@@ -54,8 +78,8 @@ urlpatterns = [
     path(r"students/<int:student_id>/better-than", attendance.get_better_than_info),
 
     # calendar
-    path(r"sports/<negint:sport_id>/schedule", calendar.get_schedule),
-    path(r"student/schedule", calendar.get_personal_schedule),
+    #path(r"sports/<negint:sport_id>/schedule", calendar.get_schedule),
+    #path(r"student/schedule", calendar.get_personal_schedule),
     path(r"student/weekly-schedule", calendar.get_weekly_schedule_with_participants_view),
 
     # references
@@ -75,16 +99,16 @@ urlpatterns = [
     path(r"fitness-test/sessions/<int:session_id>", fitness_test.get_session_info),
     path(r"fitness-test/students/search", fitness_test.suggest_fitness_test_student),
 
-    path(r"semester", semester.get_semester),
+    #path(r"semester", semester.get_semesters),
 
     # analytics
     #path(r"analytics/attendance", analytics.attendance_analytics),
 
     # medical groups
-    path(r"medical-groups", medical_groups.medical_groups_view),
+    #path(r"medical-groups", medical_groups.medical_groups_view),
 
     # FAQ
-    path(r"faq", faq.get_faq_dict),
+    #path(r"faq", faq.get_faq_dict),
 
     # API Documentation
     path('schema/', SpectacularJSONAPIView.as_view(), name='schema'),

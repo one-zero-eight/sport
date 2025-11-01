@@ -3,7 +3,7 @@ import logging
 
 from django.db.models import Q
 
-from api_v2.crud import get_ongoing_semester
+from api_v2.crud import get_current_semester_crud
 from sport.models import FitnessTestResult, FitnessTestExercise, FitnessTestGrading, Student, FitnessTestSession, \
     Semester
 
