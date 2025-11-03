@@ -1,11 +1,14 @@
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
-from api_v2.crud.crud_student_statuses import get_student_statuses as get_student_statuses_crud
+from api_v2.crud.crud_student_statuses import (
+    get_student_statuses as get_student_statuses_crud,
+)
 from api_v2.serializers.student_statuses import StudentStatusSerializer
 from api_v2.serializers import NotFoundSerializer
+from api_v2.permissions import IsTrainer, IsStaff, IsStudent
 
 
 @extend_schema(
@@ -16,9 +19,10 @@ from api_v2.serializers import NotFoundSerializer
     responses={
         status.HTTP_200_OK: StudentStatusSerializer(many=True),
         status.HTTP_404_NOT_FOUND: NotFoundSerializer(),
-    }
+    },
 )
-@api_view(['GET'])
+@api_view(["GET"])
+@permission_classes([IsStudent | IsStaff | IsTrainer])
 def get_student_statuses(request, **kwargs):
     statuses = get_student_statuses_crud()
     data = [StudentStatusSerializer(s).data for s in statuses]
@@ -26,4 +30,6 @@ def get_student_statuses(request, **kwargs):
     if data:
         return Response(status=status.HTTP_200_OK, data=data)
     else:
-        return Response(status=status.HTTP_404_NOT_FOUND, data=NotFoundSerializer().data)
+        return Response(
+            status=status.HTTP_404_NOT_FOUND, data=NotFoundSerializer().data
+        )
