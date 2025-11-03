@@ -8,7 +8,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.utils import extend_schema, OpenApiParameter, extend_schema_view
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import PermissionDenied, NotFound
@@ -63,7 +63,7 @@ def compose_bad_grade_report(email: str, hours: float) -> dict:
 
 @extend_schema(
     methods=["GET"],
-    tags=["Attendance"],
+    tags=["For teacher"],
     summary="Suggest students for attendance",
     description="Suggest students based on search term for attendance marking. Only accessible by trainers.",
     parameters=[SuggestionQuerySerializer],
@@ -96,34 +96,7 @@ def suggest_student(request, **kwargs):
 
 @extend_schema(
     methods=["GET"],
-    tags=["Trainings"],
-    summary="Get training grades",
-    description="Get student grades for a specific training session. Only accessible by trainers assigned to the group.",
-    responses={
-        status.HTTP_200_OK: TrainingGradesSerializer,
-        status.HTTP_404_NOT_FOUND: NotFoundSerializer,
-        status.HTTP_403_FORBIDDEN: InbuiltErrorSerializer,
-    }
-)
-@api_view(["GET"])
-@permission_classes([IsTrainer | IsSuperUser])
-def get_grades(request, training_id, **kwargs):
-    trainer = request.user  # trainer.pk == trainer.user.pk
-
-    training = get_object_or_404(Training, pk=training_id)
-    group = training.group
-
-    if not trainer.is_superuser:
-        is_training_group(group, trainer)
-
-    return Response({
-        "students": get_students_grades(training_id)
-    })
-
-
-@extend_schema(
-    methods=["GET"],
-    tags=["Trainings"],
+    tags=["For teacher"],
     summary="Get training grades CSV",
     description="Export student grades for a specific training session as CSV file. Only accessible by trainers assigned to the group.",
     responses={
@@ -158,6 +131,114 @@ def get_grades_csv(request, training_id, **kwargs):
         ])
 
     return response
+
+
+@extend_schema_view(
+    get=extend_schema(
+        tags=["For teacher"],
+        summary="Get training grades",
+        description="Get student grades for a specific training session. Only accessible by trainers assigned to the group.",
+        responses={
+            status.HTTP_200_OK: TrainingGradesSerializer,
+            status.HTTP_404_NOT_FOUND: NotFoundSerializer,
+            status.HTTP_403_FORBIDDEN: InbuiltErrorSerializer,
+        },
+    ),
+    post=extend_schema(
+        tags=["For teacher"],
+        summary="Mark student attendance",
+        description=(
+            "Mark attendance and assign hours for students in a training session. "
+            "Only accessible by trainers assigned to the group."
+        ),
+        request=AttendanceMarkSerializer,
+        responses={
+            status.HTTP_200_OK: BadGradeReportGradeSerializer(many=True),
+            status.HTTP_400_BAD_REQUEST: BadGradeReport(),
+            status.HTTP_403_FORBIDDEN: InbuiltErrorSerializer,
+        },
+    ),
+)
+@api_view(["GET", "POST"])
+@permission_classes([IsTrainer | IsSuperUser])
+def training_attendance_view(request, training_id: int, **kwargs):
+    trainer = request.user  # trainer.pk == trainer.user.pk
+
+    if request.method == "GET":
+        training = get_object_or_404(Training, pk=training_id)
+        group = training.group
+
+        if not trainer.is_superuser:
+            is_training_group(group, trainer)
+
+        return Response({
+            "students": get_students_grades(training_id)
+        })
+
+    serializer = AttendanceMarkSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    try:
+        training = Training.objects.select_related(
+            "group"
+        ).only(
+            "group__trainer", "start", "end"
+        ).get(pk=training_id)
+    except Training.DoesNotExist:
+        raise NotFound()
+
+    if not trainer.is_superuser:
+        is_training_group(training.group, trainer)
+
+    now = timezone.now()
+    if not (training.start <= now <= training.start + settings.TRAINING_EDITABLE_INTERVAL):
+        return Response(
+            status=status.HTTP_400_BAD_REQUEST,
+            data=error_detail(*AttendanceErrors.TRAINING_NOT_EDITABLE)
+        )
+
+    id_to_hours = {
+        item["student_id"]: item["hours"]
+        for item in serializer.validated_data["students_hours"]
+    }
+
+    max_hours = training.academic_duration
+    students = User.objects.filter(pk__in=id_to_hours.keys()).only("email")
+
+    hours_to_mark = []
+    negative_mark = []
+    overflow_mark = []
+
+    for student in students:
+        hours_put = id_to_hours[student.pk]
+        if hours_put < 0:
+            negative_mark.append(compose_bad_grade_report(student.email, hours_put))
+        elif hours_put > max_hours:
+            overflow_mark.append(compose_bad_grade_report(student.email, hours_put))
+        elif str(Student.objects.filter(
+            user=get_user_model().objects.filter(email=student.email)[0]
+        )[0].student_status) != 'Normal':
+            continue
+        else:
+            hours_to_mark.append((student, hours_put))
+
+    if negative_mark or overflow_mark:
+        return Response(
+            status=status.HTTP_400_BAD_REQUEST,
+            data={
+                **error_detail(*AttendanceErrors.OUTBOUND_GRADES),
+                "negative_marks": negative_mark,
+                "overflow_marks": overflow_mark,
+            }
+        )
+
+    # Apply attendance updates
+    mark_data = [(x[0].pk, x[1]) for x in hours_to_mark]
+    mark_hours(training, mark_data)
+
+    return Response([
+        compose_bad_grade_report(x[0].email, x[1]) for x in hours_to_mark
+    ])
 
 
 @extend_schema(
@@ -254,92 +335,6 @@ def get_better_than_info(request, student_id, **kwargs):
     return Response(better_than(student_id))
 
 
-@extend_schema(
-    methods=["POST"],
-    tags=["Attendance"],
-    summary="Mark student attendance",
-    description="Mark attendance and assign hours for students in a training session. Only accessible by trainers assigned to the group.",
-    request=AttendanceMarkSerializer,
-    responses={
-        status.HTTP_200_OK: BadGradeReportGradeSerializer(many=True),
-        status.HTTP_400_BAD_REQUEST: BadGradeReport(),
-        status.HTTP_403_FORBIDDEN: InbuiltErrorSerializer,
-    }
-)
-@api_view(["POST"])
-@permission_classes([IsTrainer | IsSuperUser])
-def mark_attendance(request, **kwargs):
-    serializer = AttendanceMarkSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    trainer = request.user  # trainer.pk == trainer.user.pk
-    try:
-        training = Training.objects.select_related(
-            "group"
-        ).only(
-            "group__trainer", "start", "end"
-        ).get(
-            pk=serializer.validated_data["training_id"]
-        )
-    except Training.DoesNotExist:
-        raise NotFound()
-
-    if not trainer.is_superuser:
-        is_training_group(training.group, trainer)
-
-    now = timezone.now()
-    if not training.start <= now <= training.start + \
-           settings.TRAINING_EDITABLE_INTERVAL:
-        return Response(
-            status=status.HTTP_400_BAD_REQUEST,
-            data=error_detail(*AttendanceErrors.TRAINING_NOT_EDITABLE)
-        )
-
-    id_to_hours = dict([
-        (item["student_id"], item["hours"])
-        for item in serializer.validated_data["students_hours"]
-    ])
-
-    max_hours = training.academic_duration
-    students = User.objects.filter(pk__in=id_to_hours.keys()).only("email")
-
-    hours_to_mark = []
-    negative_mark = []
-    overflow_mark = []
-
-    for student in students:
-        hours_put = id_to_hours[student.pk]
-        if hours_put < 0:
-            negative_mark.append(
-                compose_bad_grade_report(student.email, hours_put)
-            )
-        elif hours_put > max_hours:
-            overflow_mark.append(
-                compose_bad_grade_report(student.email, hours_put)
-            )
-        elif str(Student.objects.filter(user=get_user_model().objects.filter(email=student.email)[0])[
-                     0].student_status) != 'Normal':
-            pass
-        else:
-            hours_to_mark.append((student, hours_put))
-
-    if negative_mark or overflow_mark:
-        return Response(
-            status=status.HTTP_400_BAD_REQUEST,
-            data={
-                **error_detail(*AttendanceErrors.OUTBOUND_GRADES),
-                "negative_marks": negative_mark,
-                "overflow_marks": overflow_mark,
-            }
-        )
-    else:
-        mark_data = [(x[0].pk, x[1]) for x in hours_to_mark]
-        mark_hours(training, mark_data)
-        return Response(list(
-            map(
-                lambda x: compose_bad_grade_report(x[0].email, x[1]),
-                hours_to_mark
-            )
-        ))
 
 
 @extend_schema(

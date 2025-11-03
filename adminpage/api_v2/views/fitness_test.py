@@ -1,6 +1,6 @@
 import logging
 from collections import defaultdict
-
+from drf_spectacular.utils import extend_schema_view
 from django.db.models import Q
 from drf_spectacular.utils import extend_schema
 from rest_framework import status, serializers
@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 @extend_schema(
     methods=["GET"],
-    tags=["Fitness Test"],
+    tags=["For teacher"],
     summary="Get fitness test exercises",
     description="Get all fitness test exercises for a specific semester. If semester_id is not provided, returns exercises for the current semester.",
     parameters=[SemesterInSerializer],
@@ -51,7 +51,7 @@ def get_exercises(request, **kwargs):
 
 @extend_schema(
     methods=["GET"],
-    tags=["Fitness Test"],
+    tags=["For teacher"],
     summary="Get fitness test sessions",
     description="Get all fitness test sessions for a specific semester. If semester_id is not provided, returns all sessions. Only accessible by trainers.",
     parameters=[SemesterInSerializer],
@@ -140,82 +140,79 @@ def get_result(request, **kwargs):
 
     return Response(data=data, status=status.HTTP_200_OK)
 
-
-@extend_schema(
-    methods=["GET"],
-    tags=["Fitness Test"],
-    summary="Get session details",
-    description="Get detailed information about a specific fitness test session, including exercises and results.",
-    responses={
-        status.HTTP_200_OK: FitnessTestSessionWithGroupedResults()
-    }
-)
-@api_view(["GET"])
-@permission_classes([IsTrainer | IsSuperUser])
-def get_session_info(request, session_id, **kwargs):
-    # Get all results for this session
-    results = FitnessTestResult.objects.filter(session_id=session_id).select_related('student__user', 'exercise')
-    
-    # Group results by student
-    student_results = defaultdict(list)
-    for result in results:
-        student_id = result.student.user.id
-        student_results[student_id].append({
-            'exercise_id': result.exercise.id,
-            'exercise_name': result.exercise.exercise_name,
-            'unit': result.exercise.value_unit,
-            'value': result.value
-        })
-    
-    # Convert to the format expected by serializer
-    results_dict = {}
-    for student_id, exercise_results in student_results.items():
-        # Get the student object (we can use any result from this student)
-        student_result = next(r for r in results if r.student.user.id == student_id)
-        results_dict[student_id] = {
-            'student': student_result.student,
-            'exercise_results': exercise_results
-        }
-
-    return Response(FitnessTestSessionWithGroupedResults({
-        'session': FitnessTestSession.objects.get(id=session_id),
-        'exercises': FitnessTestExercise.objects.filter(
-            id__in=FitnessTestResult.objects.filter(session_id=session_id).values_list('exercise').distinct()
-        ),
-        'results': results_dict
-    }).data)
-
-
-# TODO: do same thing everywhere
 class PostStudentExerciseResult(serializers.Serializer):
     result = serializers.CharField(default='ok')
     session_id = serializers.IntegerField()
 
 
-@extend_schema(
-    methods=["POST"],
-    tags=["Fitness Test"],
-    summary="Post student fitness test results",
-    description="Post the results of a student's fitness test exercises for a specific session. Only accessible by trainers.",
-    request=FitnessTestUpload(),
-    responses={
-        status.HTTP_200_OK: PostStudentExerciseResult(),
-        status.HTTP_404_NOT_FOUND: NotFoundSerializer(),
-        status.HTTP_400_BAD_REQUEST: ErrorSerializer(),
-    },
+@extend_schema_view(
+    get=extend_schema(
+        tags=["For teacher"],
+        summary="Get fitness test session results",
+        description="",
+        responses={
+            status.HTTP_200_OK: FitnessTestSessionWithGroupedResults(),
+            status.HTTP_404_NOT_FOUND: NotFoundSerializer(),
+        },
+    ),
+    post=extend_schema(
+        tags=["For teacher"],
+        summary="Upload or update student fitness test results",
+        description="",
+        request=FitnessTestUpload,
+        responses={
+            status.HTTP_201_CREATED: PostStudentExerciseResult(),
+            status.HTTP_400_BAD_REQUEST: ErrorSerializer(),
+            status.HTTP_404_NOT_FOUND: NotFoundSerializer(),
+        },
+    ),
 )
-@api_view(["POST"])
+@api_view(["GET", "POST"])
 @permission_classes([IsTrainer | IsSuperUser])
-def post_student_exercises_result(request, session_id=None, **kwargs):
+def fitness_test_session_view(request, session_id: int, **kwargs):
+    # -----------------------------------
+    # 1️⃣  GET — Retrieve session details
+    # -----------------------------------
+    if request.method == "GET":
+        results = FitnessTestResult.objects.filter(session_id=session_id).select_related('student__user', 'exercise')
+        if not results.exists():
+            return Response(status=status.HTTP_404_NOT_FOUND, data=NotFoundSerializer({'detail': 'No results found'}).data)
+
+        student_results = defaultdict(list)
+        for result in results:
+            sid = result.student.user.id
+            student_results[sid].append({
+                'exercise_id': result.exercise.id,
+                'exercise_name': result.exercise.exercise_name,
+                'unit': result.exercise.value_unit,
+                'value': result.value
+            })
+
+        results_dict = {}
+        for sid, exercise_results in student_results.items():
+            student_result = next(r for r in results if r.student.user.id == sid)
+            results_dict[sid] = {
+                'student': student_result.student,
+                'exercise_results': exercise_results
+            }
+
+        payload = {
+            'session': FitnessTestSession.objects.get(id=session_id),
+            'exercises': FitnessTestExercise.objects.filter(
+                id__in=FitnessTestResult.objects.filter(session_id=session_id)
+                .values_list('exercise').distinct()
+            ),
+            'results': results_dict
+        }
+        return Response(FitnessTestSessionWithGroupedResults(payload).data, status=status.HTTP_200_OK)
+
     trainer = request.user
     if not trainer.is_superuser and not trainer.has_perm('sport.change_fitness_test'):
-        return Response(
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
     serializer = FitnessTestUpload(data=request.data)
     serializer.is_valid(raise_exception=True)
 
-    # If session_id is provided, get semester from existing session
     if session_id and session_id != 'new':
         try:
             existing_session = FitnessTestSession.objects.get(id=session_id)
@@ -226,7 +223,6 @@ def post_student_exercises_result(request, session_id=None, **kwargs):
                 data=NotFoundSerializer({'detail': f'No fitness test session with id={session_id}'}).data
             )
     else:
-        # For new sessions, get semester from request body
         semester_id = serializer.validated_data['semester_id']
         try:
             semester = Semester.objects.get(id=semester_id)
@@ -238,11 +234,7 @@ def post_student_exercises_result(request, session_id=None, **kwargs):
 
     retake = serializer.validated_data['retake']
     results = serializer.validated_data['results']
-    
-    # Log the data for debugging
-    logger.info(f"Fitness test upload request - session_id: {session_id}, semester: {semester}, retake: {retake}")
-    logger.info(f"Results data: {results}")
-    
+
     try:
         session = post_student_exercises_result_crud(semester, retake, results, session_id, request.user)
     except ValueError as e:
@@ -251,14 +243,14 @@ def post_student_exercises_result(request, session_id=None, **kwargs):
             status=status.HTTP_400_BAD_REQUEST,
             data=ErrorSerializer({'detail': str(e)}).data
         )
-    
-    return Response(PostStudentExerciseResult({'session_id': session}).data)
+
+    return Response(PostStudentExerciseResult({'session_id': session}).data, status=status.HTTP_201_CREATED)
 
 
 # TODO: Rewrite suggest to JSON
 @extend_schema(
     methods=["GET"],
-    tags=["Fitness Test"],
+    tags=["For teacher"],
     summary="Suggest students for fitness test",
     description="Suggest students based on a search term for fitness test. Only accessible by trainers.",
     parameters=[SuggestionQueryFTSerializer],

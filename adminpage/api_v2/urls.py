@@ -44,7 +44,17 @@ urlpatterns = [
     path(r"faq", faq.get_faq_dict),
     path(r"training-classes", training_classes.get_training_class_view),
     path(r"student-statuses", student_statuses.get_student_statuses),
+    
+    
     #for teacher
+    path(r"fitness-test/exercises", fitness_test.get_exercises),
+    path(r"fitness-test/sessions", fitness_test.get_sessions),
+    path(r"fitness-test/sessions/<int:session_id>", fitness_test.fitness_test_session_view),
+    path(r"fitness-test/suggest-student", fitness_test.suggest_fitness_test_student),
+    path(r"trainings/<int:training_id>", training.training_info),
+    path(r"trainings/<int:training_id>/attendance", attendance.training_attendance_view),
+    path(r"trainings/<int:training_id>/attendance.csv", attendance.get_grades_csv),
+    path(r"trainings/<int:training_id>/suggest-student", attendance.suggest_student),
     
     
     #for student
@@ -64,17 +74,17 @@ urlpatterns = [
     #path(r"clubs", group.clubs_view),
 
     # trainings
-    path(r"trainings/<int:training_id>", training.training_info),
+    #path(r"trainings/<int:training_id>", training.training_info),
     path(r"trainings/<int:training_id>/check-in", training.training_checkin),
     path(r"trainings/<int:training_id>/cancel-check-in", training.training_cancel_checkin),
 
     # attendance
     path(r"student/trainings", attendance.get_student_trainings_between_dates),
-    path(r"attendance/students/search", attendance.suggest_student),
-    path(r"trainings/<int:training_id>/grades", attendance.get_grades),
-    path(r"trainings/<int:training_id>/grades.csv", attendance.get_grades_csv),
+    #path(r"attendance/students/search", attendance.suggest_student),
+    # path(r"trainings/<int:training_id>/grades", attendance.get_grades),
+    # path(r"trainings/<int:training_id>/grades.csv", attendance.get_grades_csv),
     path(r"groups/<int:group_id>/attendance-report", attendance.get_last_attended_dates),
-    path(r"attendance/mark", attendance.mark_attendance),
+    #path(r"attendance/mark", attendance.mark_attendance),
     path(r"students/<int:student_id>/hours-summary", attendance.get_student_hours_summary),
     path(r"students/<int:student_id>/better-than", attendance.get_better_than_info),
 
@@ -92,13 +102,13 @@ urlpatterns = [
     path(r"selfsport/strava_parsing", self_sport_report.get_strava_activity_info),
 
     # fitness tests
-    path(r"fitness-test/result", fitness_test.get_result),
-    path(r"fitness-test/upload", fitness_test.post_student_exercises_result),
-    path(r"fitness-test/upload/<int:session_id>", fitness_test.post_student_exercises_result),
-    path(r"fitness-test/exercises", fitness_test.get_exercises),
-    path(r"fitness-test/sessions", fitness_test.get_sessions),
-    path(r"fitness-test/sessions/<int:session_id>", fitness_test.get_session_info),
-    path(r"fitness-test/students/search", fitness_test.suggest_fitness_test_student),
+    # path(r"fitness-test/result", fitness_test.get_result),
+    # path(r"fitness-test/upload", fitness_test.post_student_exercises_result),
+    # path(r"fitness-test/upload/<int:session_id>", fitness_test.post_student_exercises_result),
+    # # path(r"fitness-test/exercises", fitness_test.get_exercises),
+    # # path(r"fitness-test/sessions", fitness_test.get_sessions),
+    # # path(r"fitness-test/sessions/<int:session_id>", fitness_test.get_session_info),
+    # path(r"fitness-test/students/search", fitness_test.suggest_fitness_test_student),
 
     #path(r"semester", semester.get_semesters),
 
