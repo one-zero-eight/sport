@@ -16,15 +16,34 @@ from rest_framework.response import Response
 from django.views.decorators.cache import cache_page
 from django.utils.dateparse import parse_date
 
-from api_v2.crud import Training, \
-    get_students_grades, mark_hours, get_student_last_attended_dates, \
-    get_student_hours, get_negative_hours, better_than, get_email_name_like_students_filtered_by_group
+from api_v2.crud import (
+    Training,
+    get_students_grades,
+    mark_hours,
+    get_student_last_attended_dates,
+    get_student_hours,
+    get_negative_hours,
+    better_than,
+    get_email_name_like_students_filtered_by_group,
+)
 from api_v2.permissions import IsStaff, IsStudent, IsTrainer, IsSuperUser
-from api_v2.serializers import SuggestionQuerySerializer, SuggestionSerializer, \
-    NotFoundSerializer, InbuiltErrorSerializer, \
-    TrainingGradesSerializer, AttendanceMarkSerializer, error_detail, \
-    BadGradeReportGradeSerializer, BadGradeReport, LastAttendedDatesSerializer, HoursInfoSerializer, \
-    HoursInfoFullSerializer, AttendanceSerializer, ErrorSerializer, StudentHoursSummarySerializer
+from api_v2.serializers import (
+    SuggestionQuerySerializer,
+    SuggestionSerializer,
+    NotFoundSerializer,
+    InbuiltErrorSerializer,
+    TrainingGradesSerializer,
+    AttendanceMarkSerializer,
+    error_detail,
+    BadGradeReportGradeSerializer,
+    BadGradeReport,
+    LastAttendedDatesSerializer,
+    HoursInfoSerializer,
+    HoursInfoFullSerializer,
+    AttendanceSerializer,
+    ErrorSerializer,
+    StudentHoursSummarySerializer,
+)
 from api_v2.serializers.attendance import BetterThanInfoSerializer
 from sport.models import Group, Student, Attendance
 
@@ -35,9 +54,9 @@ class AttendanceErrors:
     TRAINING_NOT_EDITABLE = (
         2,
         f"Training not editable before it or after "
-        f"{settings.TRAINING_EDITABLE_INTERVAL.days} days")
-    OUTBOUND_GRADES = (
-        3, "Some students received negative marks or more than maximum")
+        f"{settings.TRAINING_EDITABLE_INTERVAL.days} days",
+    )
+    OUTBOUND_GRADES = (3, "Some students received negative marks or more than maximum")
 
 
 class DateError(enum.Enum):
@@ -49,9 +68,7 @@ class DateError(enum.Enum):
 
 def is_training_group(group, trainer):
     if not group.trainers.filter(pk=trainer.pk).exists():
-        raise PermissionDenied(
-            detail="You are not a teacher of this group"
-        )
+        raise PermissionDenied(detail="You are not a teacher of this group")
 
 
 def compose_bad_grade_report(email: str, hours: float) -> dict:
@@ -69,44 +86,44 @@ def compose_bad_grade_report(email: str, hours: float) -> dict:
     parameters=[SuggestionQuerySerializer],
     responses={
         status.HTTP_200_OK: SuggestionSerializer(many=True),
-    }
+    },
 )
 @api_view(["GET"])
-@permission_classes([IsTrainer | IsSuperUser])
+@permission_classes([IsStaff | IsTrainer | IsSuperUser])
 def suggest_student(request, **kwargs):
     serializer = SuggestionQuerySerializer(data=request.GET)
     serializer.is_valid(raise_exception=True)
 
     suggested_students = get_email_name_like_students_filtered_by_group(
-        serializer.validated_data["term"],
-        group=serializer.validated_data["group_id"]
+        serializer.validated_data["term"], group=serializer.validated_data["group_id"]
     )
-    return Response([
-        {
-            "value": f"{student['id']}_"
-                     f"{student['full_name']}_"
-                     f"{student['email']}_"
-                     f"{student['medical_group__name']}",
-            "label": f"{student['full_name']} "
-                     f"({student['email']})",
-        }
-        for student in suggested_students
-    ])
+    return Response(
+        [
+            {
+                "value": f"{student['id']}_"
+                f"{student['full_name']}_"
+                f"{student['email']}_"
+                f"{student['medical_group__name']}",
+                "label": f"{student['full_name']} ({student['email']})",
+            }
+            for student in suggested_students
+        ]
+    )
 
 
 @extend_schema(
     methods=["GET"],
     tags=["For teacher"],
-    summary="Get training grades CSV",
-    description="Export student grades for a specific training session as CSV file. Only accessible by trainers assigned to the group.",
+    summary="Get training grades in CSV",
+    description="'/v2/trainings/{training_id}/grades' but in CSV",
     responses={
-        (status.HTTP_200_OK, 'text/csv'): OpenApiTypes.BINARY,
+        (status.HTTP_200_OK, "text/csv"): OpenApiTypes.BINARY,
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
         status.HTTP_403_FORBIDDEN: InbuiltErrorSerializer,
-    }
+    },
 )
 @api_view(["GET"])
-@permission_classes([IsTrainer | IsSuperUser])
+@permission_classes([IsStaff | IsTrainer | IsSuperUser])
 def get_grades_csv(request, training_id, **kwargs):
     trainer = request.user  # trainer.pk == trainer.user.pk
 
@@ -116,19 +133,23 @@ def get_grades_csv(request, training_id, **kwargs):
     if not trainer.is_superuser:
         is_training_group(group, trainer)
 
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = f'attachment; filename="training-{training_id}.csv"'
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = (
+        f'attachment; filename="training-{training_id}.csv"'
+    )
     writer = csv.writer(response)
 
-    writer.writerow(['Student ID', 'Full Name', 'Email', 'Medical Group', 'Hours'])
+    writer.writerow(["Student ID", "Full Name", "Email", "Medical Group", "Hours"])
     for student in get_students_grades(training_id):
-        writer.writerow([
-            student['student_id'],
-            student['full_name'],
-            student['email'],
-            student['med_group'],
-            student['hours']
-        ])
+        writer.writerow(
+            [
+                student["student_id"],
+                student["full_name"],
+                student["email"],
+                student["med_group"],
+                student["hours"],
+            ]
+        )
 
     return response
 
@@ -160,7 +181,7 @@ def get_grades_csv(request, training_id, **kwargs):
     ),
 )
 @api_view(["GET", "POST"])
-@permission_classes([IsTrainer | IsSuperUser])
+@permission_classes([IsTrainer | IsSuperUser | IsStaff])
 def training_attendance_view(request, training_id: int, **kwargs):
     trainer = request.user  # trainer.pk == trainer.user.pk
 
@@ -171,19 +192,17 @@ def training_attendance_view(request, training_id: int, **kwargs):
         if not trainer.is_superuser:
             is_training_group(group, trainer)
 
-        return Response({
-            "students": get_students_grades(training_id)
-        })
+        return Response({"students": get_students_grades(training_id)})
 
     serializer = AttendanceMarkSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
 
     try:
-        training = Training.objects.select_related(
-            "group"
-        ).only(
-            "group__trainer", "start", "end"
-        ).get(pk=training_id)
+        training = (
+            Training.objects.select_related("group")
+            .only("group__trainer", "start", "end")
+            .get(pk=training_id)
+        )
     except Training.DoesNotExist:
         raise NotFound()
 
@@ -191,10 +210,12 @@ def training_attendance_view(request, training_id: int, **kwargs):
         is_training_group(training.group, trainer)
 
     now = timezone.now()
-    if not (training.start <= now <= training.start + settings.TRAINING_EDITABLE_INTERVAL):
+    if not (
+        training.start <= now <= training.start + settings.TRAINING_EDITABLE_INTERVAL
+    ):
         return Response(
             status=status.HTTP_400_BAD_REQUEST,
-            data=error_detail(*AttendanceErrors.TRAINING_NOT_EDITABLE)
+            data=error_detail(*AttendanceErrors.TRAINING_NOT_EDITABLE),
         )
 
     id_to_hours = {
@@ -215,9 +236,14 @@ def training_attendance_view(request, training_id: int, **kwargs):
             negative_mark.append(compose_bad_grade_report(student.email, hours_put))
         elif hours_put > max_hours:
             overflow_mark.append(compose_bad_grade_report(student.email, hours_put))
-        elif str(Student.objects.filter(
-            user=get_user_model().objects.filter(email=student.email)[0]
-        )[0].student_status) != 'Normal':
+        elif (
+            str(
+                Student.objects.filter(
+                    user=get_user_model().objects.filter(email=student.email)[0]
+                )[0].student_status
+            )
+            != "Normal"
+        ):
             continue
         else:
             hours_to_mark.append((student, hours_put))
@@ -229,16 +255,14 @@ def training_attendance_view(request, training_id: int, **kwargs):
                 **error_detail(*AttendanceErrors.OUTBOUND_GRADES),
                 "negative_marks": negative_mark,
                 "overflow_marks": overflow_mark,
-            }
+            },
         )
 
     # Apply attendance updates
     mark_data = [(x[0].pk, x[1]) for x in hours_to_mark]
     mark_hours(training, mark_data)
 
-    return Response([
-        compose_bad_grade_report(x[0].email, x[1]) for x in hours_to_mark
-    ])
+    return Response([compose_bad_grade_report(x[0].email, x[1]) for x in hours_to_mark])
 
 
 @extend_schema(
@@ -250,7 +274,7 @@ def training_attendance_view(request, training_id: int, **kwargs):
         status.HTTP_200_OK: LastAttendedDatesSerializer,
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
         status.HTTP_403_FORBIDDEN: InbuiltErrorSerializer,
-    }
+    },
 )
 @api_view(["GET"])
 @permission_classes([IsTrainer | IsSuperUser])
@@ -262,9 +286,7 @@ def get_last_attended_dates(request, group_id, **kwargs):
     if not trainer.is_superuser:
         is_training_group(group, trainer)
 
-    return Response({
-        "last_attended_dates": get_student_last_attended_dates(group_id)
-    })
+    return Response({"last_attended_dates": get_student_last_attended_dates(group_id)})
 
 
 @extend_schema(
@@ -276,7 +298,7 @@ def get_last_attended_dates(request, group_id, **kwargs):
         status.HTTP_200_OK: HoursInfoFullSerializer,
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
         status.HTTP_403_FORBIDDEN: InbuiltErrorSerializer,
-    }
+    },
 )
 @extend_schema(
     methods=["GET"],
@@ -285,18 +307,18 @@ def get_last_attended_dates(request, group_id, **kwargs):
     description="Get comprehensive student hours summary including debt, self-sport hours, hours from groups, and required hours. Use 'current_semester_only' parameter to get data for current semester only or all semesters.",
     parameters=[
         OpenApiParameter(
-            name='current_semester_only',
+            name="current_semester_only",
             type=bool,
             location=OpenApiParameter.QUERY,
-            description='If true, returns data for current semester only. If false, returns data for all semesters.',
-            default=True
+            description="If true, returns data for current semester only. If false, returns data for all semesters.",
+            default=True,
         )
     ],
     responses={
         status.HTTP_200_OK: StudentHoursSummarySerializer,
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
         status.HTTP_403_FORBIDDEN: InbuiltErrorSerializer,
-    }
+    },
 )
 @api_view(["GET"])
 @permission_classes([IsStudent | IsStaff | IsSuperUser])
@@ -304,16 +326,18 @@ def get_student_hours_summary(request, student_id, **kwargs):
     """
     Get comprehensive student hours summary
     """
-    current_semester_only = request.GET.get('current_semester_only', 'true').lower() == 'true'
-    
+    current_semester_only = (
+        request.GET.get("current_semester_only", "true").lower() == "true"
+    )
+
     try:
         from api_v2.crud.crud_attendance import get_student_hours_summary
+
         summary = get_student_hours_summary(student_id, current_semester_only)
         return Response(summary)
     except Student.DoesNotExist:
         return Response(
-            {"detail": "Student not found"}, 
-            status=status.HTTP_404_NOT_FOUND
+            {"detail": "Student not found"}, status=status.HTTP_404_NOT_FOUND
         )
 
 
@@ -326,15 +350,13 @@ def get_student_hours_summary(request, student_id, **kwargs):
         status.HTTP_200_OK: BetterThanInfoSerializer,
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
         status.HTTP_403_FORBIDDEN: InbuiltErrorSerializer,
-    }
+    },
 )
 @api_view(["GET"])
 @permission_classes([IsStudent | IsStaff | IsSuperUser])
 @cache_page(60 * 60 * 24)
 def get_better_than_info(request, student_id, **kwargs):
     return Response(better_than(student_id))
-
-
 
 
 @extend_schema(
@@ -348,15 +370,15 @@ def get_better_than_info(request, student_id, **kwargs):
     },
     parameters=[
         OpenApiParameter(
-            name='date_start',
+            name="date_start",
             type=OpenApiTypes.DATE,
-            description='Start date in format YYYY-MM-DD',
+            description="Start date in format YYYY-MM-DD",
             required=True,
         ),
         OpenApiParameter(
-            name='date_end',
+            name="date_end",
             type=OpenApiTypes.DATE,
-            description='End date in format YYYY-MM-DD',
+            description="End date in format YYYY-MM-DD",
             required=True,
         ),
     ],
@@ -365,16 +387,16 @@ def get_better_than_info(request, student_id, **kwargs):
 @permission_classes([IsStudent])
 def get_student_trainings_between_dates(request):
     student: Student = request.user.student
-    date_start = request.GET.get('date_start')
-    date_end = request.GET.get('date_end')
+    date_start = request.GET.get("date_start")
+    date_end = request.GET.get("date_end")
 
     if not date_start or not date_end:
         return Response(
             status=status.HTTP_400_BAD_REQUEST,
             data=error_detail(
                 DateError.BOTH_DATES_REQUIRED.value,
-                "Both date_start and date_end are required"
-            )
+                "Both date_start and date_end are required",
+            ),
         )
 
     try:
@@ -384,18 +406,16 @@ def get_student_trainings_between_dates(request):
         return Response(
             status=status.HTTP_400_BAD_REQUEST,
             data=error_detail(
-                DateError.OUT_OF_RANGE.value,
-                "One of the dates can be out of range"
-            )
+                DateError.OUT_OF_RANGE.value, "One of the dates can be out of range"
+            ),
         )
 
     if date_end is None or date_start is None:
         return Response(
             status=status.HTTP_400_BAD_REQUEST,
             data=error_detail(
-                DateError.INCORRECT_FORMAT.value,
-                "Invalid date format. Use YYYY-MM-DD"
-            )
+                DateError.INCORRECT_FORMAT.value, "Invalid date format. Use YYYY-MM-DD"
+            ),
         )
 
     if date_start > date_end:
@@ -403,26 +423,42 @@ def get_student_trainings_between_dates(request):
             status=status.HTTP_400_BAD_REQUEST,
             data=error_detail(
                 DateError.START_BEFORE_END.value,
-                "date_end should be greater than date_start"
-            )
+                "date_end should be greater than date_start",
+            ),
         )
 
-    objs = Attendance.objects.filter(student__pk=student.pk, training__start__gte=date_start, training__start__lte=date_end + timedelta(days=1)).select_related(
-        'training', 'training__training_class', 'training__group', 'training__group__sport'
-    ).only('training', 'hours', 'training__group__sport', 'training__training_class').prefetch_related(
-        'training__group__trainers__user'
+    objs = (
+        Attendance.objects.filter(
+            student__pk=student.pk,
+            training__start__gte=date_start,
+            training__start__lte=date_end + timedelta(days=1),
+        )
+        .select_related(
+            "training",
+            "training__training_class",
+            "training__group",
+            "training__group__sport",
+        )
+        .only("training", "hours", "training__group__sport", "training__training_class")
+        .prefetch_related("training__group__trainers__user")
     )
     return Response(
         data=[
             {
-                'hours': attendance.hours,
-                'training_id': attendance.training.pk,
-                'date': attendance.training.start.strftime('%Y-%m-%d'),
-                'training_class': attendance.training.training_class.name if attendance.training.training_class else '',
-                'group_id': attendance.training.group.pk,
-                'group_name': attendance.training.group.to_frontend_name(),
-                'trainers_emails': [trainer.user.email for trainer in attendance.training.group.trainers.all()],
-            } for attendance in objs
+                "hours": attendance.hours,
+                "training_id": attendance.training.pk,
+                "date": attendance.training.start.strftime("%Y-%m-%d"),
+                "training_class": attendance.training.training_class.name
+                if attendance.training.training_class
+                else "",
+                "group_id": attendance.training.group.pk,
+                "group_name": attendance.training.group.to_frontend_name(),
+                "trainers_emails": [
+                    trainer.user.email
+                    for trainer in attendance.training.group.trainers.all()
+                ],
+            }
+            for attendance in objs
         ],
         status=status.HTTP_200_OK,
     )

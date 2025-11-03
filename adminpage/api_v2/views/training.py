@@ -8,8 +8,13 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
 from api_v2.crud.crud_training import can_check_in
-from api_v2.permissions import IsStudent
-from api_v2.serializers import NotFoundSerializer, EmptySerializer, ErrorSerializer, error_detail
+from api_v2.permissions import IsStudent, IsStaff, IsTrainer
+from api_v2.serializers import (
+    NotFoundSerializer,
+    EmptySerializer,
+    ErrorSerializer,
+    error_detail,
+)
 from api_v2.serializers.training import NewTrainingInfoStudentSerializer
 from sport.models import Training, Student, TrainingCheckIn, Attendance
 
@@ -22,10 +27,10 @@ from sport.models import Training, Student, TrainingCheckIn, Attendance
     responses={
         status.HTTP_200_OK: NewTrainingInfoStudentSerializer(),
         status.HTTP_404_NOT_FOUND: NotFoundSerializer(),
-    }
+    },
 )
 @api_view(["GET"])
-@permission_classes([IsStudent])
+@permission_classes([IsStaff | IsTrainer])
 def training_info(request, training_id, **kwargs):
     training = get_object_or_404(Training, pk=training_id)
     student: Student = request.user.student
@@ -35,12 +40,16 @@ def training_info(request, training_id, **kwargs):
     except Attendance.DoesNotExist:
         hours = None
 
-    return Response(NewTrainingInfoStudentSerializer({
-        'training': training,
-        'can_check_in': can_check_in(student, training),
-        'checked_in': checked_in,
-        'hours': hours
-    }).data)
+    return Response(
+        NewTrainingInfoStudentSerializer(
+            {
+                "training": training,
+                "can_check_in": can_check_in(student, training),
+                "checked_in": checked_in,
+                "hours": hours,
+            }
+        ).data
+    )
 
 
 @extend_schema(
@@ -53,7 +62,7 @@ def training_info(request, training_id, **kwargs):
         status.HTTP_200_OK: EmptySerializer(),
         status.HTTP_404_NOT_FOUND: NotFoundSerializer(),
         status.HTTP_400_BAD_REQUEST: ErrorSerializer(),
-    }
+    },
 )
 @api_view(["POST"])
 @permission_classes([IsStudent])
@@ -63,7 +72,7 @@ def training_checkin(request, training_id, **kwargs):
     except Training.DoesNotExist:
         return Response(
             status=status.HTTP_404_NOT_FOUND,
-            data=NotFoundSerializer({'detail': 'Training not found'}).data
+            data=NotFoundSerializer({"detail": "Training not found"}).data,
         )
     student: Student = request.user.student
 
@@ -71,7 +80,7 @@ def training_checkin(request, training_id, **kwargs):
         if not can_check_in(student, training):
             return Response(
                 status=status.HTTP_400_BAD_REQUEST,
-                data=error_detail(2, "You cannot check in at this training")
+                data=error_detail(2, "You cannot check in at this training"),
             )
 
         try:
@@ -80,7 +89,7 @@ def training_checkin(request, training_id, **kwargs):
         except IntegrityError as e:
             return Response(
                 status=status.HTTP_400_BAD_REQUEST,
-                data=error_detail(1, "You have already checked in at this training")
+                data=error_detail(1, "You have already checked in at this training"),
             )
 
 
@@ -94,7 +103,7 @@ def training_checkin(request, training_id, **kwargs):
         status.HTTP_200_OK: EmptySerializer(),
         status.HTTP_404_NOT_FOUND: NotFoundSerializer(),
         status.HTTP_400_BAD_REQUEST: ErrorSerializer(),
-    }
+    },
 )
 @api_view(["POST"])
 @permission_classes([IsStudent])
@@ -104,7 +113,7 @@ def training_cancel_checkin(request, training_id, **kwargs):
     except Training.DoesNotExist:
         return Response(
             status=status.HTTP_404_NOT_FOUND,
-            data=NotFoundSerializer({'detail': 'Training not found'}).data
+            data=NotFoundSerializer({"detail": "Training not found"}).data,
         )
 
     student: Student = request.user.student
@@ -112,7 +121,7 @@ def training_cancel_checkin(request, training_id, **kwargs):
     if training.end < timezone.now():
         return Response(
             status=status.HTTP_400_BAD_REQUEST,
-            data=error_detail(2, "You cannot cancel check in at passed training")
+            data=error_detail(2, "You cannot cancel check in at passed training"),
         )
 
     try:
@@ -121,5 +130,5 @@ def training_cancel_checkin(request, training_id, **kwargs):
     except TrainingCheckIn.DoesNotExist:
         return Response(
             status=status.HTTP_400_BAD_REQUEST,
-            data=error_detail(1, "You did not check in at this training")
+            data=error_detail(1, "You did not check in at this training"),
         )
