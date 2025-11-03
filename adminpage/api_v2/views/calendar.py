@@ -7,9 +7,13 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from django.utils import timezone
 
-from api_v2.crud import get_sport_schedule, get_trainings_for_student, get_trainings_for_trainer
+from api_v2.crud import (
+    get_sport_schedule,
+    get_trainings_for_student,
+    get_trainings_for_trainer,
+)
 from api_v2.crud.crud_training import get_weekly_schedule_with_participants
-from api_v2.permissions import IsStudent, IsTrainer
+from api_v2.permissions import IsStaff, IsStudent, IsTrainer
 from api_v2.serializers import CalendarRequestSerializer, CalendarSerializer
 from api_v2.serializers.calendar import WeeklyTrainingSerializer
 
@@ -25,7 +29,7 @@ def convert_training_schedule(t) -> dict:
             "training_class": t["training_class"],
             "current_load": t["current_load"],
             "capacity": t["capacity"],
-        }
+        },
     }
 
 
@@ -40,22 +44,23 @@ def convert_personal_training(t) -> dict:
         "title": t["group_name"],
         "start": start_time,
         "end": end_time,
-        "allDay": start_time.time() == time(0, 0, 0) and end_time.time() == time(23, 59, 59),
+        "allDay": start_time.time() == time(0, 0, 0)
+        and end_time.time() == time(23, 59, 59),
         "extendedProps": {
             "id": t["id"],
-            "can_edit":
-                start_time <= timezone.localtime() <= start_time +
-            settings.TRAINING_EDITABLE_INTERVAL,
+            "can_edit": start_time
+            <= timezone.localtime()
+            <= start_time + settings.TRAINING_EDITABLE_INTERVAL,
             "group_id": t["group_id"],
             "can_grade": t["can_grade"],
             "training_class": t["training_class"],
             "group_accredited": t["group_accredited"],
-        }
+        },
     }
-    if 'can_check_in' in t:
-        r["extendedProps"]['can_check_in'] = t['can_check_in']
-    if 'checked_in' in t:
-        r["extendedProps"]['checked_in'] = t['checked_in']
+    if "can_check_in" in t:
+        r["extendedProps"]["can_check_in"] = t["can_check_in"]
+    if "checked_in" in t:
+        r["extendedProps"]["checked_in"] = t["checked_in"]
     return r
 
 
@@ -67,9 +72,10 @@ def convert_personal_training(t) -> dict:
     parameters=[CalendarRequestSerializer],
     responses={
         status.HTTP_200_OK: CalendarSerializer,
-    }
+    },
 )
 @api_view(["GET"])
+@permission_classes([IsStudent | IsStaff | IsTrainer])
 def get_schedule(request, sport_id, **kwargs):
     serializer = CalendarRequestSerializer(data=request.GET)
     serializer.is_valid(raise_exception=True)
@@ -90,10 +96,10 @@ def get_schedule(request, sport_id, **kwargs):
     parameters=[CalendarRequestSerializer],
     responses={
         status.HTTP_200_OK: CalendarSerializer,
-    }
+    },
 )
 @api_view(["GET"])
-@permission_classes([IsStudent | IsTrainer])
+@permission_classes([IsStudent | IsTrainer | IsStaff])
 def get_personal_schedule(request, **kwargs):
     serializer = CalendarRequestSerializer(data=request.GET)
     serializer.is_valid(raise_exception=True)
@@ -115,14 +121,14 @@ def get_personal_schedule(request, **kwargs):
             serializer.validated_data["end"],
         )
 
-    result_dict = dict([
-        (training["id"], training)
-        for training in student_trainings + trainer_trainings
-    ])
-
-    return Response(
-        list(map(convert_personal_training, result_dict.values()))
+    result_dict = dict(
+        [
+            (training["id"], training)
+            for training in student_trainings + trainer_trainings
+        ]
     )
+
+    return Response(list(map(convert_personal_training, result_dict.values())))
 
 
 @extend_schema(
@@ -133,7 +139,7 @@ def get_personal_schedule(request, **kwargs):
     parameters=[CalendarRequestSerializer],
     responses={
         status.HTTP_200_OK: WeeklyTrainingSerializer(many=True),
-    }
+    },
 )
 @api_view(["GET"])
 @permission_classes([IsStudent | IsTrainer])
@@ -148,9 +154,12 @@ def get_weekly_schedule_with_participants_view(request, **kwargs):
     user = request.user
     student = getattr(user, "student", None)
     trainer = getattr(user, "trainer", None)
-    
+
     if not student and not trainer:
-        return Response({"error": "User must be either a student or trainer"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": "User must be either a student or trainer"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     trainings = get_weekly_schedule_with_participants(
         user=user,

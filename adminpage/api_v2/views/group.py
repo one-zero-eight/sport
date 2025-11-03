@@ -7,8 +7,14 @@ from rest_framework.response import Response
 
 from api_v2.crud import get_group_info, get_sports
 from api_v2.crud.crud_groups import get_sports_with_groups
-from api_v2.permissions import IsStudent, IsTrainer
-from api_v2.serializers import GroupInfoSerializer, NotFoundSerializer, SportsSerializer, EmptySerializer, ErrorSerializer
+from api_v2.permissions import IsStudent, IsTrainer, IsStaff
+from api_v2.serializers import (
+    GroupInfoSerializer,
+    NotFoundSerializer,
+    SportsSerializer,
+    EmptySerializer,
+    ErrorSerializer,
+)
 from api_v2.serializers.group import SportsWithGroupsSerializer, DetailedSportSerializer
 from sport.models import Group, Schedule, Student, Sport
 
@@ -21,10 +27,10 @@ from sport.models import Group, Schedule, Student, Sport
     responses={
         status.HTTP_200_OK: GroupInfoSerializer,
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
-    }
+    },
 )
 @api_view(["GET"])
-@permission_classes([IsStudent | IsTrainer])
+@permission_classes([IsStudent | IsTrainer | IsStaff])
 def group_info_view(request, group_id, **kwargs):
     student = request.user  # user.pk == user.student.pk
     get_object_or_404(Group, pk=group_id)
@@ -43,17 +49,17 @@ def group_info_view(request, group_id, **kwargs):
     responses={
         status.HTTP_200_OK: DetailedSportSerializer(many=True),
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
-    }
+    },
 )
 @api_view(["GET"])
+@permission_classes([IsStudent | IsStaff | IsTrainer])
 # @permission_classes([IsStudent]) Temporary off for academic_leave students
 def clubs_view(request, **kwargs):
     # Get student if authenticated
     student = None
-    if hasattr(request.user, 'student'):
+    if hasattr(request.user, "student"):
         student = request.user.student
-    
+
     sports_data = get_sports_with_groups(student)
     serializer = DetailedSportSerializer(sports_data, many=True)
     return Response(serializer.data)
-
