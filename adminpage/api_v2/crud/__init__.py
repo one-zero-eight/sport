@@ -8,3 +8,5 @@ from .crud_users import *
 from .crud_faq import *
 from .crud_fitness_test import *
 from .crud_medical_groups import *
+from .crud_training_classes import *
+from .crud_student_statuses import *

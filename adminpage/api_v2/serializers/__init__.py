@@ -57,3 +57,7 @@ from .medical_groups import (
     MedicalGroupSerializer,
     MedicalGroupsSerializer
 )
+
+from .training_classes import (
+    TrainingClassesSerializer
+)

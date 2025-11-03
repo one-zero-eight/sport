@@ -15,6 +15,7 @@ from api_v2.views import (
     medical_groups,
     faq,
     student_statuses,
+    training_classes,
 )
 
 
@@ -34,14 +35,14 @@ urlpatterns = [
     path(r"users/me", profile.get_user_info),
     path(r"users/me/schedule", calendar.get_personal_schedule),
     path(r"sports", group.clubs_view), # TODO: probably remove info about trainings
-    path(r"sports/<int:sport_id>/schedule", calendar.get_schedule), # FIXME: returns []
+    path(r"sports/<int:sport_id>/schedule", calendar.get_schedule), #TODO: works even if you swap start and end data
     path(r"sport-groups/<int:group_id>", group.group_info_view),
     path(r"semesters", semester.get_semesters),
     path(r"semesters/<int:semester_id>", semester.get_semester_by_id),
     path(r"semesters/current", semester.get_current_semester),
     path(r"medical-groups", medical_groups.medical_groups_view),
     path(r"faq", faq.get_faq_dict),
-    # path(r"locations", ),
+    path(r"training-classes", training_classes.get_training_class_view),
     path(r"student-statuses", student_statuses.get_student_statuses),
     #for teacher
     

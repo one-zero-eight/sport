@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from api_v2.crud.student_statuses_crud import get_student_statuses_crud
+from api_v2.crud.crud_student_statuses import get_student_statuses as get_student_statuses_crud
 from api_v2.serializers.student_statuses import StudentStatusSerializer
 from api_v2.serializers import NotFoundSerializer
 
