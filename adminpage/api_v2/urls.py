@@ -16,6 +16,7 @@ from api_v2.views import (
     faq,
     student_statuses,
     training_classes,
+    admin,
 )
 
 from drf_spectacular.utils import extend_schema, extend_schema_view
@@ -71,10 +72,10 @@ urlpatterns = [
     
     
     #for admin
-    path(r"users/<int:user_id>", reference.reference_upload),
-    path(r"users/batch", reference.reference_upload),
+    path(r"users/<int:user_id>", admin.get_user_by_id),
+    path(r"users/batch", admin.create_users_batch), #FIXME: cannot add info into student's db
     
-
+    #TODO: find and delete cruds, serializers which was needeed for old endpoints
     # API Documentation
     path('schema/', SpectacularJSONAPIView.as_view(), name='schema'),
     path('docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger'),

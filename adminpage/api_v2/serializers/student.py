@@ -3,7 +3,7 @@ from sport.models import Student
 from api_v2.crud.crud_groups import get_trainer_groups
 
 
-class StudentSerializer(serializers.Serializer):
+class StudentSerializer(serializers.Serializer): #TODO: rename to UserSerializer
     user_id = serializers.SerializerMethodField()
     user_statuses = serializers.SerializerMethodField()
     
