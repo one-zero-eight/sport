@@ -277,7 +277,7 @@ def training_attendance_view(request, training_id: int, **kwargs):
     },
 )
 @api_view(["GET"])
-@permission_classes([IsStudent | IsStaff | IsSuperUser])
+@permission_classes([IsStudent])
 def get_student_hours_summary(request, student_id, **kwargs):
     try:
         from api_v2.crud.crud_attendance import get_student_hours_summary
@@ -307,4 +307,3 @@ def get_student_hours_summary(request, student_id, **kwargs):
 # @cache_page(60 * 60 * 24)
 def get_better_than_info(student_id) -> float:
     return better_than(student_id)
-

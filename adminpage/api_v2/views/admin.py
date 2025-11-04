@@ -18,7 +18,9 @@ class CreateUserRequestSerializer(serializers.Serializer):
     username = serializers.CharField(required=False, allow_blank=True, default="")
     first_name = serializers.CharField(required=False, allow_blank=True, default="")
     last_name = serializers.CharField(required=False, allow_blank=True, default="")
-    password = serializers.CharField(required=False, allow_blank=True, default="", write_only=True)
+    password = serializers.CharField(
+        required=False, allow_blank=True, default="", write_only=True
+    )
 
     role = serializers.ChoiceField(
         choices=["student", "trainer"], required=False, allow_null=True
@@ -31,16 +33,19 @@ class CreateUserRequestSerializer(serializers.Serializer):
 def _wrap_for_user_serializer(user):
     if hasattr(user, "student"):
         return user.student
+
     class UserWrapper:
-        def __init__(self, u): self.user = u
+        def __init__(self, u):
+            self.user = u
+
     return UserWrapper(user)
 
 
 @extend_schema(
     methods=["GET"],
     tags=["For admin"],
-    summary="",
-    description="",
+    summary="Get user by id",
+    description="Get info of user by id",
     responses={status.HTTP_200_OK: StudentSerializer()},
 )
 @api_view(["GET"])
@@ -54,10 +59,8 @@ def get_user_by_id(request, user_id: int, **kwargs):
 @extend_schema(
     methods=["POST"],
     tags=["For admin"],
-    summary="",
-    description=(
-        
-    ),
+    summary="Create new user",
+    description="Create a new user (can give him any role)",
     request=CreateUserRequestSerializer,
     responses={status.HTTP_201_CREATED: StudentSerializer()},
 )
@@ -93,7 +96,9 @@ def create_users_batch(request, **kwargs):
             Trainer.objects.create(user=user)
 
         instance = _wrap_for_user_serializer(user)
-        return Response(StudentSerializer(instance).data, status=status.HTTP_201_CREATED)
+        return Response(
+            StudentSerializer(instance).data, status=status.HTTP_201_CREATED
+        )
 
     except IntegrityError as e:
         return Response(

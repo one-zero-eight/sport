@@ -95,7 +95,7 @@ training_history404 = get_error_serializer(
     methods=["GET"],
     tags=["For student"],
     summary="Get student training history",
-    description="Retrieve student's training history for a specific semester, including regular trainings, self-sport activities, and medical references.",
+    description="Retrieve student's training history for a specific semester, including regular trainings, self-sport activities, results of fitness test, and medical references.",
     responses={
         status.HTTP_200_OK: TrainingHourSerializer(many=True),
         status.HTTP_404_NOT_FOUND: training_history404,
@@ -131,7 +131,7 @@ def get_history_with_self(request, semester_id: int, **kwargs):
     methods=["GET"],
     tags=["For student"],
     summary="Get student semester history",
-    description="Retrieve student's semester history with attended trainings since enrollment. Returns all semesters with trainings, dates, and hours earned.",
+    description="Retrieve student's semester history with attended trainings and fitness tests since enrollment. Returns all semesters with trainings, dates, hours earned and results of fitness tests.",
     responses={
         status.HTTP_200_OK: SemesterHistorySerializer(many=True),
     },
