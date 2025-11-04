@@ -44,7 +44,7 @@ class SelfSportErrors:
 
 @extend_schema(
     methods=["GET"],
-    tags=["Self Sport"],
+    tags=["For student"],
     summary="Get self sport types",
     description="Retrieve list of available self sport activity types that students can submit.",
     responses={
@@ -62,7 +62,7 @@ def get_self_sport_types(request, **kwargs):
 
 @extend_schema(
     methods=["POST"],
-    tags=["Self Sport"],
+    tags=["For student"],
     summary="Upload self sport report",
     description="Submit a self sport activity report with a link to Strava, TrainingPeaks, or similar platforms. Maximum 10 hours of self sport per semester allowed.",
     request=SelfSportReportUploadSerializer,
@@ -136,7 +136,7 @@ def self_sport_upload(request, **kwargs):
 
 @extend_schema(
     methods=["GET"],
-    tags=["Self Sport"],
+    tags=["For student"],
     summary="Parse Strava activity info",
     description="Parse activity information from a Strava link to automatically extract training data like distance, time, and calculate academic hours.",
     parameters=[ParseStrava],

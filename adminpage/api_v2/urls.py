@@ -18,7 +18,7 @@ from api_v2.views import (
     training_classes,
 )
 
-
+from drf_spectacular.utils import extend_schema, extend_schema_view
 class NegativeIntConverter:
     regex = '-?[0-9]+'
 
@@ -58,68 +58,22 @@ urlpatterns = [
     
     
     #for student
+    path(r"students/<int:student_id>/semester-history", profile.get_student_semester_history_view), #TODO: add fitness test in report
+    path(r"students/<int:student_id>/semester-history/<int:semester_id>", profile.get_history_with_self), #TODO: add fitness test in report
+    path(r"students/<int:student_id>/hours-summary", attendance.get_student_hours_summary), #TODO: maybe put hours from medical leave into another group
+    path(r"trainings/<int:training_id>/checkin", training.training_checkin_view), #TODO: maybe add return phrases like successful check-in
+    path(r"selfsport/types", self_sport_report.get_self_sport_types),
+    path(r"selfsport/strava_parsing", self_sport_report.get_strava_activity_info), #TODO: maybe it should parse traininh peaks as well
+    path(r"selfsport/reports", self_sport_report.self_sport_upload),#TODO: add get request for results
+    path(r"selfsport/reports/<int:report_id>", self_sport_report.self_sport_upload),#TODO: do it
+    path(r"references/medical-leave", reference.reference_upload),
+    path(r"references/medical-group", reference.reference_upload), #TODO: make separate endpoint
     
     
     #for admin
+    path(r"users/<int:user_id>", reference.reference_upload),
+    path(r"users/batch", reference.reference_upload),
     
-    
-    
-    # profile
-    #path(r"student/profile", profile.get_user_info),
-    path(r"student/history/<int:semester_id>", profile.get_history_with_self),
-    path(r"student/semester-history", profile.get_student_semester_history_view),
-
-    # groups
-    #path(r"sport-groups/<int:group_id>", group.group_info_view),
-    #path(r"clubs", group.clubs_view),
-
-    # trainings
-    #path(r"trainings/<int:training_id>", training.training_info),
-    path(r"trainings/<int:training_id>/check-in", training.training_checkin),
-    path(r"trainings/<int:training_id>/cancel-check-in", training.training_cancel_checkin),
-
-    # attendance
-    path(r"student/trainings", attendance.get_student_trainings_between_dates),
-    #path(r"attendance/students/search", attendance.suggest_student),
-    # path(r"trainings/<int:training_id>/grades", attendance.get_grades),
-    # path(r"trainings/<int:training_id>/grades.csv", attendance.get_grades_csv),
-    path(r"groups/<int:group_id>/attendance-report", attendance.get_last_attended_dates),
-    #path(r"attendance/mark", attendance.mark_attendance),
-    path(r"students/<int:student_id>/hours-summary", attendance.get_student_hours_summary),
-    path(r"students/<int:student_id>/better-than", attendance.get_better_than_info),
-
-    # calendar
-    #path(r"sports/<negint:sport_id>/schedule", calendar.get_schedule),
-    #path(r"student/schedule", calendar.get_personal_schedule),
-    path(r"student/weekly-schedule", calendar.get_weekly_schedule_with_participants_view),
-
-    # references
-    path(r"references/upload", reference.reference_upload),
-
-    # self sport report
-    path(r"selfsport/upload", self_sport_report.self_sport_upload),
-    path(r"selfsport/types", self_sport_report.get_self_sport_types),
-    path(r"selfsport/strava_parsing", self_sport_report.get_strava_activity_info),
-
-    # fitness tests
-    # path(r"fitness-test/result", fitness_test.get_result),
-    # path(r"fitness-test/upload", fitness_test.post_student_exercises_result),
-    # path(r"fitness-test/upload/<int:session_id>", fitness_test.post_student_exercises_result),
-    # # path(r"fitness-test/exercises", fitness_test.get_exercises),
-    # # path(r"fitness-test/sessions", fitness_test.get_sessions),
-    # # path(r"fitness-test/sessions/<int:session_id>", fitness_test.get_session_info),
-    # path(r"fitness-test/students/search", fitness_test.suggest_fitness_test_student),
-
-    #path(r"semester", semester.get_semesters),
-
-    # analytics
-    #path(r"analytics/attendance", analytics.attendance_analytics),
-
-    # medical groups
-    #path(r"medical-groups", medical_groups.medical_groups_view),
-
-    # FAQ
-    #path(r"faq", faq.get_faq_dict),
 
     # API Documentation
     path('schema/', SpectacularJSONAPIView.as_view(), name='schema'),

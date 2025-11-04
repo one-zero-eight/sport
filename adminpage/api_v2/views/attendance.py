@@ -267,53 +267,9 @@ def training_attendance_view(request, training_id: int, **kwargs):
 
 @extend_schema(
     methods=["GET"],
-    tags=["Attendance"],
-    summary="Get last attended dates",
-    description="Get the last attendance dates for students in a specific group. Only accessible by trainers assigned to the group.",
-    responses={
-        status.HTTP_200_OK: LastAttendedDatesSerializer,
-        status.HTTP_404_NOT_FOUND: NotFoundSerializer,
-        status.HTTP_403_FORBIDDEN: InbuiltErrorSerializer,
-    },
-)
-@api_view(["GET"])
-@permission_classes([IsTrainer | IsSuperUser])
-def get_last_attended_dates(request, group_id, **kwargs):
-    trainer = request.user  # trainer.pk == trainer.user.pk
-
-    group = get_object_or_404(Group, pk=group_id)
-
-    if not trainer.is_superuser:
-        is_training_group(group, trainer)
-
-    return Response({"last_attended_dates": get_student_last_attended_dates(group_id)})
-
-
-@extend_schema(
-    methods=["GET"],
-    tags=["Attendance"],
-    summary="Get student negative hours",
-    description="Get student's negative hours information (hours debt) for the current semester.",
-    responses={
-        status.HTTP_200_OK: HoursInfoFullSerializer,
-        status.HTTP_404_NOT_FOUND: NotFoundSerializer,
-        status.HTTP_403_FORBIDDEN: InbuiltErrorSerializer,
-    },
-)
-@extend_schema(
-    methods=["GET"],
-    tags=["Attendance"],
+    tags=["For student"],
     summary="Get student hours summary",
     description="Get comprehensive student hours summary including debt, self-sport hours, hours from groups, and required hours. Use 'current_semester_only' parameter to get data for current semester only or all semesters.",
-    parameters=[
-        OpenApiParameter(
-            name="current_semester_only",
-            type=bool,
-            location=OpenApiParameter.QUERY,
-            description="If true, returns data for current semester only. If false, returns data for all semesters.",
-            default=True,
-        )
-    ],
     responses={
         status.HTTP_200_OK: StudentHoursSummarySerializer,
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
@@ -323,17 +279,11 @@ def get_last_attended_dates(request, group_id, **kwargs):
 @api_view(["GET"])
 @permission_classes([IsStudent | IsStaff | IsSuperUser])
 def get_student_hours_summary(request, student_id, **kwargs):
-    """
-    Get comprehensive student hours summary
-    """
-    current_semester_only = (
-        request.GET.get("current_semester_only", "true").lower() == "true"
-    )
-
     try:
         from api_v2.crud.crud_attendance import get_student_hours_summary
 
-        summary = get_student_hours_summary(student_id, current_semester_only)
+        summary = get_student_hours_summary(student_id)
+        summary.update({"better_than": get_better_than_info(student_id)})
         return Response(summary)
     except Student.DoesNotExist:
         return Response(
@@ -341,124 +291,20 @@ def get_student_hours_summary(request, student_id, **kwargs):
         )
 
 
-@extend_schema(
-    methods=["GET"],
-    tags=["Attendance"],
-    summary="Get student performance ranking",
-    description="Get student's performance ranking compared to other students (percentage of students performing worse).",
-    responses={
-        status.HTTP_200_OK: BetterThanInfoSerializer,
-        status.HTTP_404_NOT_FOUND: NotFoundSerializer,
-        status.HTTP_403_FORBIDDEN: InbuiltErrorSerializer,
-    },
-)
-@api_view(["GET"])
-@permission_classes([IsStudent | IsStaff | IsSuperUser])
-@cache_page(60 * 60 * 24)
-def get_better_than_info(request, student_id, **kwargs):
-    return Response(better_than(student_id))
+# @extend_schema(
+#     methods=["GET"],
+#     tags=["Attendance"],
+#     summary="Get student performance ranking",
+#     description="Get student's performance ranking compared to other students (percentage of students performing worse).",
+#     responses={
+#         status.HTTP_200_OK: BetterThanInfoSerializer,
+#         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
+#         status.HTTP_403_FORBIDDEN: InbuiltErrorSerializer,
+#     },
+# )
+# @api_view(["GET"])
+# @permission_classes([IsStudent | IsStaff | IsSuperUser])
+# @cache_page(60 * 60 * 24)
+def get_better_than_info(student_id) -> float:
+    return better_than(student_id)
 
-
-@extend_schema(
-    methods=["GET"],
-    tags=["Attendance"],
-    summary="Get student trainings between dates",
-    description="Retrieve student's attended trainings within a specific date range with hours and group information.",
-    responses={
-        status.HTTP_200_OK: AttendanceSerializer(many=True),
-        status.HTTP_400_BAD_REQUEST: ErrorSerializer,
-    },
-    parameters=[
-        OpenApiParameter(
-            name="date_start",
-            type=OpenApiTypes.DATE,
-            description="Start date in format YYYY-MM-DD",
-            required=True,
-        ),
-        OpenApiParameter(
-            name="date_end",
-            type=OpenApiTypes.DATE,
-            description="End date in format YYYY-MM-DD",
-            required=True,
-        ),
-    ],
-)
-@api_view(["GET"])
-@permission_classes([IsStudent])
-def get_student_trainings_between_dates(request):
-    student: Student = request.user.student
-    date_start = request.GET.get("date_start")
-    date_end = request.GET.get("date_end")
-
-    if not date_start or not date_end:
-        return Response(
-            status=status.HTTP_400_BAD_REQUEST,
-            data=error_detail(
-                DateError.BOTH_DATES_REQUIRED.value,
-                "Both date_start and date_end are required",
-            ),
-        )
-
-    try:
-        date_start = parse_date(date_start)
-        date_end = parse_date(date_end)
-    except ValueError:
-        return Response(
-            status=status.HTTP_400_BAD_REQUEST,
-            data=error_detail(
-                DateError.OUT_OF_RANGE.value, "One of the dates can be out of range"
-            ),
-        )
-
-    if date_end is None or date_start is None:
-        return Response(
-            status=status.HTTP_400_BAD_REQUEST,
-            data=error_detail(
-                DateError.INCORRECT_FORMAT.value, "Invalid date format. Use YYYY-MM-DD"
-            ),
-        )
-
-    if date_start > date_end:
-        return Response(
-            status=status.HTTP_400_BAD_REQUEST,
-            data=error_detail(
-                DateError.START_BEFORE_END.value,
-                "date_end should be greater than date_start",
-            ),
-        )
-
-    objs = (
-        Attendance.objects.filter(
-            student__pk=student.pk,
-            training__start__gte=date_start,
-            training__start__lte=date_end + timedelta(days=1),
-        )
-        .select_related(
-            "training",
-            "training__training_class",
-            "training__group",
-            "training__group__sport",
-        )
-        .only("training", "hours", "training__group__sport", "training__training_class")
-        .prefetch_related("training__group__trainers__user")
-    )
-    return Response(
-        data=[
-            {
-                "hours": attendance.hours,
-                "training_id": attendance.training.pk,
-                "date": attendance.training.start.strftime("%Y-%m-%d"),
-                "training_class": attendance.training.training_class.name
-                if attendance.training.training_class
-                else "",
-                "group_id": attendance.training.group.pk,
-                "group_name": attendance.training.group.to_frontend_name(),
-                "trainers_emails": [
-                    trainer.user.email
-                    for trainer in attendance.training.group.trainers.all()
-                ],
-            }
-            for attendance in objs
-        ],
-        status=status.HTTP_200_OK,
-    )

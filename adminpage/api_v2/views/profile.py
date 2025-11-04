@@ -39,7 +39,7 @@ from sport.models import Semester, Student, Group
     },
 )
 @api_view(["GET"])
-@permission_classes([IsStudent | IsStaff | IsTrainer])  # TODO: teachers rights matter!
+@permission_classes([IsStudent | IsStaff | IsTrainer])
 def get_user_info(request, **kwargs):
     """
     Get info about current user including all their statuses and corresponding information.
@@ -93,7 +93,7 @@ training_history404 = get_error_serializer(
 
 @extend_schema(
     methods=["GET"],
-    tags=["Profile"],
+    tags=["For student"],
     summary="Get student training history",
     description="Retrieve student's training history for a specific semester, including regular trainings, self-sport activities, and medical references.",
     responses={
@@ -129,7 +129,7 @@ def get_history_with_self(request, semester_id: int, **kwargs):
 
 @extend_schema(
     methods=["GET"],
-    tags=["Profile"],
+    tags=["For student"],
     summary="Get student semester history",
     description="Retrieve student's semester history with attended trainings since enrollment. Returns all semesters with trainings, dates, and hours earned.",
     responses={

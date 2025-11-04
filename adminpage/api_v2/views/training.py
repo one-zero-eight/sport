@@ -54,9 +54,12 @@ def training_info(request, training_id, **kwargs):
 
 @extend_schema(
     methods=["POST"],
-    tags=["Trainings"],
-    summary="Check in to training",
-    description="Check in to a training session. Students can only check in during the allowed time window (1 week before to training end) and if there are available spots.",
+    tags=["For student"],
+    summary="Check-in or cancel check-in for training",
+    description=(
+        "Checks if the student can check in or cancel the check-in for a training. "
+        "Automatically determines whether to check in or cancel depending on current state."
+    ),
     request=None,
     responses={
         status.HTTP_200_OK: EmptySerializer(),
@@ -66,69 +69,49 @@ def training_info(request, training_id, **kwargs):
 )
 @api_view(["POST"])
 @permission_classes([IsStudent])
-def training_checkin(request, training_id, **kwargs):
-    try:
-        training = Training.objects.get(id=training_id)
-    except Training.DoesNotExist:
-        return Response(
-            status=status.HTTP_404_NOT_FOUND,
-            data=NotFoundSerializer({"detail": "Training not found"}).data,
-        )
+def training_checkin_view(request, training_id, **kwargs):
+    """
+    Unified endpoint for check-in and cancel check-in.
+    Behavior:
+    - If the student is not checked in → performs check-in (same as /check-in)
+    - If already checked in → cancels check-in (same as /cancel-check-in)
+    """
+
+    training = get_object_or_404(Training, pk=training_id)
     student: Student = request.user.student
 
-    with pglock.advisory("check-in-lock"):  # Handle race condition
+    # Determine if already checked in
+    already_checked_in = TrainingCheckIn.objects.filter(
+        student=student, training=training
+    ).exists()
+
+    # === Case 1: Cancel check-in if already checked in ===
+    if already_checked_in:
+        if training.end < timezone.now():
+            return Response(
+                status=status.HTTP_400_BAD_REQUEST,
+                data=error_detail(2, "You cannot cancel check-in for a finished training"),
+            )
+
+        TrainingCheckIn.objects.filter(student=student, training=training).delete()
+        return Response(
+            {},
+            status=status.HTTP_200_OK,
+        )
+
+    # === Case 2: Perform check-in ===
+    with pglock.advisory("check-in-lock"):
         if not can_check_in(student, training):
             return Response(
                 status=status.HTTP_400_BAD_REQUEST,
-                data=error_detail(2, "You cannot check in at this training"),
+                data=error_detail(3, "You cannot check in at this training"),
             )
 
         try:
-            TrainingCheckIn.objects.create(student=student, training_id=training_id)
-            return Response({})
-        except IntegrityError as e:
+            TrainingCheckIn.objects.create(student=student, training=training)
+            return Response({}, status=status.HTTP_200_OK)
+        except IntegrityError:
             return Response(
                 status=status.HTTP_400_BAD_REQUEST,
-                data=error_detail(1, "You have already checked in at this training"),
+                data=error_detail(4, "You have already checked in at this training"),
             )
-
-
-@extend_schema(
-    methods=["POST"],
-    tags=["Trainings"],
-    summary="Cancel training check-in",
-    description="Cancel check-in from a training session. Only possible before the training has ended.",
-    request=None,
-    responses={
-        status.HTTP_200_OK: EmptySerializer(),
-        status.HTTP_404_NOT_FOUND: NotFoundSerializer(),
-        status.HTTP_400_BAD_REQUEST: ErrorSerializer(),
-    },
-)
-@api_view(["POST"])
-@permission_classes([IsStudent])
-def training_cancel_checkin(request, training_id, **kwargs):
-    try:
-        training = Training.objects.get(id=training_id)
-    except Training.DoesNotExist:
-        return Response(
-            status=status.HTTP_404_NOT_FOUND,
-            data=NotFoundSerializer({"detail": "Training not found"}).data,
-        )
-
-    student: Student = request.user.student
-
-    if training.end < timezone.now():
-        return Response(
-            status=status.HTTP_400_BAD_REQUEST,
-            data=error_detail(2, "You cannot cancel check in at passed training"),
-        )
-
-    try:
-        TrainingCheckIn.objects.get(training_id=training_id, student=student).delete()
-        return Response({})
-    except TrainingCheckIn.DoesNotExist:
-        return Response(
-            status=status.HTTP_400_BAD_REQUEST,
-            data=error_detail(1, "You did not check in at this training"),
-        )
