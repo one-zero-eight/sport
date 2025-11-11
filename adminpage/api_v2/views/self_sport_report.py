@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.shortcuts import get_object_or_404
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
+from drf_spectacular.types import OpenApiTypes
 from rest_framework import status, serializers
 from rest_framework.decorators import (
     parser_classes,
@@ -236,17 +237,6 @@ def get_strava_activity_info(request, **kwargs):
     return Response(out_dict)
 
 
-# =====================================================================
-#                    NEW ENDPOINTS: Self-sport results
-# =====================================================================
-
-@extend_schema(
-    methods=["GET"],
-    tags=["Self Sport"],
-    summary="Get all self-sport reports for a specific student",
-    description="Возвращает все self-sport активности конкретного студента за все семестры.",
-    responses={status.HTTP_200_OK: SelfSportReportSerializer(many=True), status.HTTP_404_NOT_FOUND: NotFoundSerializer()},
-)
 @api_view(["GET"])
 @permission_classes([IsTrainer | IsSuperUser | IsStudent])
 def get_selfsport_reports_for_student(request, student_id: int, **kwargs):
@@ -264,6 +254,111 @@ def get_selfsport_reports_for_student(request, student_id: int, **kwargs):
         .order_by("-uploaded")
     )
     return Response(SelfSportReportSerializer(reports, many=True).data)
+
+
+@extend_schema_view(
+    get=extend_schema(
+        tags=["For student"],
+        summary="Get self-sport reports",
+        description=(
+        ),
+        parameters=[
+            OpenApiParameter(
+                name="student_id",
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.QUERY,
+                description=""
+            ),
+            OpenApiParameter(
+                name="semester_id",
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.QUERY,
+                description=""
+            ),
+            OpenApiParameter(
+                name="approved",
+                type=OpenApiTypes.BOOL,
+                location=OpenApiParameter.QUERY,
+                description=""
+            ),
+        ],
+        responses={200: SelfSportReportSerializer(many=True), 404: NotFoundSerializer},
+    ),
+    post=extend_schema(
+        operation_id="v2_selfsport_reports_create",
+        tags=["For student"],
+        summary="Upload self sport report",
+        description="",
+        request=SelfSportReportUploadSerializer,
+        responses={200: EmptySerializer, 400: ErrorSerializer, 403: ErrorSerializer},
+    ),
+)
+@api_view(["GET", "POST"])
+@permission_classes([IsStudent | IsTrainer | IsSuperUser])
+@parser_classes([MultiPartParser])
+def self_sport_reports(request, **kwargs):
+    if request.method == "GET":
+        qs = SelfSportReport.objects.select_related(
+            "training_type", "semester", "student__user"
+        )
+
+
+        is_student = hasattr(request.user, "student")
+        is_elevated = bool(getattr(request.user, "is_superuser", False) or getattr(request.user, "is_staff", False))
+        if is_student and not is_elevated:
+            qs = qs.filter(student_id=request.user.student.pk)
+        else:
+            student_id = request.GET.get("student_id")
+            if student_id:
+                get_object_or_404(Student, pk=student_id)
+                qs = qs.filter(student_id=student_id)
+
+        semester_id = request.GET.get("semester_id")
+        if semester_id:
+            qs = qs.filter(semester_id=semester_id)
+
+        approved = request.GET.get("approved")
+        if approved is not None:
+            val = approved.lower()
+            if val in ("true", "1"):
+                qs = qs.filter(approval=True)
+            elif val in ("false", "0"):
+                qs = qs.filter(approval=False)
+
+        qs = qs.order_by("-uploaded")
+        return Response(SelfSportReportSerializer(qs, many=True).data)
+
+    current_time = datetime.now()
+    semester_start = datetime.combine(get_current_semester_crud().start, datetime.min.time())
+    semester_end = datetime.combine(get_current_semester_crud().end, datetime.max.time())
+    if not semester_start <= current_time <= semester_end:
+        return Response(status=status.HTTP_403_FORBIDDEN, data=error_detail(*SelfSportErrors.NO_CURRENT_SEMESTER))
+
+    serializer = SelfSportReportUploadSerializer(data=request.data)
+    url = serializer.initial_data["link"]
+    if SelfSportReport.objects.filter(link=url).exists() or re.match(
+        r"https?://.*(?P<service>strava|tpks|trainingpeaks).*", url, re.IGNORECASE
+    ) is None:
+        return Response(status=status.HTTP_400_BAD_REQUEST, data=error_detail(*SelfSportErrors.INVALID_LINK))
+    serializer.is_valid(raise_exception=True)
+    debt = False
+
+    student = request.user  # user.pk == user.student.pk
+    if request.user.student.medical_group_id < settings.SELFSPORT_MINIMUM_MEDICAL_GROUP_ID:
+        return Response(status=400, data=error_detail(*SelfSportErrors.MEDICAL_DISALLOWANCE))
+
+    hours_info = get_student_hours(student.id)
+    neg_hours = get_negative_hours(student.id, hours_info)
+    if hours_info["ongoing_semester"]["hours_self_not_debt"] >= 10 and not student.has_perm(
+        "sport.more_than_10_hours_of_self_sport"
+    ):
+        return Response(status=400, data=error_detail(*SelfSportErrors.MAX_NUMBER_SELFSPORT))
+
+    if neg_hours < 0:
+        debt = True
+
+    serializer.save(semester=get_current_semester_crud(), student_id=student.pk, debt=debt)
+    return Response({})
 
 
 @extend_schema(
