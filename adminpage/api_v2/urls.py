@@ -62,6 +62,7 @@ urlpatterns = [
     path(r"students/<int:student_id>/semester-history", profile.get_student_semester_history_view), #TODO: add fitness test in report
     path(r"students/<int:student_id>/semester-history/<int:semester_id>", profile.get_history_with_self), #TODO: add fitness test in report
     path(r"students/<int:student_id>/hours-summary", attendance.get_student_hours_summary), #TODO: maybe put hours from medical leave into another group
+    path(r"students/<int:student_id>/better-than", attendance.get_better_than_info),
     path(r"trainings/<int:training_id>/checkin", training.training_checkin_view), #TODO: maybe add return phrases like successful check-in
     path(r"selfsport/types", self_sport_report.get_self_sport_types),
     path(r"selfsport/strava_parsing", self_sport_report.get_strava_activity_info), #TODO: maybe it should parse traininh peaks as well
@@ -71,7 +72,7 @@ urlpatterns = [
     path(r"references/medical-group", reference.reference_upload), #TODO: make separate endpoint
     
     
-    #for admin
+    #for admin2
     path(r"users/<int:user_id>", admin.get_user_by_id),
     path(r"users/batch", admin.create_users_batch), #FIXME: cannot add info into student's db
     

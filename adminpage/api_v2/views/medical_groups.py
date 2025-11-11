@@ -10,7 +10,7 @@ from api_v2.permissions import IsTrainer, IsStaff, IsStudent
 
 @extend_schema(
     methods=["GET"],
-    tags=["Medical"],
+    tags=["For any user"],
     summary="Get medical groups",
     description="Retrieve list of all medical groups that determine student's physical activity allowances.",
     responses={

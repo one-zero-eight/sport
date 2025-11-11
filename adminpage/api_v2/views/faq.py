@@ -10,7 +10,7 @@ from api_v2.permissions import IsStudent, IsStaff, IsTrainer
 
 @extend_schema(
     methods=["GET"],
-    tags=["FAQ"],
+    tags=["For any user"],
     summary="Get FAQ as dictionary",
     description="Retrieve all FAQ entries as a dictionary where questions are keys and answers are values.",
     responses={

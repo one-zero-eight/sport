@@ -283,7 +283,7 @@ def get_student_hours_summary(request, student_id, **kwargs):
         from api_v2.crud.crud_attendance import get_student_hours_summary
 
         summary = get_student_hours_summary(student_id)
-        summary.update({"better_than": get_better_than_info(student_id)})
+        #summary.update({"better_than": get_better_than_info(student_id)})
         return Response(summary)
     except Student.DoesNotExist:
         return Response(
@@ -291,19 +291,21 @@ def get_student_hours_summary(request, student_id, **kwargs):
         )
 
 
-# @extend_schema(
-#     methods=["GET"],
-#     tags=["Attendance"],
-#     summary="Get student performance ranking",
-#     description="Get student's performance ranking compared to other students (percentage of students performing worse).",
-#     responses={
-#         status.HTTP_200_OK: BetterThanInfoSerializer,
-#         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
-#         status.HTTP_403_FORBIDDEN: InbuiltErrorSerializer,
-#     },
-# )
-# @api_view(["GET"])
-# @permission_classes([IsStudent | IsStaff | IsSuperUser])
-# @cache_page(60 * 60 * 24)
-def get_better_than_info(student_id) -> float:
-    return better_than(student_id)
+@extend_schema(
+    methods=["GET"],
+    tags=["For student"],
+    summary="Get student performance ranking",
+    description="Get student's performance ranking compared to other students (percentage of students performing worse).",
+    responses={
+        status.HTTP_200_OK: BetterThanInfoSerializer,
+        status.HTTP_404_NOT_FOUND: NotFoundSerializer,
+        status.HTTP_403_FORBIDDEN: InbuiltErrorSerializer,
+    },
+)
+@api_view(["GET"])
+@permission_classes([IsStudent | IsStaff | IsSuperUser])
+@cache_page(60 * 60 * 24)
+def get_better_than_info(request, student_id: int, **kwargs):
+    value = better_than(student_id)         # float в [0,1]
+    return Response({"better_than": value})
+
