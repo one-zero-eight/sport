@@ -67,7 +67,7 @@ urlpatterns = [
     path(r"selfsport/types", self_sport_report.get_self_sport_types),
     path(r"selfsport/strava_parsing", self_sport_report.get_strava_activity_info), #TODO: maybe it should parse traininh peaks as well
     path(r"selfsport/reports", self_sport_report.self_sport_reports),#TODO: add get request for results
-    path(r"selfsport/reports/<int:report_id>", self_sport_report.self_sport_upload),#TODO: do it
+    #path(r"selfsport/reports/<int:report_id>", self_sport_report.self_sport_upload),#TODO: do it
     path(r"references/medical-leave", reference.reference_upload),
     path(r"references/medical-group", reference.reference_upload), #TODO: make separate endpoint
     
