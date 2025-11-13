@@ -41,9 +41,8 @@ urlpatterns = [
         path('', include('django_prometheus.urls')),
         path('admin/', site.urls),
         path('oauth2/', include('django_auth_adfs.urls')),
-
-        path("api/v2/", include("api_v2.urls")),
-        path("api/", include("api.urls")),
+        path("api/v2/", include(("api_v2.urls", "api"), namespace="v2")),
+        path("api/", include(("api.urls", "api"), namespace="v1")),
         path("media/", include('media.urls')),
         path('hijack/', include('hijack.urls')),
     ]))

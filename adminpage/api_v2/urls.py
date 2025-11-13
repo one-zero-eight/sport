@@ -1,6 +1,6 @@
 from django.urls import path, register_converter
 from drf_spectacular.views import SpectacularSwaggerView, SpectacularJSONAPIView
-
+from adminpage.settings import SPECTACULAR_SETTINGS_V2
 from api_v2.views import (
     profile,
     group,
@@ -31,7 +31,7 @@ class NegativeIntConverter:
 register_converter(NegativeIntConverter, 'negint')
 
 urlpatterns = [
-    
+
     #for any user
     path(r"users/me", profile.get_user_info),
     path(r"users/me/schedule", calendar.get_personal_schedule),
@@ -45,8 +45,8 @@ urlpatterns = [
     path(r"faq", faq.get_faq_dict),
     path(r"training-classes", training_classes.get_training_class_view),
     path(r"student-statuses", student_statuses.get_student_statuses),
-    
-    
+
+
     #for teacher
     path(r"fitness-test/exercises", fitness_test.get_exercises),
     path(r"fitness-test/sessions", fitness_test.get_sessions),
@@ -56,8 +56,8 @@ urlpatterns = [
     path(r"trainings/<int:training_id>/attendance", attendance.training_attendance_view),
     path(r"trainings/<int:training_id>/attendance.csv", attendance.get_grades_csv),
     path(r"trainings/<int:training_id>/suggest-student", attendance.suggest_student),
-    
-    
+
+
     #for student
     path(r"students/<int:student_id>/semester-history", profile.get_student_semester_history_view), #TODO: add fitness test in report
     path(r"students/<int:student_id>/semester-history/<int:semester_id>", profile.get_history_with_self), #TODO: add fitness test in report
@@ -70,14 +70,18 @@ urlpatterns = [
     #path(r"selfsport/reports/<int:report_id>", self_sport_report.self_sport_upload),#TODO: do it
     path(r"references/medical-leave", reference.reference_upload),
     path(r"references/medical-group", reference.reference_upload), #TODO: make separate endpoint
-    
-    
+
+
     #for admin2
     path(r"users/<int:user_id>", admin.get_user_by_id),
     path(r"users/batch", admin.create_users_batch), #FIXME: cannot add info into student's db
-    
+
     #TODO: find and delete cruds, serializers which was needeed for old endpoints
     # API Documentation
-    path('schema/', SpectacularJSONAPIView.as_view(), name='schema'),
-    path('docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger'),
+    path(
+        "schema/",
+        SpectacularJSONAPIView.as_view(custom_settings=SPECTACULAR_SETTINGS_V2),
+        name="schema",
+    ),
+    path("docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger"),
 ]
