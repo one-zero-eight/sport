@@ -262,22 +262,6 @@ Useful links:
     'AUTHENTICATION_WHITELIST': ["adminpage.authentication.InNoHassleAuthentication"],
 }
 
-SPECTACULAR_SETTINGS_V2 = {
-    "SCHEMA_PATH_PREFIX": "/api/v2",
-    "SERVERS": [
-        {"url": "/api/v2", "description": "Current"},
-        {
-            "url": "https://sport.innopolis.university/api/v2",
-            "description": "Production",
-        },
-        {
-            "url": "https://stage.sport.innopolis.university/api/v2",
-            "description": "Staging",
-        },
-    ],
-}
-
-
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
     'django_auth_adfs.backend.AdfsAuthCodeBackend',
