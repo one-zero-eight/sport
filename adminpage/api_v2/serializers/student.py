@@ -44,3 +44,10 @@ class StudentSerializer(serializers.Serializer):  # TODO: rename to UserSerializ
             }
 
         return data
+
+class UserSerializer(serializers.Serializer):
+    user_id = serializers.IntegerField()
+    email = serializers.CharField()
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
+    user_statuses = serializers.ListField(child=serializers.CharField())

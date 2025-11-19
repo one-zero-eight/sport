@@ -62,3 +62,8 @@ from .training_classes import (
     TrainingClassesSerializer,
     TrainingCheckInRequest,
 )
+
+from .student import (
+    StudentSerializer,
+    UserSerializer,
+)

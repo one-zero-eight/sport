@@ -25,7 +25,7 @@ from api_v2.serializers.profile import (
     TrainingHourSerializer,
     SemesterHistorySerializer,
 )
-from api_v2.serializers.student import StudentSerializer
+from api_v2.serializers.student import StudentSerializer, UserSerializer
 from sport.models import Semester, Student, Group
 
 
@@ -35,7 +35,7 @@ from sport.models import Semester, Student, Group
     summary="Get user profile information",
     description="Retrieve current user's profile information including user ID, statuses, and detailed information for each status (student info with hours, trainer info with groups, etc.).",
     responses={
-        status.HTTP_200_OK: StudentSerializer(),
+        status.HTTP_200_OK: UserSerializer,
     },
 )
 @api_view(["GET"])
