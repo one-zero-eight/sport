@@ -84,9 +84,7 @@ def compose_bad_grade_report(email: str, hours: float) -> dict:
     summary="Suggest students for attendance",
     description="Suggest students based on search term for attendance marking. Only accessible by trainers.",
     parameters=[SuggestionQuerySerializer],
-    responses={
-        status.HTTP_200_OK: SuggestionSerializer(many=True),
-    },
+    responses={status.HTTP_200_OK: SuggestionSerializer(many=True)},
 )
 @api_view(["GET"])
 @permission_classes([IsStaff | IsTrainer | IsSuperUser])
@@ -95,20 +93,27 @@ def suggest_student(request, **kwargs):
     serializer.is_valid(raise_exception=True)
 
     suggested_students = get_email_name_like_students_filtered_by_group(
-        serializer.validated_data["term"], group=serializer.validated_data["group_id"]
+        serializer.validated_data["term"],
+        group=serializer.validated_data["group_id"],
     )
-    return Response(
-        [
-            {
-                "value": f"{student['id']}_"
-                f"{student['full_name']}_"
-                f"{student['email']}_"
-                f"{student['medical_group__name']}",
-                "label": f"{student['full_name']} ({student['email']})",
-            }
-            for student in suggested_students
-        ]
-    )
+    data = [SuggestionSerializer(
+        {
+            "id": student["id"],
+            "first_name": student.get("first_name") or student["full_name"].split()[0],
+            "last_name": (
+                student["full_name"].split()[1]
+                if len(student["full_name"].split()) > 1
+                else ""
+            ),
+            "email": student["email"],
+            "medical_group": student.get("medical_group__name"),
+        }
+    ).data 
+    for student in suggested_students
+    ]
+
+    return Response(data)
+
 
 
 @extend_schema(

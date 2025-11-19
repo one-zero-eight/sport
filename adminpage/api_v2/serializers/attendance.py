@@ -11,8 +11,11 @@ class SuggestionQueryFTSerializer(serializers.Serializer):
 
 
 class SuggestionSerializer(serializers.Serializer):
-    value = serializers.CharField()
-    label = serializers.CharField()
+    id = serializers.IntegerField()
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
+    email = serializers.EmailField()
+    medical_group = serializers.CharField(allow_null=True, allow_blank=True)
 
 
 class StudentInfoSerializer(serializers.Serializer):

@@ -59,5 +59,6 @@ from .medical_groups import (
 )
 
 from .training_classes import (
-    TrainingClassesSerializer
+    TrainingClassesSerializer,
+    TrainingCheckInRequest,
 )
