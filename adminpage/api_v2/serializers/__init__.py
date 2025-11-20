@@ -19,6 +19,8 @@ from .calendar import (
     CalendarRequestSerializer,
     ScheduleExtendedPropsSerializer,
     CalendarSerializer,
+    CalendarPersonalSerializer,
+    CalendarSportSerializer,
 )
 from .common import (
     EmptySerializer,

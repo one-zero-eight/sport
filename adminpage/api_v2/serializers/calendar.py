@@ -15,10 +15,39 @@ class ScheduleExtendedPropsSerializer(serializers.Serializer):
 
 
 class CalendarSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
     title = serializers.CharField()
     start = serializers.DateTimeField()
     end = serializers.DateTimeField()
-    extendedProps = ScheduleExtendedPropsSerializer()
+    group_id = serializers.IntegerField()
+    training_class = serializers.CharField()
+    current_load = serializers.IntegerField()
+    capacity = serializers.IntegerField()
+    # extendedProps = ScheduleExtendedPropsSerializer()
+
+class CalendarPersonalSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    title = serializers.CharField()
+    start = serializers.DateTimeField()
+    end = serializers.DateTimeField()
+    group_id = serializers.IntegerField()
+    can_edit = serializers.BooleanField()
+    can_grade = serializers.BooleanField()
+    training_class = serializers.CharField()
+    group_accredited = serializers.BooleanField()
+    allDay = serializers.BooleanField()
+    can_check_in = serializers.BooleanField()
+    checked_in = serializers.BooleanField()
+
+class CalendarSportSerializer(serializers.Serializer):
+    title = serializers.CharField()
+    daysOfWeek = serializers.ListField(child=serializers.IntegerField())
+    startTime = serializers.TimeField()
+    endTime = serializers.TimeField()
+    group_id = serializers.IntegerField()
+    training_class = serializers.CharField()
+    current_load = serializers.IntegerField()
+    capacity = serializers.IntegerField()
 
 
 class TrainingParticipantSerializer(serializers.Serializer):

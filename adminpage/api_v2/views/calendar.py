@@ -14,7 +14,7 @@ from api_v2.crud import (
 )
 from api_v2.crud.crud_training import get_weekly_schedule_with_participants
 from api_v2.permissions import IsStaff, IsStudent, IsTrainer
-from api_v2.serializers import CalendarRequestSerializer, CalendarSerializer
+from api_v2.serializers import CalendarRequestSerializer, CalendarSerializer, CalendarPersonalSerializer, CalendarSportSerializer
 from api_v2.serializers.calendar import WeeklyTrainingSerializer
 
 
@@ -24,12 +24,10 @@ def convert_training_schedule(t) -> dict:
         "daysOfWeek": [(t["weekday"] + 1) % 7],
         "startTime": t["start"],
         "endTime": t["end"],
-        "extendedProps": {
-            "group_id": t["group_id"],
-            "training_class": t["training_class"],
-            "current_load": t["current_load"],
-            "capacity": t["capacity"],
-        },
+        "group_id": t["group_id"],
+        "training_class": t["training_class"],
+        "current_load": t["current_load"],
+        "capacity": t["capacity"],
     }
 
 
@@ -41,26 +39,24 @@ def convert_personal_training(t) -> dict:
         t["end"],
     )
     r = {
+        "id": t["id"],
         "title": t["group_name"],
         "start": start_time,
         "end": end_time,
-        "allDay": start_time.time() == time(0, 0, 0)
-        and end_time.time() == time(23, 59, 59),
-        "extendedProps": {
-            "id": t["id"],
-            "can_edit": start_time
+        "group_id": t["group_id"],
+        "can_edit": start_time
             <= timezone.localtime()
             <= start_time + settings.TRAINING_EDITABLE_INTERVAL,
-            "group_id": t["group_id"],
-            "can_grade": t["can_grade"],
-            "training_class": t["training_class"],
-            "group_accredited": t["group_accredited"],
-        },
+        "can_grade": t["can_grade"],
+        "training_class": t["training_class"],
+        "group_accredited": t["group_accredited"],
+        "allDay": start_time.time() == time(0, 0, 0)
+        and end_time.time() == time(23, 59, 59),
     }
     if "can_check_in" in t:
-        r["extendedProps"]["can_check_in"] = t["can_check_in"]
+        r["can_check_in"] = t["can_check_in"]
     if "checked_in" in t:
-        r["extendedProps"]["checked_in"] = t["checked_in"]
+        r["checked_in"] = t["checked_in"]
     return r
 
 
@@ -71,7 +67,7 @@ def convert_personal_training(t) -> dict:
     description="Retrieve training schedule for a specific sport. Use sport_id=-1 to get all sports without specific sport type.",
     parameters=[CalendarRequestSerializer],
     responses={
-        status.HTTP_200_OK: CalendarSerializer,
+        status.HTTP_200_OK: CalendarSportSerializer(many=True),
     },
 )
 @api_view(["GET"])
@@ -84,8 +80,8 @@ def get_schedule(request, sport_id, **kwargs):
         sport_id,
         student=student,
     )
-
-    return Response(list(map(convert_training_schedule, trainings)))
+    return Response(CalendarSportSerializer(list(map(convert_training_schedule, trainings)), many=True).data)
+    # return Response(list(map(convert_training_schedule, trainings)))
 
 
 @extend_schema(
@@ -95,7 +91,7 @@ def get_schedule(request, sport_id, **kwargs):
     description="Retrieve personal training schedule for the current user (student or trainer). Shows trainings relevant to the user's role.",
     parameters=[CalendarRequestSerializer],
     responses={
-        status.HTTP_200_OK: CalendarSerializer,
+        status.HTTP_200_OK: CalendarPersonalSerializer(many=True),
     },
 )
 @api_view(["GET"])
