@@ -25,9 +25,9 @@ from api_v2.permissions import IsStaff, IsStudent, IsTrainer
 @api_view(["GET"])
 @permission_classes([IsStudent | IsStaff | IsTrainer])
 def get_semesters(request, **kwargs):
-    data = [SemesterSerializer(elem).data for elem in get_semesters_crud()]
+    data = SemesterSerializer(get_semesters_crud(), many=True).data
     if len(data):
-        return Response(status=status.HTTP_200_OK, data=data)
+        return Response(data=data, status=status.HTTP_200_OK)
     else:
         return Response(
             status=status.HTTP_404_NOT_FOUND, data=NotFoundSerializer().data
@@ -40,7 +40,7 @@ def get_semesters(request, **kwargs):
     summary="Get semester information via id",
     description="",
     responses={
-        status.HTTP_200_OK: SemesterSerializer(many=True),
+        status.HTTP_200_OK: SemesterSerializer(),
         status.HTTP_404_NOT_FOUND: NotFoundSerializer(),
     },
 )
@@ -49,8 +49,7 @@ def get_semesters(request, **kwargs):
 def get_semester_by_id(request, semester_id, **kwargs):
     semester = get_semester_by_id_crud(semester_id)
     if semester:
-        data = SemesterSerializer(semester).data
-        return Response(status=status.HTTP_200_OK, data=data)
+        return Response(SemesterSerializer(semester).data, status=status.HTTP_200_OK)
     else:
         return Response(
             status=status.HTTP_404_NOT_FOUND, data=NotFoundSerializer().data
@@ -63,7 +62,7 @@ def get_semester_by_id(request, semester_id, **kwargs):
     summary="Get current semester information",
     description="",
     responses={
-        status.HTTP_200_OK: SemesterSerializer(many=True),
+        status.HTTP_200_OK: SemesterSerializer(),
         status.HTTP_404_NOT_FOUND: NotFoundSerializer(),
     },
 )

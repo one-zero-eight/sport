@@ -57,7 +57,6 @@ from .fitness_test import (
 
 from .medical_groups import (
     MedicalGroupSerializer,
-    MedicalGroupsSerializer
 )
 
 from .training_classes import (
