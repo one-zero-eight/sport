@@ -1,5 +1,7 @@
 from rest_framework import serializers
-
+from .medical_groups import (
+    MedicalGroupSerializer,
+)
 
 class SuggestionQuerySerializer(serializers.Serializer):
     term = serializers.CharField()
@@ -15,7 +17,8 @@ class SuggestionSerializer(serializers.Serializer):
     first_name = serializers.CharField()
     last_name = serializers.CharField()
     email = serializers.EmailField()
-    medical_group = serializers.CharField(allow_null=True, allow_blank=True)
+    # TODO return medical group model
+    medical_group = MedicalGroupSerializer()# serializers.CharField(allow_null=True, allow_blank=True)
 
 
 class StudentInfoSerializer(serializers.Serializer):

@@ -28,15 +28,16 @@ def get_email_name_like_students(pattern: str, limit: int = 5, requirement=~Q(pk
             Q(full_name__icontains=pattern) |
             Q(last_name__icontains=pattern)
         )
-    ).values(
-        'id',
-        'first_name',
-        'last_name',
-        'email',
-        'full_name',
-        'medical_group__name',
-        'gender'
-    )[:limit]
+    ).select_related('medical_group')[:limit]
+    # ).values(
+    #     'id',
+    #     'first_name',
+    #     'last_name',
+    #     'email',
+    #     'full_name',
+    #     'medical_group',
+    #     'gender'
+    # )[:limit]
     return list(query)
 
 

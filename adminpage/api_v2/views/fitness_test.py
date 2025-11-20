@@ -323,15 +323,26 @@ def suggest_fitness_test_student(request, **kwargs):
         ),
     )
     return Response(
-        [
-            {
-                "value": f"{student['id']}_"
-                f"{student['full_name']}_"
-                f"{student['email']}_"
-                f"{student['medical_group__name']}_"
-                f"{student['gender']}",
-                "label": f"{student['full_name']} ({student['email']})",
-            }
-            for student in suggested_students
-        ]
+        SuggestionSerializer(suggested_students, many=True).data
+        # [
+            
+        #     {
+        #         "value": f"{student['id']}_"
+        #         f"{student['full_name']}_"
+        #         f"{student['email']}_"
+        #         f"{student['medical_group__name']}_"
+        #         f"{student['gender']}",
+        #         "label": f"{student['full_name']} ({student['email']})",
+        #     }
+        #     for student in suggested_students
+        # ]
     )
+
+# def convert_suggest(student: dict) -> dict:
+#     return {
+#         "id": student['id'],
+#         "first_name": student['first_name'],
+#         "last_name": student['last_name'],
+#         "email": student['email'],
+#         "medical_group_name": student["medical_group__name"]
+#     }

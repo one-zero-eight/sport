@@ -77,6 +77,15 @@ def compose_bad_grade_report(email: str, hours: float) -> dict:
         "hours": hours,
     }
 
+def convert_suggest(student: dict) -> dict:
+    return {
+        "id": student["id"],
+        "first_name": student["first_name"], #student.get("first_name") or student["full_name"].split()[0],
+        "last_name": student["last_name"],
+        "email": student["email"],
+        "medical_group": student.get("medical_group__name"),
+    }
+
 
 @extend_schema(
     methods=["GET"],
@@ -96,23 +105,9 @@ def suggest_student(request, **kwargs):
         serializer.validated_data["term"],
         group=serializer.validated_data["group_id"],
     )
-    data = [SuggestionSerializer(
-        {
-            "id": student["id"],
-            "first_name": student.get("first_name") or student["full_name"].split()[0],
-            "last_name": (
-                student["full_name"].split()[1]
-                if len(student["full_name"].split()) > 1
-                else ""
-            ),
-            "email": student["email"],
-            "medical_group": student.get("medical_group__name"),
-        }
-    ).data 
-    for student in suggested_students
-    ]
+    # data = [SuggestionSerializer(convert_suggest(student)).data for student in suggested_students]
 
-    return Response(data)
+    return Response(SuggestionSerializer(suggested_students, many=True))
 
 
 
