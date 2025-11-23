@@ -8,7 +8,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
 from api.crud.crud_training import can_check_in
-from api.permissions import IsStudent
+from api.permissions import IsStudent, IsTrainer, IsStaff
 from api.serializers import NotFoundSerializer, EmptySerializer, ErrorSerializer, error_detail
 from api.serializers.training import NewTrainingInfoStudentSerializer
 from sport.models import Training, Student, TrainingCheckIn, Attendance
@@ -22,9 +22,18 @@ from sport.models import Training, Student, TrainingCheckIn, Attendance
     }
 )
 @api_view(["GET"])
-@permission_classes([IsStudent])
+@permission_classes([IsStudent, IsTrainer, IsStaff])
 def training_info(request, training_id, **kwargs):
     training = get_object_or_404(Training, pk=training_id)
+
+    if not hasattr(request.user, 'student'):  # Allow to get training info
+        return Response(NewTrainingInfoStudentSerializer({
+            'training': training,
+            'can_check_in': False,
+            'checked_in': False,
+            'hours': 0
+        }).data)
+
     student: Student = request.user.student
     checked_in = training.checkins.filter(student=student).exists()
     try:
