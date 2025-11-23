@@ -22,7 +22,7 @@ from sport.models import Training, Student, TrainingCheckIn, Attendance
     }
 )
 @api_view(["GET"])
-@permission_classes([IsStudent, IsTrainer, IsStaff])
+@permission_classes([IsStudent | IsTrainer | IsStaff])
 def training_info(request, training_id, **kwargs):
     training = get_object_or_404(Training, pk=training_id)
 
