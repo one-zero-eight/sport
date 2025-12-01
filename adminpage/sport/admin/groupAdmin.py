@@ -161,3 +161,9 @@ class GroupAdmin(DefaultFilterMixIn):
         if 'extra' in request.META.get('HTTP_REFERER', []):
             return qs.filter(semester=get_ongoing_semester(), sport=None).order_by('name')
         return qs.annotate(enroll_count=RawSQL('select count(*) from enroll where group_id = "group".id', ()))
+
+    def get_search_results(self, request, queryset, search_term):
+        queryset, use_distinct = super().get_search_results(request, queryset, search_term)
+        # Ensure ordering by semester__start is maintained during autocomplete search
+        queryset = queryset.order_by('-semester__start')
+        return queryset, use_distinct
