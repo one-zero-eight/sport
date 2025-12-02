@@ -3,36 +3,31 @@ from api_v2.crud.crud_groups import get_trainer_groups
 
 
 
-class StudentStatusSerializer(serializers.Serializer):
-    """Сериализатор для статуса студента (только description)"""
+class UserStatusSerializer(serializers.Serializer):
     description = serializers.CharField()
 
 
-class StudentInfoSerializer(serializers.Serializer):
-    """Сериализатор для информации о студенте"""
+class UserInfoSerializer(serializers.Serializer):
     medical_group = serializers.CharField(allow_null=True)
-    student_status = StudentStatusSerializer(allow_null=True, required=False)
+    student_status = UserStatusSerializer(allow_null=True, required=False)
 
 
 class GroupSerializer(serializers.Serializer):
-    """Сериализатор для группы тренера"""
     id = serializers.IntegerField()
     name = serializers.CharField()
 
 
 class TrainerInfoSerializer(serializers.Serializer):
-    """Сериализатор для информации о тренере"""
     groups = serializers.ListField(child=GroupSerializer())
 
 
 class UserSerializer(serializers.Serializer):
-    """Основной сериализатор пользователя"""
     user_id = serializers.IntegerField()
     email = serializers.CharField()
     first_name = serializers.CharField()
     last_name = serializers.CharField()
     user_statuses = serializers.ListField(child=serializers.CharField())
-    user_info = StudentInfoSerializer(allow_null=True, required=False)
+    user_info = UserInfoSerializer(allow_null=True, required=False)
     trainer_info = TrainerInfoSerializer(allow_null=True, required=False)
 
 

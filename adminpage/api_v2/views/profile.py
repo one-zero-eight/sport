@@ -57,6 +57,7 @@ def get_user_info(request, **kwargs):
         user_instance = UserWrapper(request.user)
 
     # Prepare data for serializer
+    print(user_instance)
     serializer = UserSerializer(user_instance)
     response_data = serializer.data
 
