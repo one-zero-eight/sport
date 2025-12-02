@@ -82,7 +82,7 @@ def get_user_info(request, **kwargs):
             "hours_sem_max"
         ]  # Required hours threshold for current semester
 
-    return Response(UserSerializer(response_data).data)
+    return Response(response_data)
 
 
 training_history404 = get_error_serializer(
