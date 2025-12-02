@@ -7,7 +7,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
 from api_v2.permissions import IsSuperUser
-from api_v2.serializers.student import StudentSerializer, UserSerializer
+from api_v2.serializers.student import UserSerializer
 from sport.models import Student, Trainer
 
 User = get_user_model()

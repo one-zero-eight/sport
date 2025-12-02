@@ -25,7 +25,7 @@ from api_v2.serializers.profile import (
     TrainingHourSerializer,
     SemesterHistorySerializer,
 )
-from api_v2.serializers.student import StudentSerializer, UserSerializer
+from api_v2.serializers.student import UserSerializer
 from sport.models import Semester, Student, Group
 
 
@@ -57,7 +57,7 @@ def get_user_info(request, **kwargs):
         user_instance = UserWrapper(request.user)
 
     # Prepare data for serializer
-    serializer = StudentSerializer(user_instance)
+    serializer = UserSerializer(user_instance)
     response_data = serializer.data
 
     # Add hours data to student_info only if user is a student AND student_info is present in response
@@ -81,7 +81,7 @@ def get_user_info(request, **kwargs):
             "hours_sem_max"
         ]  # Required hours threshold for current semester
 
-    return Response(response_data)
+    return Response(UserSerializer(response_data).data)
 
 
 training_history404 = get_error_serializer(
