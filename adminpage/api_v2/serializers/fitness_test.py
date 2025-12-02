@@ -2,7 +2,7 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from api_v2.serializers.semester import SemesterSerializer
-from api_v2.serializers.student import StudentSerializer
+from api_v2.serializers.student import StudentSerializer, UserSerializer
 from sport.models import FitnessTestExercise, FitnessTestSession, FitnessTestResult
 
 
@@ -25,7 +25,7 @@ class FitnessTestExerciseSerializer(serializers.ModelSerializer[FitnessTestExerc
 
 
 class FitnessTestResultSerializer(serializers.ModelSerializer[FitnessTestResult]):
-    student = StudentSerializer()
+    student = UserSerializer()
 
     class Meta:
         model = FitnessTestResult
@@ -93,7 +93,7 @@ class FitnessTestStudentExerciseResult(serializers.Serializer):
 
 
 class FitnessTestStudentGroupedResult(serializers.Serializer):
-    student = StudentSerializer()
+    student = UserSerializer()
     exercise_results = FitnessTestStudentExerciseResult(many=True)
 
 
