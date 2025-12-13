@@ -25,7 +25,7 @@ class TrainingFormWithCSV(forms.ModelForm):
     attended_students = forms.ModelMultipleChoiceField(
         required=False,
         queryset=Student.objects.exclude(medical_group__name='Medical checkup not passed'),
-        error_messages={'invalid_choice': 'The student has not passed medical check-up yet!'},
+        error_messages={'invalid_choice': 'The student cannot attend this training!'},
         widget=AutocompleteSelectMultiple(
             Attendance._meta.get_field('student'),
             admin_site=site,

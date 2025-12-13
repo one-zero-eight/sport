@@ -12,7 +12,7 @@ class Attendance(models.Model):
     training = models.ForeignKey('Training', on_delete=models.PROTECT, null=True)
     student = models.ForeignKey(
         "Student",
-        limit_choices_to=~Q(medical_group__name='Medical checkup not passed'),
+        limit_choices_to=Q(student_status__name="Normal") & ~Q(medical_group__name="Medical checkup wasn't passed"),
         on_delete=models.CASCADE,
         db_index=True
     )
