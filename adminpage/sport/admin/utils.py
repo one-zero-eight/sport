@@ -2,7 +2,7 @@ import operator
 from typing import List, Dict, Tuple
 
 from django.contrib import admin
-from django.contrib.admin.widgets import AdminTimeWidget
+from django.contrib.admin.widgets import AdminTimeWidget, AdminSplitDateTime
 from django.db.models.expressions import F
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -33,6 +33,17 @@ class TimeWidget(AdminTimeWidget):
     def __init__(self, attrs=None, format=None):
         attrs = {'data-mask': "99:99:99", **(attrs or {})}
         super().__init__(attrs=attrs, format=format)
+
+
+class DateTimeWidget(AdminSplitDateTime):
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        for widget in context["widget"]["subwidgets"]:
+            if widget["name"].endswith("_0"):  # BaseAdminDateWidget
+                widget["attrs"] = {'data-mask': "9999-99-99", **(widget["attrs"] or {})}
+            elif widget["name"].endswith("_1"):  # BaseAdminTimeWidget
+                widget["attrs"] = {'data-mask': "99:99:99", **(widget["attrs"] or {})}
+        return context
 
 
 class YourModelForm(forms.ModelForm):

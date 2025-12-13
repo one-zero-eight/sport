@@ -17,7 +17,7 @@ from api.crud import get_ongoing_semester, mark_hours
 from sport.models import Training, Student, Group, Attendance
 from .inlines import ViewAttendanceInline, AddAttendanceInline, HackAttendanceInline, ViewTrainingCheckInInline
 from .utils import cache_filter, cache_dependent_filter, cache_alternative_filter, custom_order_filter, \
-    DefaultFilterMixIn, TimeWidget
+    DefaultFilterMixIn, DateTimeWidget
 from .site import site
 
 
@@ -84,8 +84,8 @@ class ChangeTrainingForm(TrainingFormWithCSV):
         model = Training
         fields = ('group', 'schedule', 'start', 'end', 'training_class')
         widgets = {
-            'start': TimeWidget(),
-            'end': TimeWidget(),
+            'start': DateTimeWidget(),
+            'end': DateTimeWidget(),
         }
 
 
