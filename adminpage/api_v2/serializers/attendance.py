@@ -17,7 +17,6 @@ class SuggestionSerializer(serializers.Serializer):
     first_name = serializers.CharField()
     last_name = serializers.CharField()
     email = serializers.EmailField()
-    # TODO return medical group model
     medical_group = MedicalGroupSerializer()# serializers.CharField(allow_null=True, allow_blank=True)
 
 

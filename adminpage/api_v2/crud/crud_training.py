@@ -162,9 +162,9 @@ def get_trainings_for_student(student: Student, start: Optional[datetime], end: 
         group_frontend_name = t.group.to_frontend_name()
 
         # Determine can_grade based on whether trainer is assigned to this group
-        can_grade = False
-        if trainer and t.group.trainers.filter(user_id=trainer.user.id).exists():
-            can_grade = True
+        # can_grade = False
+        # if trainer and t.group.trainers.filter(user_id=trainer.user.id).exists():
+        #     can_grade = True
 
         training_dict = {
             "id": t.id,
@@ -174,7 +174,7 @@ def get_trainings_for_student(student: Student, start: Optional[datetime], end: 
             "group_name": group_frontend_name,
             "training_class": t.training_class.name if t.training_class else None,
             "group_accredited": t.group.accredited,
-            "can_grade": can_grade,
+            "can_grade": False,
             "can_check_in": can_check_in_result,
             "checked_in": student_checkins_map.get(t.id) is not None,
         }
@@ -209,7 +209,9 @@ def get_trainings_for_trainer(trainer: Trainer, start: Optional[datetime], end: 
         'group_name': e.group.to_frontend_name(),
         'training_class': e.training_class.name if e.training_class else None,
         'group_accredited': e.group.accredited,
-        'can_grade': True,
+        "can_grade": True,
+        "can_check_in": True,
+        "checked_in": False,
     } for e in trainings]
 
 

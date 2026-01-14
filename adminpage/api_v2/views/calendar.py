@@ -32,13 +32,10 @@ def convert_training_schedule(t) -> dict:
 
 
 def convert_personal_training(t) -> dict:
-    start_time = timezone.localtime(
-        t["start"],
-    )
-    end_time = timezone.localtime(
-        t["end"],
-    )
-    r = {
+    start_time = timezone.localtime(t["start"])
+    end_time = timezone.localtime(t["end"])
+
+    return {
         "id": t["id"],
         "title": t["group_name"],
         "start": start_time,
@@ -47,17 +44,15 @@ def convert_personal_training(t) -> dict:
         "can_edit": start_time
             <= timezone.localtime()
             <= start_time + settings.TRAINING_EDITABLE_INTERVAL,
-        "can_grade": t["can_grade"],
-        "training_class": t["training_class"],
-        "group_accredited": t["group_accredited"],
+        "can_grade": bool(t.get("can_grade", False)),
+        "training_class": t.get("training_class", ""),
+        "group_accredited": bool(t.get("group_accredited", False)),
         "allDay": start_time.time() == time(0, 0, 0)
-        and end_time.time() == time(23, 59, 59),
+            and end_time.time() == time(23, 59, 59),
+        "can_check_in": bool(t.get("can_check_in", False)),
+        "checked_in": bool(t.get("checked_in", False)),
     }
-    if "can_check_in" in t:
-        r["can_check_in"] = t["can_check_in"]
-    if "checked_in" in t:
-        r["checked_in"] = t["checked_in"]
-    return r
+
 
 
 @extend_schema(
@@ -81,7 +76,6 @@ def get_schedule(request, sport_id, **kwargs):
         student=student,
     )
     return Response(CalendarSportSerializer(list(map(convert_training_schedule, trainings)), many=True).data)
-    # return Response(list(map(convert_training_schedule, trainings)))
 
 
 @extend_schema(
@@ -90,39 +84,44 @@ def get_schedule(request, sport_id, **kwargs):
     summary="Get personal schedule",
     description="Retrieve personal training schedule for the current user (student or trainer). Shows trainings relevant to the user's role.",
     parameters=[CalendarRequestSerializer],
-    responses={
-        status.HTTP_200_OK: CalendarPersonalSerializer(many=True),
-    },
+    responses={status.HTTP_200_OK: CalendarPersonalSerializer(many=True)},
 )
 @api_view(["GET"])
 @permission_classes([IsStudent | IsTrainer | IsStaff])
 def get_personal_schedule(request, **kwargs):
-    serializer = CalendarRequestSerializer(data=request.GET)
-    serializer.is_valid(raise_exception=True)
+    query_serializer = CalendarRequestSerializer(data=request.GET)
+    query_serializer.is_valid(raise_exception=True)
+
+    start = query_serializer.validated_data["start"]
+    end = query_serializer.validated_data["end"]
 
     student_trainings = []
     trainer_trainings = []
 
     if hasattr(request.user, "student"):
-        student_trainings = get_trainings_for_student(
-            request.user.student,
-            serializer.validated_data["start"],
-            serializer.validated_data["end"],
-        )
+        student_trainings = get_trainings_for_student(request.user.student, start, end)
 
     if hasattr(request.user, "trainer"):
-        trainer_trainings = get_trainings_for_trainer(
-            request.user.trainer,
-            serializer.validated_data["start"],
-            serializer.validated_data["end"],
-        )
+        trainer_trainings = get_trainings_for_trainer(request.user.trainer, start, end)
 
-    result_dict = dict(
-        [
-            (training["id"], training)
-            for training in student_trainings + trainer_trainings
-        ]
+    trainings_by_id = {}
+
+    # 1) тренерские первыми (приоритет)
+    for t in trainer_trainings:
+        trainings_by_id[t["id"]] = {
+            **t,
+            "can_grade": True,
+            "can_check_in": True,
+            "checked_in": t.get("checked_in", False),
+        }
+
+    # 2) студенческие — только если такого id ещё нет
+    for t in student_trainings:
+        trainings_by_id.setdefault(t["id"], t)
+
+    trainings = list(trainings_by_id.values())
+
+    return Response(
+        CalendarPersonalSerializer(trainings, many=True).data,
+        status=status.HTTP_200_OK,
     )
-
-    return Response(list(map(convert_personal_training, result_dict.values())))
-

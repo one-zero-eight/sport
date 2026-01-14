@@ -1,4 +1,9 @@
 from rest_framework import serializers
+from django.utils import timezone
+from django.conf import settings
+from datetime import time
+
+
 
 
 class CalendarRequestSerializer(serializers.Serializer):
@@ -27,17 +32,41 @@ class CalendarSerializer(serializers.Serializer):
 
 class CalendarPersonalSerializer(serializers.Serializer):
     id = serializers.IntegerField()
-    title = serializers.CharField()
+
+    # CRUD возвращает group_name -> маппим в title
+    title = serializers.CharField(source="group_name")
+
     start = serializers.DateTimeField()
     end = serializers.DateTimeField()
     group_id = serializers.IntegerField()
-    can_edit = serializers.BooleanField()
+
+    # В CRUD этого нет -> считаем в сериализере
+    can_edit = serializers.SerializerMethodField()
+    allDay = serializers.SerializerMethodField()
+
     can_grade = serializers.BooleanField()
-    training_class = serializers.CharField()
+
+    # В CRUD бывает None -> разрешаем null/blank
+    training_class = serializers.CharField(allow_null=True, allow_blank=True, required=False)
+
     group_accredited = serializers.BooleanField()
-    allDay = serializers.BooleanField()
-    can_check_in = serializers.BooleanField()
-    checked_in = serializers.BooleanField()
+
+    # В student CRUD есть, в trainer CRUD ты уже добавил тоже
+    can_check_in = serializers.BooleanField(required=False, default=False)
+    checked_in = serializers.BooleanField(required=False, default=False)
+
+    def get_can_edit(self, obj):
+        start_time = timezone.localtime(obj["start"])
+        now = timezone.localtime()
+        return start_time <= now <= start_time + settings.TRAINING_EDITABLE_INTERVAL
+
+    def get_allDay(self, obj):
+        start_time = timezone.localtime(obj["start"])
+        end_time = timezone.localtime(obj["end"])
+        return (
+            start_time.time() == time(0, 0, 0)
+            and end_time.time() == time(23, 59, 59)
+        )
 
 class CalendarSportSerializer(serializers.Serializer):
     title = serializers.CharField()

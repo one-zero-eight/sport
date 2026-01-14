@@ -33,56 +33,14 @@ from sport.models import Semester, Student, Group
     methods=["GET"],
     tags=["For any user"],
     summary="Get user profile information",
-    description="Retrieve current user's profile information including user ID, statuses, and detailed information for each status (student info with hours, trainer info with groups, etc.).",
-    responses={
-        status.HTTP_200_OK: UserSerializer,
-    },
+    description="Retrieve current user's profile information including user ID, statuses, and detailed information for each status.",
+    responses={status.HTTP_200_OK: UserSerializer},
 )
 @api_view(["GET"])
 @permission_classes([IsStudent | IsStaff | IsTrainer])
 def get_user_info(request, **kwargs):
-    """
-    Get info about current user including all their statuses and corresponding information.
-    """
-    # For this endpoint, we need to get the user's student profile if it exists
-    # If user doesn't have student profile but is staff/trainer, we'll create minimal data
-    if hasattr(request.user, "student"):
-        user_instance = request.user.student
-    else:
-        # Create a minimal Student-like object for the serializer to work with
-        class UserWrapper:
-            def __init__(self, user):
-                self.user = user
-
-        user_instance = UserWrapper(request.user)
-
-    # Prepare data for serializer
-    print(user_instance)
-    serializer = UserSerializer(user_instance)
-    response_data = serializer.data
-
-    # Add hours data to student_info only if user is a student AND student_info is present in response
-    if (
-        hasattr(request.user, "student")
-        and response_data.get("student_info") is not None
-    ):
-        hours_data = get_student_hours(request.user.id)
-        ongoing_semester = hours_data["ongoing_semester"]
-
-        # Add hours data to student_info
-        response_data["student_info"]["hours"] = ongoing_semester[
-            "hours_not_self"
-        ]  # Hours for semester (not self-sport)
-        response_data["student_info"]["debt"] = ongoing_semester["debt"]  # Debt hours
-        response_data["student_info"]["self_sport_hours"] = (
-            ongoing_semester["hours_self_not_debt"]
-            + ongoing_semester["hours_self_debt"]
-        )  # Self sport hours
-        response_data["student_info"]["required_hours"] = ongoing_semester[
-            "hours_sem_max"
-        ]  # Required hours threshold for current semester
-
-    return Response(response_data)
+    serializer = UserSerializer(request.user, context={"request": request})
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 training_history404 = get_error_serializer(
