@@ -16,7 +16,7 @@ from api_v2.serializers import (
     error_detail,
     TrainingCheckInRequest,
 )
-from api_v2.serializers.training import NewTrainingInfoStudentSerializer
+from api_v2.serializers.training import TrainingInfoStudentSerializer
 from sport.models import Training, Student, TrainingCheckIn, Attendance
 
 
@@ -26,7 +26,7 @@ from sport.models import Training, Student, TrainingCheckIn, Attendance
     summary="Get training information",
     description="Retrieve detailed information about a specific training session, including whether the student can check in, is already checked in, and received hours.",
     responses={
-        status.HTTP_200_OK: NewTrainingInfoStudentSerializer(),
+        status.HTTP_200_OK: TrainingInfoStudentSerializer(),
         status.HTTP_404_NOT_FOUND: NotFoundSerializer(),
     },
 )
@@ -35,22 +35,21 @@ from sport.models import Training, Student, TrainingCheckIn, Attendance
 def training_info(request, training_id, **kwargs):
     training = get_object_or_404(Training, pk=training_id)
     student: Student = request.user.student
+
     checked_in = training.checkins.filter(student=student).exists()
     try:
         hours = Attendance.objects.get(training=training, student=student).hours
     except Attendance.DoesNotExist:
         hours = None
 
-    return Response(
-        NewTrainingInfoStudentSerializer(
-            {
-                "training": training,
-                "can_check_in": can_check_in(student, training),
-                "checked_in": checked_in,
-                "hours": hours,
-            }
-        ).data
-    )
+    data = {
+        "training": training,
+        "can_check_in": can_check_in(student, training),
+        "checked_in": checked_in,
+        "hours": hours,
+    }
+
+    return Response(TrainingInfoStudentSerializer(data).data)
 
 
 @extend_schema(

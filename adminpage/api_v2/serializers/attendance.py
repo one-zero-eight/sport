@@ -123,3 +123,11 @@ class StudentHoursSummarySerializer(serializers.Serializer):
     
     # Common field
     current_semester_only = serializers.BooleanField(help_text="Current semester only or all semesters")
+
+
+class GradesCsvRowSerializer(serializers.Serializer):
+    student_id = serializers.IntegerField()
+    full_name = serializers.CharField()
+    email = serializers.EmailField()
+    med_group = serializers.CharField(allow_null=True, required=False)
+    hours = serializers.FloatField(allow_null=True, required=False)

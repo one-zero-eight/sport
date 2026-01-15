@@ -34,7 +34,7 @@ urlpatterns = [
 
     #for any user
     path(r"users/me", profile.get_user_info),
-    path(r"users/me/schedule", calendar.get_personal_schedule),
+    path(r"users/me/schedule", calendar.get_personal_schedule), #FIXME: works too slow
     path(r"sports", group.clubs_view), # TODO: probably remove info about trainings(not a bug, but a feature.)
     path(r"sports/<int:sport_id>/schedule", calendar.get_schedule), #TODO: do we really need this?
     path(r"sport-groups/<int:group_id>", group.group_info_view),
@@ -50,9 +50,9 @@ urlpatterns = [
     #for teacher
     path(r"fitness-test/exercises", fitness_test.get_exercises),
     path(r"fitness-test/sessions", fitness_test.get_sessions),
-    path(r"fitness-test/sessions/<int:session_id>", fitness_test.fitness_test_session_view),
+    path(r"fitness-test/sessions/<int:session_id>", fitness_test.fitness_test_session_view), #TODO: optimize schema
     path(r"fitness-test/suggest-student", fitness_test.suggest_fitness_test_student),
-    path(r"trainings/<int:training_id>", training.training_info),
+    path(r"trainings/<int:training_id>", training.training_info), #TODO: maybe put it into student section
     path(r"trainings/<int:training_id>/attendance", attendance.training_attendance_view),
     path(r"trainings/<int:training_id>/attendance.csv", attendance.get_grades_csv),
     path(r"trainings/<int:training_id>/suggest-student", attendance.suggest_student),

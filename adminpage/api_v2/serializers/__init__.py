@@ -14,6 +14,7 @@ from .attendance import (
     AttendanceSerializer,
     StudentHoursSummarySerializer,
     SemesterHoursSummarySerializer,
+    GradesCsvRowSerializer,
 )
 from .calendar import (
     CalendarRequestSerializer,

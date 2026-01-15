@@ -2,6 +2,8 @@ import csv
 import enum
 from datetime import timedelta
 
+from rest_framework.exceptions import NotFound
+
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse
@@ -15,7 +17,7 @@ from rest_framework.exceptions import PermissionDenied, NotFound
 from rest_framework.response import Response
 from django.views.decorators.cache import cache_page
 from django.utils.dateparse import parse_date
-
+from accounts.models import User
 from api_v2.crud import (
     Training,
     get_students_grades,
@@ -43,6 +45,7 @@ from api_v2.serializers import (
     AttendanceSerializer,
     ErrorSerializer,
     StudentHoursSummarySerializer,
+    GradesCsvRowSerializer,
 )
 from api_v2.serializers.attendance import BetterThanInfoSerializer
 from sport.models import Group, Student, Attendance
@@ -107,7 +110,7 @@ def suggest_student(request, **kwargs):
     )
     # data = [SuggestionSerializer(convert_suggest(student)).data for student in suggested_students]
 
-    return Response(SuggestionSerializer(suggested_students, many=True))
+    return Response(SuggestionSerializer(suggested_students, many=True).data)
 
 
 
@@ -192,8 +195,18 @@ def training_attendance_view(request, training_id: int, **kwargs):
         if not trainer.is_superuser:
             is_training_group(group, trainer)
 
-        return Response({"students": get_students_grades(training_id)})
+        grades = get_students_grades(training_id)
 
+        payload = {
+            "group_name": group.to_frontend_name() if hasattr(group, "to_frontend_name") else group.name,
+            "start": training.start,
+            "grades": grades,
+            "academic_duration": training.academic_duration,
+        }
+
+        return Response(TrainingGradesSerializer(payload).data, status=status.HTTP_200_OK)
+
+    #POST
     serializer = AttendanceMarkSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
 
@@ -210,9 +223,7 @@ def training_attendance_view(request, training_id: int, **kwargs):
         is_training_group(training.group, trainer)
 
     now = timezone.now()
-    if not (
-        training.start <= now <= training.start + settings.TRAINING_EDITABLE_INTERVAL
-    ):
+    if not (training.start <= now <= training.start + settings.TRAINING_EDITABLE_INTERVAL):
         return Response(
             status=status.HTTP_400_BAD_REQUEST,
             data=error_detail(*AttendanceErrors.TRAINING_NOT_EDITABLE),
@@ -249,21 +260,26 @@ def training_attendance_view(request, training_id: int, **kwargs):
             hours_to_mark.append((student, hours_put))
 
     if negative_mark or overflow_mark:
+        bad_payload = {
+            "code": AttendanceErrors.OUTBOUND_GRADES[0],
+            "description": AttendanceErrors.OUTBOUND_GRADES[1],
+            "negative_marks": negative_mark,
+            "overflow_marks": overflow_mark,
+        }
         return Response(
+            BadGradeReport(bad_payload).data,
             status=status.HTTP_400_BAD_REQUEST,
-            data={
-                **error_detail(*AttendanceErrors.OUTBOUND_GRADES),
-                "negative_marks": negative_mark,
-                "overflow_marks": overflow_mark,
-            },
         )
 
     # Apply attendance updates
     mark_data = [(x[0].pk, x[1]) for x in hours_to_mark]
     mark_hours(training, mark_data)
 
-    return Response([compose_bad_grade_report(x[0].email, x[1]) for x in hours_to_mark])
-
+    ok_payload = [compose_bad_grade_report(x[0].email, x[1]) for x in hours_to_mark]
+    return Response(
+        BadGradeReportGradeSerializer(ok_payload, many=True).data,
+        status=status.HTTP_200_OK,
+    )
 
 @extend_schema(
     methods=["GET"],

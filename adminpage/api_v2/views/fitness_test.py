@@ -202,9 +202,6 @@ class PostStudentExerciseResult(serializers.Serializer):
 @api_view(["GET", "POST"])
 @permission_classes([IsTrainer | IsSuperUser | IsStaff])
 def fitness_test_session_view(request, session_id: int, **kwargs):
-    # -----------------------------------
-    # 1️⃣  GET — Retrieve session details
-    # -----------------------------------
     if request.method == "GET":
         results = FitnessTestResult.objects.filter(
             session_id=session_id
@@ -323,20 +320,7 @@ def suggest_fitness_test_student(request, **kwargs):
         ),
     )
     return Response(
-        SuggestionSerializer(suggested_students, many=True).data
-        # [
-            
-        #     {
-        #         "value": f"{student['id']}_"
-        #         f"{student['full_name']}_"
-        #         f"{student['email']}_"
-        #         f"{student['medical_group__name']}_"
-        #         f"{student['gender']}",
-        #         "label": f"{student['full_name']} ({student['email']})",
-        #     }
-        #     for student in suggested_students
-        # ]
-    )
+        SuggestionSerializer(suggested_students, many=True).data)
 
 # def convert_suggest(student: dict) -> dict:
 #     return {
