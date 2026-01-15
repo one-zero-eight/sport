@@ -9,6 +9,10 @@ from datetime import time
 class CalendarRequestSerializer(serializers.Serializer):
     start = serializers.DateTimeField()
     end = serializers.DateTimeField()
+    def validate(self, attrs):
+        if attrs["start"] >= attrs["end"]:
+            raise serializers.ValidationError({"end": "end must be greater than start"})
+        return attrs
 
 
 class ScheduleExtendedPropsSerializer(serializers.Serializer):
@@ -33,25 +37,21 @@ class CalendarSerializer(serializers.Serializer):
 class CalendarPersonalSerializer(serializers.Serializer):
     id = serializers.IntegerField()
 
-    # CRUD возвращает group_name -> маппим в title
     title = serializers.CharField(source="group_name")
 
     start = serializers.DateTimeField()
     end = serializers.DateTimeField()
     group_id = serializers.IntegerField()
 
-    # В CRUD этого нет -> считаем в сериализере
     can_edit = serializers.SerializerMethodField()
     allDay = serializers.SerializerMethodField()
 
     can_grade = serializers.BooleanField()
 
-    # В CRUD бывает None -> разрешаем null/blank
     training_class = serializers.CharField(allow_null=True, allow_blank=True, required=False)
 
     group_accredited = serializers.BooleanField()
 
-    # В student CRUD есть, в trainer CRUD ты уже добавил тоже
     can_check_in = serializers.BooleanField(required=False, default=False)
     checked_in = serializers.BooleanField(required=False, default=False)
 

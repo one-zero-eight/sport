@@ -53,7 +53,6 @@ def group_info_view(request, group_id, **kwargs):
 )
 @api_view(["GET"])
 @permission_classes([IsStudent | IsStaff | IsTrainer])
-# @permission_classes([IsStudent]) Temporary off for academic_leave students
 def clubs_view(request, **kwargs):
     # Get student if authenticated
     student = None

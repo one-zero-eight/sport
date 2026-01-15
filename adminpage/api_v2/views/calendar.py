@@ -59,7 +59,7 @@ def convert_personal_training(t) -> dict:
     methods=["GET"],
     tags=["For any user"],
     summary="Get sport schedule",
-    description="Retrieve training schedule for a specific sport. Use sport_id=-1 to get all sports without specific sport type.",
+    description="Retrieve training schedule for a specific sport.",
     parameters=[CalendarRequestSerializer],
     responses={
         status.HTTP_200_OK: CalendarSportSerializer(many=True),
@@ -106,7 +106,6 @@ def get_personal_schedule(request, **kwargs):
 
     trainings_by_id = {}
 
-    # 1) тренерские первыми (приоритет)
     for t in trainer_trainings:
         trainings_by_id[t["id"]] = {
             **t,
@@ -115,7 +114,6 @@ def get_personal_schedule(request, **kwargs):
             "checked_in": t.get("checked_in", False),
         }
 
-    # 2) студенческие — только если такого id ещё нет
     for t in student_trainings:
         trainings_by_id.setdefault(t["id"], t)
 

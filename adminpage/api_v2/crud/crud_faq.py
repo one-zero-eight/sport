@@ -1,26 +1,23 @@
-from sport.models import FAQCategory, FAQElement
+from collections import defaultdict
+from sport.models import FAQElement
 
+def get_faq_grouped_dict() -> dict:
+    """
+    Returns FAQ as:
+    {
+      "Category name": {
+          "Question 1": "Answer 1",
+          "Question 2": "Answer 2"
+      },
+      ...
+    }
+    """
+    rows = FAQElement.objects.select_related("category").values_list(
+        "category__name", "question", "answer"
+    ).order_by("category__name", "id")
 
-def get_faq() -> list:
-    """
-    Get FAQ
-    """
-    result = []
-    for i in FAQCategory.objects.all():
-        result.append({'name': i.name, 'values': list(FAQElement.objects.filter(category__name=i.name))})
-    return result
+    result = defaultdict(dict)
+    for cat_name, q, a in rows:
+        result[cat_name][q] = a
 
-
-def get_faq_as_dict() -> dict:
-    """
-    Get FAQ as a dictionary with question as key and answer as value
-    Uses data from the existing get_faq() function
-    """
-    result = {}
-    faq_data = get_faq()  # Use existing FAQ function
-    
-    for category in faq_data:
-        for faq_element in category['values']:
-            result[faq_element.question] = faq_element.answer
-    
-    return result
+    return dict(result)
