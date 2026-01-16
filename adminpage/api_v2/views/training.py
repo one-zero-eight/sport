@@ -16,7 +16,7 @@ from api_v2.serializers import (
     error_detail,
     TrainingCheckInRequest,
 )
-from api_v2.serializers.training import TrainingInfoStudentSerializer
+from api_v2.serializers.training import TrainingInfoSerializer
 from sport.models import Training, Student, TrainingCheckIn, Attendance
 
 
@@ -26,7 +26,7 @@ from sport.models import Training, Student, TrainingCheckIn, Attendance
     summary="Get training information",
     description="Retrieve detailed information about a specific training session, including whether the student can check in, is already checked in, and received hours.",
     responses={
-        status.HTTP_200_OK: TrainingInfoStudentSerializer(),
+        status.HTTP_200_OK: TrainingInfoSerializer(),
         status.HTTP_404_NOT_FOUND: NotFoundSerializer(),
     },
 )
@@ -49,7 +49,7 @@ def training_info(request, training_id, **kwargs):
         "hours": hours,
     }
 
-    return Response(TrainingInfoStudentSerializer(data).data)
+    return Response(TrainingInfoSerializer(data).data)
 
 
 @extend_schema(
