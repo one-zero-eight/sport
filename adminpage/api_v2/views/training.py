@@ -31,25 +31,25 @@ from sport.models import Training, Student, TrainingCheckIn, Attendance
     },
 )
 @api_view(["GET"])
-@permission_classes([IsStaff | IsTrainer])
+@permission_classes([IsStudent | IsStaff | IsTrainer])
 def training_info(request, training_id, **kwargs):
     training = get_object_or_404(Training, pk=training_id)
-    student: Student = request.user.student
+    # student = request.user.student
+    # checked_in = training.checkins.filter(student=student).exists()
+    # try:
+    #     hours = Attendance.objects.get(training=training, student=student).hours
+    # except Attendance.DoesNotExist:
+    #     hours = None
+    # data = {
+    #     "training": training,
+    #     "can_check_in": can_check_in(student, training),
+    #     "checked_in": checked_in,
+    #     "hours": hours,
+    # }
 
-    checked_in = training.checkins.filter(student=student).exists()
-    try:
-        hours = Attendance.objects.get(training=training, student=student).hours
-    except Attendance.DoesNotExist:
-        hours = None
+    # print(data)
 
-    data = {
-        "training": training,
-        "can_check_in": can_check_in(student, training),
-        "checked_in": checked_in,
-        "hours": hours,
-    }
-
-    return Response(TrainingInfoSerializer(data).data)
+    return Response(TrainingInfoSerializer(training).data)
 
 
 @extend_schema(
