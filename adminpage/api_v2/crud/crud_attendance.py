@@ -276,7 +276,7 @@ def better_than(student_id):
     return round(worse / (all - 1) * 100, 1)
 
 
-def get_student_semester_history(student: Student):
+def get_student_all_semesters_history_crud(student: Student):
     """
     Get student's semester history with attended trainings since enrollment
     """

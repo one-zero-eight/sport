@@ -36,7 +36,7 @@ urlpatterns = [
     path(r"users/me", profile.get_user_info),
     path(r"users/me/schedule", calendar.get_personal_schedule), #FIXME: works too slow
     path(r"sports", group.clubs_view), # TODO: probably remove info about trainings(not a bug, but a feature.)
-    path(r"sports/<int:sport_id>/schedule", calendar.get_schedule), #TODO: do we really need this?
+    path(r"sports/<int:sport_id>/schedule", calendar.get_schedule), #FIXME: returns schedule template, not an actual schedule
     path(r"sport-groups/<int:group_id>", group.group_info_view),
     path(r"semesters", semester.get_semesters),
     path(r"semesters/<int:semester_id>", semester.get_semester_by_id),
@@ -45,6 +45,8 @@ urlpatterns = [
     path(r"faq", faq.get_faq_dict),
     path(r"training-classes", training_classes.get_training_class_view),
     path(r"student-statuses", student_statuses.get_student_statuses),
+    path(r"trainings/<int:training_id>", training.training_info),
+
 
 
     #for teacher
@@ -52,15 +54,14 @@ urlpatterns = [
     path(r"fitness-test/sessions", fitness_test.get_sessions),
     path(r"fitness-test/sessions/<int:session_id>", fitness_test.fitness_test_session_view), #TODO: optimize schema
     path(r"fitness-test/suggest-student", fitness_test.suggest_fitness_test_student),
-    path(r"trainings/<int:training_id>", training.training_info), #TODO: maybe put it into student section
     path(r"trainings/<int:training_id>/attendance", attendance.training_attendance_view),
     path(r"trainings/<int:training_id>/attendance.csv", attendance.get_grades_csv),
     path(r"trainings/<int:training_id>/suggest-student", attendance.suggest_student),
 
 
     #for student
-    path(r"students/<int:student_id>/semester-history", profile.get_student_semester_history_view), #TODO: add fitness test in report
-    path(r"students/<int:student_id>/semester-history/<int:semester_id>", profile.get_history_with_self), #TODO: add fitness test in report
+    path(r"students/<int:student_id>/semester-history", profile.get_student_all_semesters_history), #TODO: add fitness test in report
+    path(r"students/<int:student_id>/semester-history/<int:semester_id>", profile.get_student_specific_semester_history), #TODO: add fitness test in report
     path(r"students/<int:student_id>/hours-summary", attendance.get_student_hours_summary), #TODO: maybe put hours from medical leave into another group
     path(r"students/<int:student_id>/better-than", attendance.get_better_than_info),
     path(r"trainings/<int:training_id>/checkin", training.training_checkin_view), #TODO: maybe add return phrases like successful check-in
@@ -69,7 +70,7 @@ urlpatterns = [
     path(r"selfsport/reports", self_sport_report.self_sport_reports),#TODO: add get request for results
     #path(r"selfsport/reports/<int:report_id>", self_sport_report.self_sport_upload),#TODO: do it
     path(r"references/medical-leave", reference.reference_upload),
-    path(r"references/medical-group", reference.reference_upload), #TODO: make separate endpoint
+    path(r"references/medical-group", reference.reference_upload), #TODO:
 
 
     #for admin2

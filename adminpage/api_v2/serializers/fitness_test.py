@@ -32,27 +32,6 @@ class FitnessTestResultSerializer(serializers.ModelSerializer[FitnessTestResult]
         fields = ('student', 'value')
 
 
-@extend_schema_field(int | str)  # NOQA: UnionType is supported
-class FitnessTestValueSerializer(serializers.Field):
-    pass
-
-
-class FitnessTestDetail(serializers.Serializer):
-    exercise = serializers.CharField()
-    unit = serializers.CharField(allow_null=True)
-    value = FitnessTestValueSerializer()
-    score = serializers.IntegerField()
-    max_score = serializers.IntegerField()
-
-
-class FitnessTestStudentResult(serializers.Serializer):
-    semester = serializers.CharField()
-    retake = serializers.BooleanField()
-    grade = serializers.BooleanField()
-    total_score = serializers.IntegerField()
-    details = FitnessTestDetail(many=True)
-
-
 class FitnessTestResults(serializers.Serializer):
     result = FitnessTestResultSerializer(many=True)
 

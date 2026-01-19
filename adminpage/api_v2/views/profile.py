@@ -9,7 +9,11 @@ from api_v2.crud.crud_attendance import (
     get_detailed_hours,
     get_detailed_hours_and_self,
     get_student_hours,
-    get_student_semester_history,
+    get_student_all_semesters_history_crud,
+)
+from api_v2.crud.crud_fitness_test import (
+    get_student_fitness_results_for_semester_crud,
+    get_student_fitness_results_for_all_semesters_crud,
 )
 from api_v2.permissions import (
     IsStudent,
@@ -24,6 +28,8 @@ from api_v2.serializers.profile import (
     GenderSerializer,
     TrainingHourSerializer,
     SemesterHistorySerializer,
+    StudentSpecificSemesterHistorySerializer,
+    SemesterHistoryWithFitnessSerializer,
 )
 from api_v2.serializers.student import UserSerializer
 from sport.models import Semester, Student, Group
@@ -56,34 +62,45 @@ training_history404 = get_error_serializer(
     summary="Get student training history",
     description="Retrieve student's training history for a specific semester, including regular trainings, self-sport activities, results of fitness test, and medical references.",
     responses={
-        status.HTTP_200_OK: TrainingHourSerializer(many=True),
+        status.HTTP_200_OK: StudentSpecificSemesterHistorySerializer,
         status.HTTP_404_NOT_FOUND: training_history404,
     },
 )
 @api_view(["GET"])
 @permission_classes([IsStudent])
-def get_history_with_self(request, semester_id: int, **kwargs):
+def get_student_specific_semester_history(request, semester_id: int, **kwargs):
     """
-    Get student's trainings per_semester
+    Get student's trainings per_semester + fitness tests
     """
     semester = get_object_or_404(Semester, pk=semester_id)
-    student = request.user  # user.pk == user.student.pk
-    return Response(
-        list(
-            map(
-                lambda g: {
-                    **g,
-                    "group": g["group"]
-                    if g["group_id"] < 0
-                    else Group.objects.get(pk=g["group_id"]).to_frontend_name(),
-                    "timestamp": timezone.localtime(g["timestamp"]).strftime(
-                        "%b %d %H:%M"
-                    ),
-                },
-                get_detailed_hours_and_self(student, semester),
-            )
+    student: Student = request.user.student
+
+    trainings = []
+    for g in get_detailed_hours_and_self(student, semester):
+        trainings.append(
+            {
+                **g,
+                "group": g["group"]
+                if g.get("group_id", -1) < 0
+                else Group.objects.get(pk=g["group_id"]).to_frontend_name(),
+                "timestamp": timezone.localtime(g["timestamp"]),
+            }
         )
+
+    fitness_tests = get_student_fitness_results_for_semester_crud(
+        student=student,
+        semester=semester,
+        latest_only=False,
     )
+
+    payload = {
+        "semester_id": semester.id,
+        "semester_name": str(semester),
+        "trainings": trainings,
+        "fitness_tests": fitness_tests,
+    }
+
+    return Response(StudentSpecificSemesterHistorySerializer(payload).data)
 
 
 @extend_schema(
@@ -92,15 +109,26 @@ def get_history_with_self(request, semester_id: int, **kwargs):
     summary="Get student semester history",
     description="Retrieve student's semester history with attended trainings and fitness tests since enrollment. Returns all semesters with trainings, dates, hours earned and results of fitness tests.",
     responses={
-        status.HTTP_200_OK: SemesterHistorySerializer(many=True),
+        status.HTTP_200_OK: SemesterHistoryWithFitnessSerializer(many=True),
     },
 )
 @api_view(["GET"])
 @permission_classes([IsStudent])
-def get_student_semester_history_view(request, **kwargs):
+def get_student_all_semesters_history(request, **kwargs):
     """
-    Get student's semester history with attended trainings since enrollment
+    Get student's semester history with attended trainings since enrollment + fitness tests
     """
     student: Student = request.user.student
-    history = get_student_semester_history(student)
-    return Response(history)
+    history = get_student_all_semesters_history_crud(student)
+
+    semester_ids = [h["semester_id"] for h in history]
+    fitness_by_semester = get_student_fitness_results_for_all_semesters_crud(
+        student=student,
+        semester_ids=semester_ids,
+        latest_only=False,
+    )
+
+    for h in history:
+        h["fitness_tests"] = fitness_by_semester.get(h["semester_id"], [])
+
+    return Response(SemesterHistoryWithFitnessSerializer(history, many=True).data)

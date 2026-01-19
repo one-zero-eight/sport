@@ -31,3 +31,25 @@ class SemesterHistorySerializer(serializers.Serializer):
     required_hours = serializers.IntegerField()
     total_hours = serializers.IntegerField()
     trainings = TrainingHistorySerializer(many=True)
+
+
+from api_v2.serializers.fitness_test import (
+    FitnessTestSessionSerializer,
+    FitnessTestStudentExerciseResult,
+)
+
+
+class FitnessTestStudentSessionResultSerializer(serializers.Serializer):
+    session = FitnessTestSessionSerializer()
+    exercise_results = FitnessTestStudentExerciseResult(many=True)
+
+
+class StudentSpecificSemesterHistorySerializer(serializers.Serializer):
+    semester_id = serializers.IntegerField()
+    semester_name = serializers.CharField()
+    trainings = TrainingHourSerializer(many=True)
+    fitness_tests = FitnessTestStudentSessionResultSerializer(many=True)
+
+
+class SemesterHistoryWithFitnessSerializer(SemesterHistorySerializer):
+    fitness_tests = FitnessTestStudentSessionResultSerializer(many=True, required=False)
