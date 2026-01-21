@@ -12,12 +12,13 @@ from api_v2.permissions import IsStudent
 from api_v2.serializers import (
     ReferenceUploadSerializer,
     ReferenceUploadResponseSerializer,
+    MedicalGroupReferenceUploadSerializer,
+    MedicalGroupReferenceUploadResponseSerializer,
     EmptySerializer,
     ErrorSerializer,
     error_detail,
 )
-from sport.models import Reference
-
+from sport.models import Student, MedicalGroupReference, Debt, MedicalGroupReferenceImage, Reference
 
 class ReferenceErrors:
     TOO_MUCH_UPLOADS_PER_DAY = (
@@ -75,3 +76,50 @@ def reference_upload(request, **kwargs):
         "end": ref.end,
         "uploaded": ref.uploaded
     })
+
+@extend_schema(
+    methods=["POST"],
+    tags=["For student"],
+    summary="Upload medical certificate",
+    description="Upload a medical certificate for sick leave. The system automatically calculates hours based on the duration of illness. Only one upload per day is allowed.",
+    request=MedicalGroupReferenceUploadSerializer,
+    responses={
+        status.HTTP_200_OK: MedicalGroupReferenceUploadResponseSerializer,
+        status.HTTP_400_BAD_REQUEST: ErrorSerializer,
+    },
+)
+@api_view(["POST"])
+@permission_classes([IsStudent])
+@parser_classes([MultiPartParser])
+def medical_group_upload(request, **kwargs):
+    serializer = MedicalGroupReferenceUploadSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    images = serializer.validated_data['images']
+    student_comment = serializer.validated_data.get('student_comment', '')
+    student = request.user  # user.pk == user.student.pk
+
+    try:
+        with transaction.atomic():
+            
+            reference = MedicalGroupReference.objects.create(
+                student_id=student.pk,
+                semester=get_current_semester_crud(),
+                student_comment=student_comment,
+            )
+            
+            reference_images = [
+                MedicalGroupReferenceImage(reference=reference, image=image)
+                for image in images
+            ]
+            MedicalGroupReferenceImage.objects.bulk_create(reference_images)
+    
+    except Exception as e:
+        return Response(
+            {
+                'error': str(e)
+            },
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    return Response(MedicalGroupReferenceUploadResponseSerializer(reference).data)

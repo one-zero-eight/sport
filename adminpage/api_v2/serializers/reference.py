@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
-from sport.models import Reference
-
+from sport.models import MedicalGroupReference, MedicalGroupReferenceImage, Reference
+from django.core.validators import FileExtensionValidator
 
 class ReferenceUploadSerializer(serializers.ModelSerializer[Reference]):
     image = serializers.ImageField(allow_empty_file=False)
@@ -21,3 +21,27 @@ class ReferenceUploadResponseSerializer(serializers.Serializer):
     start = serializers.DateField()
     end = serializers.DateField()
     uploaded = serializers.DateTimeField()
+
+
+class MedicalGroupReferenceUploadSerializer(serializers.Serializer):
+    images = serializers.ListField(
+        child=serializers.ImageField(
+            max_length=100000,
+            allow_empty_file=False,
+            validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'pdf'])]
+        ),
+        write_only=True,
+        min_length=1,
+        max_length=10,
+        help_text="List of medical reference images (allow formats: jpg, jpeg, png, pdf)"
+    )
+    student_comment = serializers.CharField(
+        required=False,
+        allow_blank=True,
+        max_length=1000,
+    )
+
+class MedicalGroupReferenceUploadResponseSerializer(serializers.ModelSerializer[MedicalGroupReference]):
+    class Meta:
+        model = MedicalGroupReference
+        fields = ('id', 'student', 'uploaded', 'semester')

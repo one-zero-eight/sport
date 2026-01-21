@@ -70,7 +70,7 @@ urlpatterns = [
     path(r"selfsport/reports", self_sport_report.self_sport_reports),#TODO: add get request for results
     #path(r"selfsport/reports/<int:report_id>", self_sport_report.self_sport_upload),#TODO: do it
     path(r"references/medical-leave", reference.reference_upload),
-    path(r"references/medical-group", reference.reference_upload), #TODO:
+    path(r"references/medical-group", reference.medical_group_upload), #TODO:
 
 
     #for admin2

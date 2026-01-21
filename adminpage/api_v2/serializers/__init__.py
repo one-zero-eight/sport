@@ -44,6 +44,8 @@ from .profile import (
 from .reference import (
     ReferenceUploadSerializer,
     ReferenceUploadResponseSerializer,
+    MedicalGroupReferenceUploadSerializer,
+    MedicalGroupReferenceUploadResponseSerializer
 )
 from .self_sport_report import (
     SelfSportReportUploadSerializer,
