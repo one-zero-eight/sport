@@ -68,14 +68,14 @@ urlpatterns = [
     path(r"selfsport/types", self_sport_report.get_self_sport_types),
     path(r"selfsport/strava_parsing", self_sport_report.get_strava_activity_info), #TODO: maybe it should parse traininh peaks as well
     path(r"selfsport/reports", self_sport_report.self_sport_reports),#TODO: add get request for results
-    #path(r"selfsport/reports/<int:report_id>", self_sport_report.self_sport_upload),#TODO: do it
+    #path(r"selfsport/reports/<int:report_id>", self_sport_report.self_sport_upload),#TODO: make endpoint for selfsport training report
     path(r"references/medical-leave", reference.reference_upload),
-    path(r"references/medical-group", reference.medical_group_upload), #TODO:
+    path(r"references/medical-group", reference.medical_group_upload),
 
 
     #for admin2
     path(r"users/<int:user_id>", admin.get_user_by_id),
-    path(r"users/batch", admin.get_users_batch), #FIXME: cannot add info into student's db
+    path(r"users/batch", admin.get_users_batch),
     #TODO: find and delete cruds, serializers which was needeed for old endpoints
     # API Documentation
     path(
