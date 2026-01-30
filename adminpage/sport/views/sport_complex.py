@@ -14,10 +14,15 @@ def sport_complex_view(request, **kwargs):
     now = datetime.datetime.now(tz=datetime.timezone.utc)
     today_end = datetime.datetime(now.year, now.month, now.day, 23, 59, 59, tzinfo=datetime.timezone.utc)
 
-    today_trainings = Training.objects.filter(
-        start__lte=today_end,  # Starts today
-        end__gte=now,  # And not finished yet
-    ).order_by("start").select_related("group", "training_class").prefetch_related("group__trainers__user")
+    today_trainings = (
+        Training.objects.filter(
+            start__lte=today_end,  # Starts today
+            end__gte=now,  # And not finished yet
+        )
+        .order_by("start")
+        .select_related("group", "group__sport", "training_class")
+        .prefetch_related("group__trainers__user", "checkins__student__user")
+    )
 
     today_schedule_with_checkins = [
         {
@@ -29,7 +34,7 @@ def sport_complex_view(request, **kwargs):
                 f"{trainer.user.get_full_name()} ({trainer.user.email})" for trainer in training.group.trainers.all()
             ]),
             "checkins": sorted([
-                f"{student.user.get_full_name()} ({student.user.email})" for student in training.checked_in_students
+                f"{checkin.student.user.get_full_name()} ({checkin.student.user.email})" for checkin in training.checkins.all()
             ]),
         }
         for training in today_trainings

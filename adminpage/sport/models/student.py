@@ -84,7 +84,7 @@ class Student(models.Model):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.__original_medical_group = self.medical_group
+        self.__original_medical_group_id = self.medical_group_id
 
     def notify(self, subject, message, **kwargs):
         msg = message.format(**kwargs)
@@ -99,9 +99,9 @@ class Student(models.Model):
     def save(self, *args, **kwargs):
         if self.telegram is not None and self.telegram[0] != '@':
             self.telegram = '@' + self.telegram
-        if self.medical_group != self.__original_medical_group:
+        if self.medical_group_id != self.__original_medical_group_id:
             MedicalGroupHistory.objects.create(student=self,
-                                               medical_group=self.medical_group)
+                                               medical_group_id=self.medical_group_id)
 
         super().save(*args, **kwargs)
 
