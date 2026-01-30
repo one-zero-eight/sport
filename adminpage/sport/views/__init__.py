@@ -5,3 +5,4 @@ from .calendar import calendar_view, calendar_view_without_sport
 from .grafana_proxy import GrafanaProxyView
 from .login import login_redirect
 from .analytics import analytics_view
+from .sport_complex import sport_complex_view

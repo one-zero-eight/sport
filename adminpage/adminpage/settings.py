@@ -49,7 +49,9 @@ DATE_FORMAT = "%Y-%m-%d"
 # People with passed checkup are able to upload self-sport
 SELFSPORT_MINIMUM_MEDICAL_GROUP_ID = -1
 
+SPORT_COMPLEX_EMAIL = "sport-complex"
 SPORT_DEPARTMENT_EMAIL = "sport@innopolis.university"
+
 STUDENT_AUTH_GROUP_VERBOSE_NAME = "Students"
 STUDENT_AUTH_GROUP_NAME = "S-1-5-21-721043115-644155662-3522934251-2285"
 

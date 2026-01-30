@@ -1,0 +1,56 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>University Sport</title>
+    <link rel="stylesheet" href="{% static "sport_complex/css/global_styles.css" %}">
+</head>
+<body>
+
+<header class="header">
+    <div class="logo">
+        <img src="{% static "sport_complex/images/logo.png" %}" alt="logo"/>
+    </div>
+    <h1>Студенческие занятия</h1>
+
+    <div class="user">
+        <a href="{% url 'django_auth_adfs:logout' %}" class="log-out">Выйти</a>
+    </div>
+</header>
+
+<div class="container">
+    <div class="now">
+        <p>Актуально на: {{ formatted_now }}</p>
+        <button onclick="window.location.reload()">Обновить</button>
+    </div>
+
+    {% for training in today_schedule_with_checkins %}
+        <div class="training">
+            <div class="title">
+                <h2>{{ training.formatted_timerange }}:</h2>
+                <p>{{ training.title }}</p>
+                <span>({{ training.location }})</span>
+            </div>
+            <div class="checkins">
+                {% for formatted_trainer in training.trainers %}
+                    <p>Тренер: {{ formatted_trainer }}</p>
+                {% endfor %}
+                {% for formatted_student in training.checkins %}
+                    <p>{{ formatted_student }}</p>
+                {% endfor %}
+            </div>
+        </div>
+    {% endfor %}
+
+</div>
+
+<script>
+    setInterval(() => {
+        window.location.reload(); // Automatically reload page
+    }, 3 * 60 * 1000); // Every 3 minutes
+</script>
+
+</body>
+</html>

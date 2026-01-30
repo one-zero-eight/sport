@@ -8,6 +8,7 @@ urlpatterns = [
     path('', login_redirect, name="login"),
     path('profile/', profile_view, name='profile'),
     path('analytics/', analytics_view, name='analytics'),
+    path('sport-complex/', sport_complex_view, name='sport-complex'),
     # path('category/', category_view, name='category'),
     path('fitness_test/', fitness_test_view, name='fitness_test'),
     path('fitness_test/new', fitness_test_session_new_view,

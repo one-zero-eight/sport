@@ -1,0 +1,94 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    border: 0;
+    font-family: Heebo, sans-serif;
+    text-decoration: none;
+    list-style-type: none;
+    outline: none;
+}
+
+:root {
+    --White: #FFFFFF;
+    --Pink: #E03166;
+    --DarkBlue: #7C8DB5;
+    --LightBlue: #E6EFFF;
+    --LightestGreen: #D8F5E8;
+}
+
+.header {
+    height: 48px;
+    width: 100%;
+    display: flex;
+    gap: 8px;
+    justify-content: space-between;
+    padding: 8px 32px;
+    align-items: center;
+    border-bottom: 2px solid var(--LightBlue);
+    background-color: var(--White);
+}
+.header > h1 {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.logo {
+    height: 32px;
+    width: 32px;
+}
+.logo > img {
+    height: 32px;
+    width: 32px;
+}
+
+.user {
+    margin-left: auto;
+    margin-right: 10px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+}
+.user > .log-out {
+    margin-left: 30px;
+    color: var(--Pink);
+}
+
+.container {
+    width: 100%;
+    max-width: 920px;
+    height: fit-content;
+    margin: 0 auto;
+    padding: 16px 32px;
+}
+
+.now {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 32px;
+}
+.now > button {
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.now > button:hover {
+    background-color: #ddd;
+}
+
+.training {
+    margin-bottom: 32px;
+}
+.training > .title > h2 {
+    display: inline;
+}
+.training > .title > p {
+    display: inline;
+    font-size: 16pt;
+}
+.training > .title > span {
+    display: inline;
+    font-size: 11pt;
+    color: #555;
+}
