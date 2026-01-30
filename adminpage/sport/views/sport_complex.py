@@ -44,7 +44,7 @@ def sport_complex_view(request, **kwargs):
         request,
         "sport_complex.html",
         context={
-            "formatted_now": now.strftime("%Y-%m-%d %H:%M:%S"),
+            "formatted_now": to_current_timezone(now).strftime("%Y-%m-%d %H:%M:%S"),
             "today_schedule_with_checkins": today_schedule_with_checkins,
         }
     )
