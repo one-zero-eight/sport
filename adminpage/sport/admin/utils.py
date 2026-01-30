@@ -103,7 +103,7 @@ class DefaultFilterMixIn(admin.ModelAdmin):
                     filters = []
                     for filter in self.default_filters:
                         key = filter.split('=')[0]
-                        if key not in request.GET:
+                        if key not in request.GET and filter not in filters:
                             filters.append(filter)
                     if filters:
                         return HttpResponseRedirect("%s?%s" % (url, "&".join(filters)))
