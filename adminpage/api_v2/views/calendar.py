@@ -14,7 +14,7 @@ from api_v2.crud import (
 )
 from api_v2.crud.crud_training import get_weekly_schedule_with_participants
 from api_v2.permissions import IsStaff, IsStudent, IsTrainer
-from api_v2.serializers import CalendarRequestSerializer, CalendarSerializer, CalendarPersonalSerializer, CalendarSportSerializer
+from api_v2.serializers import CalendarRequestSerializer, ScheduleSportSerializer, CalendarSerializer, CalendarPersonalSerializer, CalendarSportSerializer
 from api_v2.serializers.calendar import WeeklyTrainingSerializer
 
 
@@ -59,10 +59,10 @@ def convert_personal_training(t) -> dict:
     methods=["GET"],
     tags=["For any user"],
     summary="Get sport schedule",
-    description="Retrieve training schedule for a specific sport.",
+    description="Retrieve training schedule for a specific sport. (Specify sport_id equal to 0 to get all trainings in the specified time period)",
     parameters=[CalendarRequestSerializer],
     responses={
-        status.HTTP_200_OK: CalendarSportSerializer(many=True),
+        status.HTTP_200_OK: ScheduleSportSerializer(many=True),
     },
 )
 @api_view(["GET"])
@@ -72,10 +72,12 @@ def get_schedule(request, sport_id, **kwargs):
     serializer.is_valid(raise_exception=True)
     student = getattr(request.user, "student", None)
     trainings = get_sport_schedule(
-        sport_id,
+        start_time=serializer.validated_data["start"],
+        end_time=serializer.validated_data["end"],
+        sport_id=sport_id,
         student=student,
     )
-    return Response(CalendarSportSerializer(list(map(convert_training_schedule, trainings)), many=True).data)
+    return Response(ScheduleSportSerializer(trainings, many=True).data)
 
 
 @extend_schema(

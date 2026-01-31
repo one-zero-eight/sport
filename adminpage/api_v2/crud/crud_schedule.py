@@ -1,4 +1,5 @@
 from typing import Optional
+from datetime import datetime
 
 from django.db import connection
 from django.db.models import F, IntegerField
@@ -8,10 +9,10 @@ from django.db.models import Prefetch
 
 from api_v2.crud.utils import dictfetchall
 from api_v2.crud import get_current_semester_crud
-from sport.models import Student, Group, Schedule
+from sport.models import Student, Group, Schedule, Training
 
 
-def get_sport_schedule(
+def get_sport_calendar(
         sport_id: int,
         student: Optional[Student] = None,
 ):
@@ -72,3 +73,55 @@ def get_sport_schedule(
     )
 
     return list(query)
+
+def get_sport_schedule(
+        sport_id: Optional[int] = None,
+        student: Optional[Student] = None,
+        start_time: datetime = datetime.now(), 
+        end_time: datetime = datetime.now()
+    ): 
+
+    if not isinstance(start_time, datetime):
+        print("start_time is not datetime")
+    if not isinstance(end_time, datetime):
+        print("end time is not datetime")
+    query = Training.objects.select_related(
+        'group',
+        'group__sport',
+        'training_class'
+    ).filter(
+        start__gte=start_time,
+        end__lte=end_time
+    )
+
+    if sport_id is not None and sport_id != 0:
+        query = query.filter(group__sport__id=sport_id)
+    
+    if student is not None and hasattr(student, 'medical_group'):
+        student_medical_group_id = student.medical_group.id
+        query = query.filter(
+            Q(group__allowed_medical_groups__id=student_medical_group_id) |
+            Q(group__allowed_medical_groups__isnull=True)
+        ).distinct()
+
+    query = query.annotate(
+        sport_name=F('group__sport__name'),
+        group_name=F('group__name'),
+        group_capacity=F('group__capacity'),
+        is_club=F('group__is_club')
+    ).values(
+        'id',
+        'start',
+        'end',
+        'group__id',
+        'group_name',
+        'group_capacity',
+        'is_club',
+        'sport_name',
+        'group__sport__id',
+        'training_class__name',
+        'training_class__id',
+    ).order_by('start')
+
+    return list(query)
+

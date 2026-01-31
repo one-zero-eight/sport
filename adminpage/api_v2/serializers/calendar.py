@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.utils import timezone
 from django.conf import settings
 from datetime import time
+from datetime import datetime
 
 
 
@@ -10,8 +11,14 @@ class CalendarRequestSerializer(serializers.Serializer):
     start = serializers.DateTimeField()
     end = serializers.DateTimeField()
     def validate(self, attrs):
+        if not isinstance(attrs["start"], datetime):
+            raise serializers.ValidationError("start_date must be datetime")
+        if not isinstance(attrs["end"], datetime):
+            raise serializers.ValidationError("end_date must be datetime")
         if attrs["start"] >= attrs["end"]:
-            raise serializers.ValidationError({"end": "end must be greater than start"})
+            temp = attrs["start"]
+            attrs["start"] = attrs["end"]
+            attrs["end"] = temp
         return attrs
 
 
@@ -77,6 +84,21 @@ class CalendarSportSerializer(serializers.Serializer):
     training_class = serializers.CharField()
     current_load = serializers.IntegerField()
     capacity = serializers.IntegerField()
+
+class ScheduleSportSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    start = serializers.DateTimeField()
+    end = serializers.DateTimeField()
+    group_id = serializers.IntegerField(source="group__id")
+    group_name = serializers.CharField()
+    sport_id = serializers.IntegerField(source="group__sport__id")
+    sport_name = serializers.CharField()
+    training_class_id = serializers.IntegerField(source="training_class__id")
+    training_class = serializers.CharField(source="training_class__name")
+    group_capacity = serializers.IntegerField()
+    is_club = serializers.BooleanField()
+
+
 
 
 class TrainingParticipantSerializer(serializers.Serializer):
