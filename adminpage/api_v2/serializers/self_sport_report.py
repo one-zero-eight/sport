@@ -9,7 +9,7 @@ class SelfSportTypes(serializers.ModelSerializer[SelfSportType]):
         fields = (
             'pk',
             'name',
-            'application_rule',
+            'application_rule', #TODO:
         )
 
 

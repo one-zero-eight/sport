@@ -113,8 +113,10 @@ def get_self_sport_types(request, **kwargs):
 @parser_classes([MultiPartParser])
 def self_sport_upload(request, **kwargs):
     current_time = datetime.now()
-    semester_start = datetime.combine(get_current_semester_crud().start, datetime.min.time())
-    semester_end = datetime.combine(get_current_semester_crud().end, datetime.max.time())
+    semester = get_current_semester_crud()
+    assert semester is not None
+    semester_start = datetime.combine(semester.start, datetime.min.time())
+    semester_end = datetime.combine(semester.end, datetime.max.time())
     if not semester_start <= current_time <= semester_end:
         return Response(status=status.HTTP_403_FORBIDDEN, data=error_detail(*SelfSportErrors.NO_CURRENT_SEMESTER))
 
@@ -260,8 +262,6 @@ def get_selfsport_reports_for_student(request, student_id: int, **kwargs):
     get=extend_schema(
         tags=["For student"],
         summary="Get self-sport reports",
-        description=(
-        ),
         parameters=[
             OpenApiParameter(
                 name="student_id",
@@ -302,7 +302,7 @@ def self_sport_reports(request, **kwargs):
             "training_type", "semester", "student__user"
         )
 
-
+#TODO:
         is_student = hasattr(request.user, "student")
         is_elevated = bool(getattr(request.user, "is_superuser", False) or getattr(request.user, "is_staff", False))
         if is_student and not is_elevated:
@@ -329,8 +329,10 @@ def self_sport_reports(request, **kwargs):
         return Response(SelfSportReportSerializer(qs, many=True).data)
 
     current_time = datetime.now()
-    semester_start = datetime.combine(get_current_semester_crud().start, datetime.min.time())
-    semester_end = datetime.combine(get_current_semester_crud().end, datetime.max.time())
+    semester = get_current_semester_crud()
+    assert semester is not None
+    semester_start = datetime.combine(semester.start, datetime.min.time())
+    semester_end = datetime.combine(semester.end, datetime.max.time())
     if not semester_start <= current_time <= semester_end:
         return Response(status=status.HTTP_403_FORBIDDEN, data=error_detail(*SelfSportErrors.NO_CURRENT_SEMESTER))
 

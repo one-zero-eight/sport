@@ -45,7 +45,7 @@ def get_user_by_id(request, user_id: int, **kwargs):
     summary="Get many users by ids",
     description="Get many users by ids",
     request=serializers.ListSerializer(child=serializers.IntegerField()),
-    responses={status.HTTP_201_CREATED: UserSerializer(many=True)},
+    responses={status.HTTP_200_OK: UserSerializer(many=True)},
 )
 @api_view(["POST"])
 @permission_classes([IsSuperUser])

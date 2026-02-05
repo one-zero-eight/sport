@@ -36,7 +36,7 @@ urlpatterns = [
     path(r"users/me", profile.get_user_info),
     path(r"users/me/schedule", calendar.get_personal_schedule), #FIXME: works too slow
     path(r"sports", group.clubs_view), # TODO: probably remove info about trainings(not a bug, but a feature.)
-    path(r"sports/<int:sport_id>/schedule", calendar.get_schedule), #FIXME: returns schedule template, not an actual schedule
+    path(r"sports/<int:sport_id>/schedule", calendar.get_schedule),
     path(r"sport-groups/<int:group_id>", group.group_info_view),
     path(r"semesters", semester.get_semesters),
     path(r"semesters/<int:semester_id>", semester.get_semester_by_id),
@@ -60,20 +60,20 @@ urlpatterns = [
 
 
     #for student
-    path(r"students/<int:student_id>/semester-history", profile.get_student_all_semesters_history), #TODO: add fitness test in report
-    path(r"students/<int:student_id>/semester-history/<int:semester_id>", profile.get_student_specific_semester_history), #TODO: add fitness test in report
-    path(r"students/<int:student_id>/hours-summary", attendance.get_student_hours_summary), #TODO: maybe put hours from medical leave into another group
+    path(r"students/<int:student_id>/semester-history", profile.get_student_all_semesters_history),
+    path(r"students/<int:student_id>/semester-history/<int:semester_id>", profile.get_student_specific_semester_history),
+    path(r"students/<int:student_id>/hours-summary", attendance.get_student_hours_summary),
     path(r"students/<int:student_id>/better-than", attendance.get_better_than_info),
-    path(r"trainings/<int:training_id>/checkin", training.training_checkin_view), #TODO: maybe add return phrases like successful check-in
+    path(r"trainings/<int:training_id>/checkin", training.training_checkin_view),
     path(r"selfsport/types", self_sport_report.get_self_sport_types),
-    path(r"selfsport/strava_parsing", self_sport_report.get_strava_activity_info), #TODO: maybe it should parse traininh peaks as well
+    path(r"selfsport/parse-strava", self_sport_report.get_strava_activity_info),
     path(r"selfsport/reports", self_sport_report.self_sport_reports),#TODO: add get request for results
     #path(r"selfsport/reports/<int:report_id>", self_sport_report.self_sport_upload),#TODO: make endpoint for selfsport training report
     path(r"references/medical-leave", reference.reference_upload),
     path(r"references/medical-group", reference.medical_group_upload),
 
 
-    #for admin2
+    #for admin
     path(r"users/<int:user_id>", admin.get_user_by_id),
     path(r"users/batch", admin.get_users_batch),
     #TODO: find and delete cruds, serializers which was needeed for old endpoints
@@ -83,5 +83,5 @@ urlpatterns = [
         SpectacularJSONAPIView.as_view(custom_settings=SPECTACULAR_SETTINGS_V2),
         name="schema",
     ),
-    path("docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger"),
+    path("docs", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger"),
 ]

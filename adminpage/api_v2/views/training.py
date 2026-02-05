@@ -22,7 +22,7 @@ from sport.models import Training, Student, TrainingCheckIn, Attendance
 
 @extend_schema(
     methods=["GET"],
-    tags=["For teacher"],
+    tags=["For any user"],
     summary="Get training information",
     description="Retrieve detailed information about a specific training session, including whether the student can check in, is already checked in, and received hours.",
     responses={
