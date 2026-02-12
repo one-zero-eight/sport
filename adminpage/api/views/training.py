@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 import pglock
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
@@ -122,4 +124,42 @@ def training_cancel_checkin(request, training_id, **kwargs):
         return Response(
             status=status.HTTP_400_BAD_REQUEST,
             data=error_detail(1, "You did not check in at this training")
+        )
+
+
+@extend_schema(
+    methods=["POST"],
+    request=None,
+    responses={
+        status.HTTP_200_OK: EmptySerializer(),
+        status.HTTP_404_NOT_FOUND: NotFoundSerializer(),
+        status.HTTP_400_BAD_REQUEST: ErrorSerializer(),
+    }
+)
+@api_view(["POST"])
+@permission_classes([IsTrainer])
+def trainer_cancel_checkin(request, training_id, student_id, **kwargs):
+    try:
+        training = Training.objects.get(id=training_id)
+    except Training.DoesNotExist:
+        return Response(
+            status=status.HTTP_404_NOT_FOUND,
+            data=NotFoundSerializer({'detail': 'Training not found'}).data,
+        )
+
+    try:
+        student = Student.objects.get(pk=student_id)
+    except Student.DoesNotExist:
+        return Response(
+            status=status.HTTP_404_NOT_FOUND,
+            data=NotFoundSerializer({'detail': 'Student not found'}).data,
+        )
+
+    try:
+        TrainingCheckIn.objects.get(training_id=training_id, student=student).delete()
+        return Response({})
+    except TrainingCheckIn.DoesNotExist:
+        return Response(
+            status=status.HTTP_400_BAD_REQUEST,
+            data=error_detail(1, "Student did not check in at this training")
         )

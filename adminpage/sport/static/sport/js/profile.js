@@ -285,14 +285,23 @@ function add_student_row(
                     <td class="trainer-table-width hide-email-in-trainer-table" onclick="show_name_hide_email()">${email}</td>
                     <td class="hours-in-trainer-table-right" style="cursor: pointer">
                         <form onsubmit="return false">
-                        <div class="btn-group">
-                            <button type="button" class="btn btn-outline-primary trainer-editable" onclick="$(this).next().val(0).change()">0</button>
-                            <input class="studentHourField form-control trainer-editable" type="number" min="0" max="${current_duration_academic_hours}"
-                            onchange="local_save_hours(this, ${student_id}); calc_marked_students();" value="${hours}" step="1"
-                            />
-                            <button type="button" class="btn btn-outline-primary trainer-editable" onclick="$(this).prev().val(${maxHours}).change()">${maxHours}</button>
-                        </div>
-                     </form></td>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-outline-primary trainer-editable" onclick="$(this).next().val(0).change()">0</button>
+                                <input class="studentHourField form-control trainer-editable" type="number" min="0" max="${current_duration_academic_hours}"
+                                onchange="local_save_hours(this, ${student_id}); calc_marked_students();" value="${hours}" step="1"
+                                />
+                                <button type="button" class="btn btn-outline-primary trainer-editable" onclick="$(this).prev().val(${maxHours}).change()">${maxHours}</button>
+                            </div>
+                        </form>
+                    </td>
+                    <td class="actions-in-trainer-table-right">
+                        <button type="button"
+                                class="btn btn-outline-danger"
+                                title="Delete student"
+                                onclick="deleteStudent(${student_id})">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </td>
                 </tr>`;
     student_hours_tbody.prepend($(row));
     calc_marked_students();
@@ -353,7 +362,7 @@ function make_grades_table(grades, maxHours) {
         .append('<tr />')
         .children('tr')
         .append(
-            '<th scope="col" class="trainer-table-width show-name-in-trainer-table">Student</th><th scope="col" class="trainer-table-width hide-email-in-trainer-table">Email</th><th scope="col" class="hours-in-trainer-table-right">Hours</th>'
+            '<th scope="col" class="trainer-table-width show-name-in-trainer-table">Student</th><th scope="col" class="trainer-table-width hide-email-in-trainer-table">Email</th><th scope="col" class="hours-in-trainer-table-right">Hours</th><th scope="col" class="actions-in-trainer-table-right">Actions</th>'
         );
     student_hours_tbody = table.append('<tbody>').children('tbody');
     grades.sort((a, b) => b.full_name.localeCompare(a.full_name));
@@ -807,3 +816,42 @@ fetch('/api/fitnesstest/result', {
         }
     })
     .catch(() => {});
+
+async function deleteStudent(studentId) {
+    const training_id = $('#save-hours-btn').attr('data-training-id');
+    const studentRow = $(`#student_${student_id}`);
+
+    if (!confirm('Remove student from record?')) return;
+
+    studentRow.css('opacity', '0.5').css('pointer-events', 'none');
+
+    try {
+        const response = await fetch(`/api/training/${training_id}/cancel_check_in/${studentId}`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrf_token,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            studentRow.fadeOut(400, function() {
+                $(this).remove();
+
+                if (typeof calc_marked_students === 'function') {
+                    calc_marked_students();
+                }
+            });
+
+            delete local_hours_changes[studentId];
+
+            toastr.success('Student deleted');
+        } else {
+            const error = await response.json();
+            throw new Error(error.detail || 'Server error');
+        }
+    } catch (err) {
+        studentRow.css('opacity', '1').css('pointer-events', 'auto');
+        toastr.error(err.message || 'Failed to delete student');
+    }
+}

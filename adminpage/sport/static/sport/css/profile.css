@@ -203,4 +203,7 @@ a.help-link {
     .hours-in-trainer-table-right {
         text-align: right;
     }
+    .actions-in-trainer-table-right {
+        text-align: right;
+    }
 }
