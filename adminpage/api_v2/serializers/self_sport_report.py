@@ -4,10 +4,11 @@ from sport.models import SelfSportReport, SelfSportType
 
 
 class SelfSportTypes(serializers.ModelSerializer[SelfSportType]):
+    id = serializers.CharField(source="pk")
     class Meta:
         model = SelfSportType
         fields = (
-            'pk',
+            'id',
             'name',
             'application_rule', #TODO:
         )
