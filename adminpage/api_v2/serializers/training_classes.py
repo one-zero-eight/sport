@@ -8,8 +8,8 @@ class TrainingClassesSerializer(serializers.ModelSerializer[TrainingClass]):
         fields = ('id', 'name')
 
 
-class TrainingCheckInRequest(serializers.Serializer):
-    check_in = serializers.BooleanField(
-        help_text="True — check in; False — cancel check-in",
-        required=True
-    )
+# class TrainingCheckInRequest(serializers.Serializer):
+#     check_in = serializers.BooleanField(
+#         help_text="True — check in; False — cancel check-in",
+#         required=True
+#     )
