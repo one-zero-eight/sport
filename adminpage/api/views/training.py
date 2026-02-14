@@ -1,4 +1,5 @@
 from datetime import timedelta
+from tokenize import group
 
 import pglock
 from django.db import IntegrityError
@@ -13,7 +14,7 @@ from api.crud.crud_training import can_check_in
 from api.permissions import IsStudent, IsTrainer, IsStaff
 from api.serializers import NotFoundSerializer, EmptySerializer, ErrorSerializer, error_detail
 from api.serializers.training import NewTrainingInfoStudentSerializer
-from sport.models import Training, Student, TrainingCheckIn, Attendance
+from sport.models import Training, Student, TrainingCheckIn, Attendance, Group
 
 
 @extend_schema(
@@ -144,7 +145,16 @@ def trainer_cancel_checkin(request, training_id, student_id, **kwargs):
     except Training.DoesNotExist:
         return Response(
             status=status.HTTP_404_NOT_FOUND,
-            data=NotFoundSerializer({'detail': 'Training not found'}).data,
+            data=NotFoundSerializer({'detail': 'Training not found'}).data
+        )
+
+    is_main_trainer = (training.group.trainer_id == request.user.id)
+    is_in_trainers_list = training.group.trainers.filter(user_id=request.user.id).exists()
+
+    if not (is_main_trainer or is_in_trainers_list):
+        return Response(
+            status=status.HTTP_403_FORBIDDEN,
+            data=error_detail(2, "You are not a trainer of this group")
         )
 
     try:
