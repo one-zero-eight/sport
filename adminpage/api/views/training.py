@@ -1,6 +1,3 @@
-from datetime import timedelta
-from tokenize import group
-
 import pglock
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
