@@ -296,7 +296,7 @@ function add_student_row(
                     </td>
                     <td class="actions-in-trainer-table-right">
                         <button type="button"
-                                class="btn btn-outline-danger"
+                                class="btn btn-outline-danger trainer-editable"
                                 title="Delete student"
                                 onclick="deleteStudent(${student_id})">
                             <i class="fa fa-trash"></i>

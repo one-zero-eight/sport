@@ -1,4 +1,5 @@
 import pglock
+from django.conf import settings
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -11,6 +12,7 @@ from api.crud.crud_training import can_check_in
 from api.permissions import IsStudent, IsTrainer, IsStaff
 from api.serializers import NotFoundSerializer, EmptySerializer, ErrorSerializer, error_detail
 from api.serializers.training import NewTrainingInfoStudentSerializer
+from api.views.attendance import AttendanceErrors
 from sport.models import Training, Student, TrainingCheckIn, Attendance, Group
 
 
@@ -152,6 +154,15 @@ def trainer_cancel_checkin(request, training_id, student_id, **kwargs):
         return Response(
             status=status.HTTP_403_FORBIDDEN,
             data=error_detail(2, "You are not a trainer of this group")
+        )
+
+
+    now = timezone.now()
+    if not training.start <= now <= training.start + \
+           settings.TRAINING_EDITABLE_INTERVAL:
+        return Response(
+            status=status.HTTP_400_BAD_REQUEST,
+            data=error_detail(*AttendanceErrors.TRAINING_NOT_EDITABLE)
         )
 
     try:
