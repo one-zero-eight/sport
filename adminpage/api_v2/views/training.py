@@ -6,6 +6,7 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from django.db.models import Count, F
 
 from api_v2.crud.crud_training import can_check_in
 from api_v2.permissions import IsStudent, IsStaff, IsTrainer
@@ -32,21 +33,40 @@ from sport.models import Training, Student, TrainingCheckIn, Attendance
 @api_view(["GET"])
 @permission_classes([IsStudent | IsStaff | IsTrainer])
 def training_info(request, training_id, **kwargs):
-    training = get_object_or_404(Training, pk=training_id)
-    # student = request.user.student
-    # checked_in = training.checkins.filter(student=student).exists()
-    # try:
-    #     hours = Attendance.objects.get(training=training, student=student).hours
-    # except Attendance.DoesNotExist:
-    #     hours = None
-    # data = {
-    #     "training": training,
-    #     "can_check_in": can_check_in(student, training),
-    #     "checked_in": checked_in,
-    #     "hours": hours,
-    # }
+    training = Training.objects.select_related(
+        'group',
+        'group__sport',
+        'training_class'
+    ).filter(
+        pk=training_id
+    ).annotate(
+        sport_name=F('group__sport__name'),
+        group_name=F('group__name'),
+        capacity=F('group__capacity'),
+        is_club=F('group__is_club'),
+        load=Count('checkins', distinct=True),
+    ).values(
+        'id',
+        'start',
+        'end',
+        'group__id',
+        'group_name',
+        'capacity',
+        'custom_name',
+        'load',
+        'is_club',
+        'sport_name',
+        'group__sport__id',
+        'training_class__name',
+        'training_class__id',
+    ).first()
 
-    # print(data)
+    if training is None:
+        print("training not found")
+        return Response(
+            status=status.HTTP_404_NOT_FOUND, 
+            data=NotFoundSerializer({"detail": f"Training with id={training_id} not found"}).data
+        )
 
     return Response(TrainingInfoSerializer(training).data)
 

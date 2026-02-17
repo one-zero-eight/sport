@@ -107,15 +107,18 @@ def get_sport_schedule(
     query = query.annotate(
         sport_name=F('group__sport__name'),
         group_name=F('group__name'),
-        group_capacity=F('group__capacity'),
-        is_club=F('group__is_club')
+        capacity=F('group__capacity'),
+        is_club=F('group__is_club'),
+        load=Count('checkins', distinct=True),
     ).values(
         'id',
         'start',
         'end',
         'group__id',
         'group_name',
-        'group_capacity',
+        'capacity',
+        'custom_name',
+        'load',
         'is_club',
         'sport_name',
         'group__sport__id',

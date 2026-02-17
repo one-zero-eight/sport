@@ -22,7 +22,6 @@ from .calendar import (
     CalendarSerializer,
     CalendarPersonalSerializer,
     CalendarSportSerializer,
-    ScheduleSportSerializer
 )
 from .common import (
     EmptySerializer,

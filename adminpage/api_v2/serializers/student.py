@@ -3,13 +3,10 @@ from api_v2.crud.crud_groups import get_trainer_groups
 
 
 
-class UserStatusSerializer(serializers.Serializer):
-    description = serializers.CharField()
 
-
-class UserInfoSerializer(serializers.Serializer):
+class StudentInfoSerializer(serializers.Serializer):
     medical_group = serializers.CharField(allow_null=True)
-    student_status = UserStatusSerializer(allow_null=True, required=False)
+    student_status = serializers.CharField(allow_null=True, required=False)
 
 
 class GroupSerializer(serializers.Serializer):
@@ -27,7 +24,7 @@ class UserSerializer(serializers.Serializer):
     first_name = serializers.CharField()
     last_name = serializers.CharField()
     user_statuses = serializers.ListField(child=serializers.CharField())
-    user_info = UserInfoSerializer(allow_null=True, required=False)
+    student_info = StudentInfoSerializer(allow_null=True, required=False)
     trainer_info = TrainerInfoSerializer(allow_null=True, required=False)
 
 
@@ -60,11 +57,9 @@ class UserSerializer(serializers.Serializer):
                 "medical_group": s.medical_group.name if getattr(s, "medical_group", None) else None,
             }
             if getattr(s, "student_status", None):
-                student_block["student_status"] = {
-                    "description": s.student_status.description,
-                }
+                student_block["student_status"] = s.student_status.name
             if any(v is not None for v in student_block.values()):
-                data["user_info"] = student_block
+                data["student_info"] = student_block
 
         if hasattr(user, "trainer") and "trainer" in roles:
             data["trainer_info"] = {

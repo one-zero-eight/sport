@@ -29,17 +29,18 @@ class NewGroupSerializer(serializers.ModelSerializer[Group]):
                   'semester', 'teachers', 'accredited')
 
 
-class TrainingInfoSerializer(serializers.ModelSerializer[Training]):
-    group = NewGroupSerializer()
-    load = serializers.SerializerMethodField()
-    place = serializers.CharField(source='training_class')
-
-    def get_load(self, obj: Training) -> int:
-        return obj.checkins.count()
-
-    class Meta:
-        model = Training
-        fields = ('id', 'custom_name', 'group',
-                  'start', 'end', 'load', 'place')
-
+class TrainingInfoSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    start = serializers.DateTimeField()
+    end = serializers.DateTimeField()
+    group_id = serializers.IntegerField(source="group__id")
+    group_name = serializers.CharField()
+    sport_id = serializers.IntegerField(source="group__sport__id")
+    sport_name = serializers.CharField()
+    training_class_id = serializers.IntegerField(source="training_class__id")
+    training_class = serializers.CharField(source="training_class__name")
+    capacity = serializers.IntegerField()
+    is_club = serializers.BooleanField()
+    custom_name = serializers.CharField()
+    load = serializers.IntegerField()
 
