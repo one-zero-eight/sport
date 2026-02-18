@@ -260,37 +260,69 @@ def get_selfsport_reports_for_student(request, student_id: int, **kwargs):
 
 @extend_schema_view(
     get=extend_schema(
-        tags=["For student"],
+        tags=["Self Sport"],
         summary="Get self-sport reports",
+        description="""
+Returns self-sport reports.
+
+Access rules:
+
+• Student:
+    - If no parameters are provided → returns only their own reports.
+    - `student_id` parameter is ignored.
+    - Attempting to access another student's reports results in 403 Forbidden.
+
+• Trainer / Admin:
+    - If `student_id` is provided → returns reports for that student.
+    - If `student_id` is not provided → returns reports for all students.
+
+Optional filters:
+    - `semester_id`: filters reports by semester.
+      If not provided → reports from all semesters are returned.
+""",
         parameters=[
             OpenApiParameter(
                 name="student_id",
                 type=OpenApiTypes.INT,
                 location=OpenApiParameter.QUERY,
-                description=""
+                description="Filter reports by student ID (available for trainers/admins only).",
             ),
             OpenApiParameter(
                 name="semester_id",
                 type=OpenApiTypes.INT,
                 location=OpenApiParameter.QUERY,
-                description=""
-            ),
-            OpenApiParameter(
-                name="approved",
-                type=OpenApiTypes.BOOL,
-                location=OpenApiParameter.QUERY,
-                description=""
+                description="Filter reports by semester ID. If not provided, reports from all semesters are returned.",
             ),
         ],
-        responses={200: SelfSportReportSerializer(many=True), 404: NotFoundSerializer},
+        responses={
+            200: SelfSportReportSerializer(many=True),
+            403: ErrorSerializer,
+            404: NotFoundSerializer,
+        },
     ),
     post=extend_schema(
         operation_id="v2_selfsport_reports_create",
-        tags=["For student"],
+        tags=["Self Sport"],
         summary="Upload self sport report",
-        description="",
+        description="""
+Creates a new self-sport report.
+
+Rules:
+• Submission allowed only during active semester.
+• Students can submit up to 10 academic hours per semester (unless special permission granted).
+• Medical group restriction applies.
+• Admins/trainers cannot submit reports on behalf of other students.
+
+Possible errors:
+• 403 — outside semester period
+• 400 — invalid link, medical restriction, or hour limit exceeded
+""",
         request=SelfSportReportUploadSerializer,
-        responses={200: EmptySerializer, 400: ErrorSerializer, 403: ErrorSerializer},
+        responses={
+            200: EmptySerializer,
+            400: ErrorSerializer,
+            403: ErrorSerializer,
+        },
     ),
 )
 @api_view(["GET", "POST"])
@@ -302,10 +334,16 @@ def self_sport_reports(request, **kwargs):
             "training_type", "semester", "student__user"
         )
 
-#TODO:
+
         is_student = hasattr(request.user, "student")
         is_elevated = bool(getattr(request.user, "is_superuser", False) or getattr(request.user, "is_staff", False))
         if is_student and not is_elevated:
+            student_id = request.GET.get("student_id")
+            if student_id and int(student_id) != request.user.student.pk:
+                return Response(
+                    {"detail": "You cannot access another student's reports."},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
             qs = qs.filter(student_id=request.user.student.pk)
         else:
             student_id = request.GET.get("student_id")
@@ -316,14 +354,6 @@ def self_sport_reports(request, **kwargs):
         semester_id = request.GET.get("semester_id")
         if semester_id:
             qs = qs.filter(semester_id=semester_id)
-
-        approved = request.GET.get("approved")
-        if approved is not None:
-            val = approved.lower()
-            if val in ("true", "1"):
-                qs = qs.filter(approval=True)
-            elif val in ("false", "0"):
-                qs = qs.filter(approval=False)
 
         qs = qs.order_by("-uploaded")
         return Response(SelfSportReportSerializer(qs, many=True).data)

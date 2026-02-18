@@ -67,7 +67,7 @@ urlpatterns = [
     path(r"trainings/<int:training_id>/checkin", training.training_checkin_view),
     path(r"selfsport/types", self_sport_report.get_self_sport_types),
     path(r"selfsport/parse-strava", self_sport_report.get_strava_activity_info),
-    path(r"selfsport/reports", self_sport_report.self_sport_reports),#TODO: add get request for results
+    path(r"selfsport/reports", self_sport_report.self_sport_reports),
     #path(r"selfsport/reports/<int:report_id>", self_sport_report.self_sport_upload),#TODO: make endpoint for selfsport training report
     path(r"references/medical-leave", reference.reference_upload),
     path(r"references/medical-group", reference.medical_group_upload),
