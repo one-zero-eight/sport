@@ -260,7 +260,7 @@ def get_selfsport_reports_for_student(request, student_id: int, **kwargs):
 
 @extend_schema_view(
     get=extend_schema(
-        tags=["Self Sport"],
+        tags=["For student"],
         summary="Get self-sport reports",
         description="""
 Returns self-sport reports.
