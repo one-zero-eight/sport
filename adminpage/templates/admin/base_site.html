@@ -14,8 +14,8 @@
 
 {% block branding %}
     <h1 id="site-name"><a href="{% url 'admin:index' %}">{{ site_header|default:_('Django administration') }}</a></h1>
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.10/jquery.mask.js"></script>
+    <script src="{% static "third-party/jquery/jquery-3.3.1.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "third-party/jquery-mask/1.14.10/jquery.mask.js" %}"></script>
     <script>
     $.jMaskGlobals.watchDataMask = true;
     </script>

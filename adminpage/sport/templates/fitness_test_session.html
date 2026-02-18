@@ -4,33 +4,33 @@
 {% block title %}Fitness test session{% endblock %}
 
 {% block extrahead %}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/core/main.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/daygrid/main.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/timegrid/main.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/list/main.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css">
+    <link rel="stylesheet" href="{% static "third-party/font-awesome/4.7.0/css/font-awesome.min.css" %}">
+    <link rel="stylesheet" href="{% static "third-party/jqueryui/jquery-ui.min.css" %}">
+    <link rel="stylesheet" href="{% static "third-party/twitter-bootstrap/4.4.0/css/bootstrap.min.css" %}">
+    <link rel="stylesheet" href="{% static "third-party/fullcalendar/4.2.0/core/main.min.css" %}">
+    <link rel="stylesheet" href="{% static "third-party/fullcalendar/4.2.0/daygrid/main.min.css" %}">
+    <link rel="stylesheet" href="{% static "third-party/fullcalendar/4.2.0/timegrid/main.min.css" %}">
+    <link rel="stylesheet" href="{% static "third-party/fullcalendar/4.2.0/list/main.min.css" %}">
+    <link rel="stylesheet" href="{% static "third-party/toastr/2.1.4/toastr.min.css" %}">
     <link rel="stylesheet" href="{% static "sport/css/bootstrap-tourist.css" %}">
     <link rel="stylesheet" href="{% static "sport/css/profile.css" %}">
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.0/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/core/main.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/daygrid/main.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/timegrid/main.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/list/main.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+    <script src="{% static "third-party/jquery/jquery-1.12.4.min.js" %}"></script>
+    <script src="{% static "third-party/jqueryui/jquery-ui.min.js" %}"></script>
+    <script src="{% static "third-party/popper/1.16.1/umd/popper.min.js" %}"></script>
+    <script src="{% static "third-party/twitter-bootstrap/4.4.0/js/bootstrap.min.js" %}"></script>
+    <script src="{% static "third-party/fullcalendar/4.2.0/core/main.min.js" %}"></script>
+    <script src="{% static "third-party/fullcalendar/4.2.0/daygrid/main.min.js" %}"></script>
+    <script src="{% static "third-party/fullcalendar/4.2.0/timegrid/main.min.js" %}"></script>
+    <script src="{% static "third-party/fullcalendar/4.2.0/list/main.min.js" %}"></script>
+    <script src="{% static "third-party/toastr/2.1.4/toastr.min.js" %}"></script>
     <script src="{% static "sport/js/bootstrap-tourist.js" %}"></script>
     <script src="{% static "sport/js/modules/networking.mjs" %}"></script>
     <script src="{% static "sport/js/modules/enrollment.mjs" %}"></script>
     <script src="{% static "sport/js/modules/modals.mjs" %}"></script>
     <script src="{% static "sport/js/modules/tour.mjs" %}"></script>
     <script src="{% static "sport/js/category.js" %}"></script>
-    <script src="https://cdn.jsdelivr.net/gh/digitalBush/jquery.maskedinput/dist/jquery.maskedinput.min.js" type="text/javascript"></script>
+    <script src="{% static "third-party/jquery-maskedinput/jquery.maskedinput.min.js" %}" type="text/javascript"></script>
     <script src="{% static "sport/js/fitness_test_session.js" %}"></script>
 {% endblock %}
 

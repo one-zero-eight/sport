@@ -4,19 +4,18 @@
 {% block title %}Sports{% endblock %} {# Sport type choose #}
 
 {% block extrahead %}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.0/css/bootstrap-grid.min.css">
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.0/css/bootstrap-reboot.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css">
+    <link rel="stylesheet" href="{% static "third-party/font-awesome/4.7.0/css/font-awesome.min.css" %}">
+    <link rel="stylesheet" href="{% static "third-party/twitter-bootstrap/4.4.0/css/bootstrap.min.css" %}">
+    <link rel="stylesheet" href="{% static "third-party/twitter-bootstrap/4.4.0/css/bootstrap-grid.min.css" %}">
+    <link rel="stylesheet" href="{% static "third-party/twitter-bootstrap/4.4.0/css/bootstrap-reboot.min.css" %}">
+    <link rel="stylesheet" href="{% static "third-party/toastr/2.1.4/toastr.min.css" %}">
     <link rel="stylesheet" href="{% static "sport/css/bootstrap-tourist.css" %}">
     <link rel="stylesheet" href="{% static "sport/css/category.css" %}">
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.0/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+    <script src="{% static "third-party/jquery/jquery-1.12.4.min.js" %}"></script>
+    <script src="{% static "third-party/popper/1.16.1/umd/popper.min.js" %}"></script>
+    <script src="{% static "third-party/twitter-bootstrap/4.4.0/js/bootstrap.min.js" %}"></script>
+    <script src="{% static "third-party/toastr/2.1.4/toastr.min.js" %}"></script>
     <script src="{% static "sport/js/bootstrap-tourist.js" %}"></script>
     <script src="{% static "sport/js/modules/networking.mjs" %}"></script>
     <script src="{% static "sport/js/modules/enrollment.mjs" %}"></script>
