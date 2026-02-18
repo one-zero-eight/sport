@@ -165,9 +165,6 @@ def get_clubs_as_trainings(student: Optional[Student] = None):
             can_check_in_result = can_check_in(student, training)
             checked_in = training.id in student_checkins_map
         
-        # Get current enrollment for this group
-        # current_enrollment = Enroll.objects.filter(group=training.group).count()
-        
         # Calculate participants info (similar to weekly schedule)
         from api_v2.crud.crud_training import get_students_grades
         participants = get_students_grades(training.id)
@@ -226,7 +223,6 @@ def get_sports_with_groups(student: Optional[Student] = None):
     ).filter(special=False, visible=True).distinct()
     
     sports_list = []
-    current_time = timezone.now()
     
     for sport in sports:
         sport_groups = groups.filter(sport=sport).select_related(
@@ -239,78 +235,7 @@ def get_sports_with_groups(student: Optional[Student] = None):
         groups_data = []
         for group in sport_groups:
             # Get trainings for this group - only upcoming trainings
-            group_trainings = []
-            trainings = Training.objects.filter(
-                group=group,
-                start__gt=current_time  # Only future trainings
-            ).select_related('training_class').order_by('start')
-            
-            for training in trainings:
-                # Get participants info for this training
-                from api_v2.crud.crud_training import get_students_grades
-                participants = get_students_grades(training.id)
-                
-                participants_info = {
-                    'total_checked_in': len([p for p in participants if p.get('hours', 0) >= 0]),
-                    'students': [
-                        {
-                            'id': p['student_id'],
-                            'name': p['full_name'],
-                            'email': p['email'],
-                            'medical_group': p['med_group'],
-                            'hours': p.get('hours', 0),
-                            'attended': p.get('hours', 0) > 0
-                        }
-                        for p in participants
-                    ]
-                }
-                
-                # Calculate can_check_in and checked_in for student
-                can_check_in_result = False
-                checked_in = False
-                if student:
-                    can_check_in_result = can_check_in(student, training)
-                    from sport.models import TrainingCheckIn
-                    checked_in = TrainingCheckIn.objects.filter(
-                        student=student, training=training
-                    ).exists()
-                
-                training_info = {
-                    'id': training.id,
-                    'start': training.start,
-                    'end': training.end,
-                    'training_class': training.training_class.name if training.training_class else None,
-                    'group_accredited': group.accredited,
-                    'can_grade': False,
-                    'can_check_in': can_check_in_result,
-                    'checked_in': checked_in,
-                    'participants': participants_info,
-                    'capacity': group.capacity,
-                    'available_spots': group.capacity - participants_info['total_checked_in'],
-                }
-                group_trainings.append(training_info)
-            
             # Get trainers for this group
-            trainers_data = []
-            for trainer in group.trainers.all():
-                trainer_info = {
-                    'id': trainer.user.id,
-                    'name': f"{trainer.user.first_name} {trainer.user.last_name}",
-                    'email': trainer.user.email,
-                }
-                trainers_data.append(trainer_info)
-            
-            # Add main trainer if exists
-            if group.trainer and group.trainer not in group.trainers.all():
-                main_trainer = {
-                    'id': group.trainer.user.id,
-                    'name': f"{group.trainer.user.first_name} {group.trainer.user.last_name}",
-                    'email': group.trainer.user.email,
-                }
-                trainers_data.insert(0, main_trainer)  # Main trainer first
-            
-            # Calculate enrollment info
-            # current_enrollment = Enroll.objects.filter(group=group).count()
             
             # Clean HTML tags from group name and description
             group_name = strip_tags(group.name) if group.name else ''
@@ -321,11 +246,9 @@ def get_sports_with_groups(student: Optional[Student] = None):
                 'name': group_name,
                 'description': group_description,
                 'capacity': group.capacity,
-                # 'current_enrollment': current_enrollment,s
                 'is_club': group.is_club,
                 'accredited': group.accredited,
-                'trainings': group_trainings,
-                'trainers': trainers_data,
+                'trainers': get_trainers_group(group.id),
                 'allowed_medical_groups': [mg.name for mg in group.allowed_medical_groups.all()],
             }
             groups_data.append(group_info)

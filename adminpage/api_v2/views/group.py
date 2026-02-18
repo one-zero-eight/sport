@@ -51,7 +51,7 @@ def group_info_view(request, group_id, **kwargs):
 )
 @api_view(["GET"])
 @permission_classes([IsStudent | IsStaff | IsTrainer])
-def clubs_view(request, **kwargs):
+def sports_view(request, **kwargs):
     # Get student if authenticated
     student = None
     if hasattr(request.user, "student"):

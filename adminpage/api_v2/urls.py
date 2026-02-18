@@ -35,7 +35,7 @@ urlpatterns = [
     #for any user
     path(r"users/me", profile.get_user_info),
     path(r"users/me/schedule", calendar.get_personal_schedule), #FIXME: works too slow
-    path(r"sports", group.clubs_view), # TODO: probably remove info about trainings(not a bug, but a feature.)
+    path(r"sports", group.sports_view), # TODO: probably remove info about trainings(not a bug, but a feature.)
     path(r"sports/<int:sport_id>/schedule", calendar.get_schedule),
     path(r"sport-groups/<int:group_id>", group.group_info_view),
     path(r"semesters", semester.get_semesters),
