@@ -27,22 +27,18 @@ class TrainerSerializer(serializers.Serializer):
 
 
 class GroupInfoSerializer(serializers.Serializer):
-    group_id = serializers.IntegerField()
-    group_name = serializers.CharField()
+    id = serializers.IntegerField()
+    name = serializers.CharField()
     capacity = serializers.IntegerField()
-    current_load = serializers.IntegerField()
-
-    trainer_first_name = serializers.CharField()
-    trainer_last_name = serializers.CharField()
-    trainer_email = serializers.CharField()
-
+    description = serializers.CharField()
+    accredited = serializers.BooleanField()
+    is_club = serializers.BooleanField()
+    sport_id = serializers.IntegerField()
+    sport_name = serializers.CharField()
     trainers = TrainerSerializer(many=True)
 
-    is_enrolled = serializers.BooleanField()
-    can_enroll = serializers.BooleanField()
-
     schedule = ScheduleSerializer(many=True)
-
+    allowed_medical_groups = serializers.ListField(child=serializers.CharField())
 
 class TrainingParticipantSerializer(serializers.Serializer):
     id = serializers.IntegerField()
@@ -77,7 +73,6 @@ class DetailedGroupSerializer(serializers.Serializer):
     name = serializers.CharField()
     description = serializers.CharField()
     capacity = serializers.IntegerField()
-    current_enrollment = serializers.IntegerField()
     is_club = serializers.BooleanField()
     accredited = serializers.BooleanField()
     trainings = ClubTrainingSerializer(many=True)

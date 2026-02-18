@@ -7,7 +7,7 @@ from rest_framework.response import Response
 
 from api_v2.crud import get_group_info, get_sports
 from api_v2.crud.crud_groups import get_sports_with_groups
-from api_v2.permissions import IsStudent, IsTrainer, IsStaff
+from api_v2.permissions import IsStudent, IsTrainer, IsStaff, IsSuperUser
 from api_v2.serializers import (
     GroupInfoSerializer,
     NotFoundSerializer,
@@ -30,15 +30,13 @@ from sport.models import Group, Schedule, Student, Sport
     },
 )
 @api_view(["GET"])
-@permission_classes([IsStudent | IsTrainer | IsStaff])
+@permission_classes([IsStudent | IsTrainer | IsStaff | IsSuperUser])
 def group_info_view(request, group_id, **kwargs):
-    student = request.user  # user.pk == user.student.pk
+    # student = request.user  # user.pk == user.student.pk
     get_object_or_404(Group, pk=group_id)
-    group_info = get_group_info(group_id, student.student)
-    group_schedule = Schedule.objects.filter(group_id=group_id).all()
-    group_info.update({"schedule": group_schedule})
-    serializer = GroupInfoSerializer(group_info)
-    return Response(serializer.data)
+    group_info = get_group_info(group_id)
+    print(group_info)
+    return Response(GroupInfoSerializer(group_info).data)
 
 
 @extend_schema(

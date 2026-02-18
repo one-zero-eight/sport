@@ -1,3 +1,7 @@
+from .faq import (
+    FAQDictSerializer
+)
+
 from .attendance import (
     SuggestionQuerySerializer,
     SuggestionSerializer,

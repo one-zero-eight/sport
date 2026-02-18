@@ -7,47 +7,87 @@ from django.utils import timezone
 
 from api_v2.crud.crud_semester import get_current_semester_crud
 from api_v2.crud.utils import dictfetchone, dictfetchall, get_trainers_group
-from sport.models import Student, Trainer, Group, Training, TrainingCheckIn
+from sport.models import Student, Trainer, Group, Training, TrainingCheckIn, Schedule
 from accounts.models import User
+from django.utils.html import strip_tags
 
 
-def get_group_info(group_id: int, student: Student):
+def get_group_info(group_id: int):
     """
     Retrieves more detailed group info by its id
-    @param group_id - searched group id
-    @param student - request sender student
-    @return found group
     """
-    with connection.cursor() as cursor:
-        cursor.execute(
-            'SELECT '
-            'g.id AS group_id, '
-            'g.name AS group_name, '
-            'g.capacity AS capacity, '
-            'g.is_club AS is_club, '
-            'count(e.id) AS current_load, '
-            'd.first_name AS trainer_first_name, '
-            'd.last_name AS trainer_last_name, '
-            'd.email AS trainer_email, '
-            'COALESCE(bool_or(e.student_id = %(student_id)s), false) AS is_enrolled '
-            'FROM "group" g '
-            'LEFT JOIN enroll e ON e.group_id = %(group_id)s '
-            'LEFT JOIN auth_user d ON g.trainer_id = d.id '
-            'WHERE g.id = %(group_id)s '
-            'GROUP BY g.id, d.id', {"group_id": group_id, "student_id": student.pk})
+    current_semester = get_current_semester_crud()
+    
+    try:
+        group = Group.objects.select_related(
+            'sport',
+            'semester'
+        ).prefetch_related(
+            'trainers__user',
+            'allowed_medical_groups'
+        ).get(
+            id=group_id,
+            semester=current_semester
+        )
+    except Group.DoesNotExist:
+        return None
+    
+    return {
+        'id': group.id,
+        'name': group.name,
+        'capacity': group.capacity,
+        'is_club': group.is_club,
+        'accredited': group.accredited,
+        'sport_id':  group.sport.id if group.sport else None,
+        'sport_name': group.sport.name if group.sport else None,
+        'semester': {
+            'id': group.semester.id,
+            'name': group.semester.name,
+        },
+        'schedule': Schedule.objects.filter(group_id=group_id).all(),
+        'trainers': get_trainers_group(group_id),
+        'description': strip_tags(group.sport.description) if group.sport and group.sport.description else '',
+        'allowed_medical_groups': [mg.name for mg in group.allowed_medical_groups.all()],
+        # 'allowed_education_level': group.allowed_education_level,
+    }
 
-        info = dictfetchone(cursor)
-        if info is None:
-            return None
+# def get_group_info(group_id: int, student: Student):
+#     """
+#     Retrieves more detailed group info by its id
+#     @param group_id - searched group id
+#     @param student - request sender student
+#     @return found group
+#     """
+#     with connection.cursor() as cursor:
+#         cursor.execute(
+#             'SELECT '
+#             'g.id AS group_id, '
+#             'g.name AS group_name, '
+#             'g.capacity AS capacity, '
+#             'g.is_club AS is_club, '
+#             'count(e.id) AS current_load, '
+#             'd.first_name AS trainer_first_name, '
+#             'd.last_name AS trainer_last_name, '
+#             'd.email AS trainer_email, '
+#             'COALESCE(bool_or(e.student_id = %(student_id)s), false) AS is_enrolled '
+#             'FROM "group" g '
+#             'LEFT JOIN enroll e ON e.group_id = %(group_id)s '
+#             'LEFT JOIN auth_user d ON g.trainer_id = d.id '
+#             'WHERE g.id = %(group_id)s '
+#             'GROUP BY g.id, d.id', {"group_id": group_id, "student_id": student.pk})
+
+#         info = dictfetchone(cursor)
+#         if info is None:
+#             return None
             
-        info['trainers'] = get_trainers_group(group_id)
+#         info['trainers'] = get_trainers_group(group_id)
 
-        info['can_enroll'] = student.sport is not None and \
-            student.sport == Group.objects.get(id=info['group_id']).sport and \
-            not Group.objects.filter(enrolls__student=student,
-                                     semester=get_current_semester_crud()).exists()
+#         info['can_enroll'] = student.sport is not None and \
+#             student.sport == Group.objects.get(id=info['group_id']).sport and \
+#             not Group.objects.filter(enrolls__student=student,
+#                                      semester=get_current_semester_crud()).exists()
 
-        return info
+#         return info
 
 
 _week_delta = timedelta(days=7)

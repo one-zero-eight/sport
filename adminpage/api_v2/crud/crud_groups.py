@@ -166,7 +166,7 @@ def get_clubs_as_trainings(student: Optional[Student] = None):
             checked_in = training.id in student_checkins_map
         
         # Get current enrollment for this group
-        current_enrollment = Enroll.objects.filter(group=training.group).count()
+        # current_enrollment = Enroll.objects.filter(group=training.group).count()
         
         # Calculate participants info (similar to weekly schedule)
         from api_v2.crud.crud_training import get_students_grades
@@ -310,7 +310,7 @@ def get_sports_with_groups(student: Optional[Student] = None):
                 trainers_data.insert(0, main_trainer)  # Main trainer first
             
             # Calculate enrollment info
-            current_enrollment = Enroll.objects.filter(group=group).count()
+            # current_enrollment = Enroll.objects.filter(group=group).count()
             
             # Clean HTML tags from group name and description
             group_name = strip_tags(group.name) if group.name else ''
@@ -321,7 +321,7 @@ def get_sports_with_groups(student: Optional[Student] = None):
                 'name': group_name,
                 'description': group_description,
                 'capacity': group.capacity,
-                'current_enrollment': current_enrollment,
+                # 'current_enrollment': current_enrollment,s
                 'is_club': group.is_club,
                 'accredited': group.accredited,
                 'trainings': group_trainings,

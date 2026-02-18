@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
 from api_v2.crud.crud_faq import get_faq_grouped_dict
-from api_v2.serializers.faq import FAQDictSerializer
+from api_v2.serializers import FAQDictSerializer
 from api_v2.permissions import IsStudent, IsStaff, IsTrainer
 
 
