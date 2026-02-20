@@ -14,7 +14,6 @@ class Group(models.Model):
     trainer = models.ForeignKey('Trainer', on_delete=models.SET_NULL, null=True, blank=True, verbose_name='teacher')
     trainers = models.ManyToManyField('Trainer', related_name='m2m', blank=True, verbose_name='teachers')
     accredited = models.BooleanField(default=True, null=False)
-
     # minimum_medical_group = models.ForeignKey('MedicalGroup', on_delete=models.DO_NOTHING, null=True, blank=True)
     allowed_education_level = models.IntegerField(
         choices=EducationLevelChoice.choices,
@@ -47,6 +46,12 @@ class Group(models.Model):
         related_name='banned_groups',
         blank=True,
         help_text='List of students that can not attend classes. The students will not see the training, and the teacher will not be able to set hours for these students.'
+    )
+    always_allow_students = models.ManyToManyField(
+        'Student',
+        related_name='always_allow_groups',
+        blank=True,
+        help_text='List of students that are always allowed to attend classes.'
     )
 
     class Meta:

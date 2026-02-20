@@ -93,6 +93,7 @@ class GroupAdmin(DefaultFilterMixIn):
         'trainers',
         'allowed_students',
         'banned_students',
+        'always_allow_students',
     )
 
     list_filter = (
@@ -131,6 +132,7 @@ class GroupAdmin(DefaultFilterMixIn):
         "allowed_education_level",
         "allowed_medical_groups",
         "allowed_gender",
+        "always_allow_students",
         "allowed_students",
         "banned_students",
     )
