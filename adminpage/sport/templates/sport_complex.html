@@ -34,11 +34,29 @@
                 <span>({{ training.location }})</span>
             </div>
             <div class="checkins">
-                {% for formatted_trainer in training.trainers %}
-                    <p>Тренер: {{ formatted_trainer }}</p>
-                {% endfor %}
+                {% if training.trainers|length == 1 %}
+                    <p><strong>Тренер:</strong> <span style="color: #2e7d32;">✔ {{ training.trainers.0 }}</span></p>
+                {% elif training.trainers|length > 1 %}
+                    <p><strong>Тренеры:</strong></p>
+                    {% for formatted_trainer in training.trainers %}
+                        <p style="color: #2e7d32; margin-left: 10px;">✔ {{ formatted_trainer }}</p>
+                    {% endfor %}
+                {% endif %}
+
+                <hr>
+
+                {% if training.always_allow %}
+                    <p><strong>Всегда пропускать (основная команда):</strong></p>
+                    {% for person in training.always_allow %}
+                        <p style="color: #2e7d32;">✔ {{ person }}</p>
+                    {% endfor %}
+                {% endif %}
+
+                <p><strong>Отметились на занятие:</strong></p>
                 {% for formatted_student in training.checkins %}
-                    <p>{{ formatted_student }}</p>
+                    <p style="color: #2e7d32;">✔ {{ formatted_student }}</p>
+                {% empty %}
+                    <p style="color: #999; font-style: italic;">Пока никто не отметился</p>
                 {% endfor %}
             </div>
         </div>

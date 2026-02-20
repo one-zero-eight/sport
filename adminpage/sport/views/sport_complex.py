@@ -20,8 +20,16 @@ def sport_complex_view(request, **kwargs):
             end__gte=now,  # And not finished yet
         )
         .order_by("start")
-        .select_related("group", "group__sport", "training_class")
-        .prefetch_related("group__trainers__user", "checkins__student__user")
+        .select_related(
+            "group",
+            "group__sport",
+            "training_class",
+        )
+        .prefetch_related(
+            "group__trainers__user",
+            "checkins__student__user",
+            "group__always_allow_students__user",
+        )
     )
 
     today_schedule_with_checkins = [
@@ -32,6 +40,10 @@ def sport_complex_view(request, **kwargs):
             "formatted_timerange": f"{to_current_timezone(training.start).time().strftime('%H:%M')}-{to_current_timezone(training.end).time().strftime('%H:%M')}",
             "trainers": sorted([
                 f"{trainer.user.get_full_name()} ({trainer.user.email})" for trainer in training.group.trainers.all()
+            ]),
+            "always_allow": sorted([
+                f"{student.user.get_full_name()} ({student.user.email})" for student in
+                training.group.always_allow_students.all()
             ]),
             "checkins": sorted([
                 f"{checkin.student.user.get_full_name()} ({checkin.student.user.email})" for checkin in training.checkins.all()
