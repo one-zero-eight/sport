@@ -75,7 +75,7 @@ def get_detailed_hours_and_self(student, semester: Semester):
     Retrieves statistics of hours in one semester
     """
     att = (Attendance.objects
-           .filter(training__group__semester=semester, student=student.student)
+           .filter(training__group__semester=semester, student=student)
            .annotate(
                group=F("training__group__name"),
                group_id=F("training__group_id"),
@@ -90,7 +90,7 @@ def get_detailed_hours_and_self(student, semester: Semester):
 
 
     self = (SelfSportReport.objects
-            .filter(semester=semester, student=student.student, attendance=None)
+            .filter(semester=semester, student=student, attendance=None)
             .annotate(
                 group=Value('Self training', output_field=CharField()),
                 group_id=Value(-1, output_field=IntegerField()),
@@ -102,7 +102,7 @@ def get_detailed_hours_and_self(student, semester: Semester):
             .values('group_id', 'group', 'custom_name', 'timestamp', 'hours', 'approved'))
 
     ref = (Reference.objects
-           .filter(semester=semester, student=student.student, attendance=None)
+           .filter(semester=semester, student=student, attendance=None)
            .annotate(
                group=Value('Medical leave', output_field=CharField()),
                group_id=Value(-1, output_field=IntegerField()),

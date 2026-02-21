@@ -60,9 +60,9 @@ training_history404 = get_error_serializer(
     methods=["GET"],
     tags=["For student"],
     summary="Get student training history",
-    description="Retrieve student's training history for a specific semester, including regular trainings, self-sport activities, results of fitness test, and medical references.",
+    description="Retrieve student's training history for a specific semester, including trainings, self-sport activities, results of fitness tests, and medical references.",
     responses={
-        status.HTTP_200_OK: StudentSpecificSemesterHistorySerializer,
+        status.HTTP_200_OK: SemesterHistoryWithFitnessSerializer,
         status.HTTP_404_NOT_FOUND: training_history404,
     },
 )
@@ -70,22 +70,25 @@ training_history404 = get_error_serializer(
 @permission_classes([IsStudent])
 def get_student_specific_semester_history(request, semester_id: int, **kwargs):
     """
-    Get student's trainings per_semester + fitness tests
+    Get student's training history for a specific semester using unified logic.
     """
-    semester = get_object_or_404(Semester, pk=semester_id)
     student: Student = request.user.student
+    semester = get_object_or_404(Semester, pk=semester_id)
 
+    trainings_queryset = get_detailed_hours_and_self(student, semester)
     trainings = []
-    for g in get_detailed_hours_and_self(student, semester):
-        trainings.append(
-            {
-                **g,
-                "group": g["group"]
-                if g.get("group_id", -1) < 0
-                else Group.objects.get(pk=g["group_id"]).to_frontend_name(),
-                "timestamp": timezone.localtime(g["timestamp"]),
-            }
-        )
+    for t in get_detailed_hours_and_self(student, semester):
+        trainings.append({
+            "training_id": t.get("id", -1),
+            "date": t["timestamp"].strftime("%Y-%m-%d"),
+            "time": t["timestamp"].strftime("%H:%M"),
+            "hours": t.get("hours", 0),
+            "group_name": t["group"] if t.get("group_id", -1) < 0 else Group.objects.get(pk=t["group_id"]).to_frontend_name(),
+            "sport_name": t.get("sport_name", "Unknown"),
+            "training_class": t.get("training_class", ""),
+            "custom_name": t.get("custom_name", ""),
+        })
+
 
     fitness_tests = get_student_fitness_results_for_semester_crud(
         student=student,
@@ -93,14 +96,21 @@ def get_student_specific_semester_history(request, semester_id: int, **kwargs):
         latest_only=False,
     )
 
-    payload = {
+    semester_payload = {
         "semester_id": semester.id,
         "semester_name": str(semester),
+        "semester_start": semester.start,
+        "semester_end": semester.end,
+        "required_hours": semester.hours,
+        "total_hours": sum(t["hours"] for t in trainings),
         "trainings": trainings,
         "fitness_tests": fitness_tests,
     }
 
-    return Response(StudentSpecificSemesterHistorySerializer(payload).data)
+    serializer = SemesterHistoryWithFitnessSerializer(semester_payload)
+    return Response(serializer.data)
+
+
 
 
 @extend_schema(

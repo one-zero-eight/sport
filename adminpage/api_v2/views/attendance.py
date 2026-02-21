@@ -299,8 +299,8 @@ def get_student_hours_summary(request, student_id, **kwargs):
         from api_v2.crud.crud_attendance import get_student_hours_summary
 
         summary = get_student_hours_summary(student_id)
-        #summary.update({"better_than": get_better_than_info(student_id)})
-        return Response(summary)
+        serializer = StudentHoursSummarySerializer(instance=summary)
+        return Response(serializer.data)
     except Student.DoesNotExist:
         return Response(
             {"detail": "Student not found"}, status=status.HTTP_404_NOT_FOUND
