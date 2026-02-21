@@ -239,24 +239,6 @@ def get_strava_activity_info(request, **kwargs):
     return Response(out_dict)
 
 
-@api_view(["GET"])
-@permission_classes([IsTrainer | IsSuperUser | IsStudent])
-def get_selfsport_reports_for_student(request, student_id: int, **kwargs):
-    """
-    Returns all self-sport reports for the given student.
-    Accessible for superusers/trainers, or the student themselves.
-    """
-    student = get_object_or_404(Student, pk=student_id)
-    if hasattr(request.user, "student") and request.user.student.pk != student_id and not request.user.is_superuser:
-        return Response({"detail": "You cannot access another student's reports."}, status=status.HTTP_403_FORBIDDEN)
-
-    reports = (
-        SelfSportReport.objects.filter(student=student)
-        .select_related("training_type", "semester", "student__user")
-        .order_by("-uploaded")
-    )
-    return Response(SelfSportReportSerializer(reports, many=True).data)
-
 
 @extend_schema_view(
     get=extend_schema(
@@ -395,9 +377,9 @@ def self_sport_reports(request, **kwargs):
 
 @extend_schema(
     methods=["GET"],
-    tags=["Self Sport"],
+    tags=["For student"],
     summary="Get self-sport report by ID",
-    description="Возвращает конкретный self-sport отчет по ID (часы, тип тренировки, статус одобрения).",
+    description="",
     responses={
         status.HTTP_200_OK: SelfSportReportSerializer(),
         status.HTTP_404_NOT_FOUND: NotFoundSerializer(),
@@ -407,14 +389,27 @@ def self_sport_reports(request, **kwargs):
 @api_view(["GET"])
 @permission_classes([IsTrainer | IsSuperUser | IsStudent])
 def get_selfsport_report_by_id(request, report_id: int, **kwargs):
-    """
-    Returns a single self-sport report by its ID.
-    Accessible for superusers/trainers, or the student themselves.
-    """
     report = get_object_or_404(
-        SelfSportReport.objects.select_related("student__user", "training_type", "semester"),
+        SelfSportReport.objects.select_related(
+            "student__user",
+            "training_type",
+            "semester"
+        ),
         pk=report_id,
     )
-    if hasattr(request.user, "student") and report.student.user.id != request.user.id and not request.user.is_superuser:
-        return Response({"detail": "You cannot access another student's report."}, status=status.HTTP_403_FORBIDDEN)
+
+    is_student = hasattr(request.user, "student")
+    is_elevated = bool(
+        getattr(request.user, "is_superuser", False) or
+        getattr(request.user, "is_staff", False)
+    )
+
+    if is_student and not is_elevated:
+        if report.student.user_id != request.user.id:
+            return Response(
+                {"detail": "You cannot access another student's report."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
     return Response(SelfSportReportSerializer(report).data)
+

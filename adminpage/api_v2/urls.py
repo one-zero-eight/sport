@@ -34,8 +34,8 @@ urlpatterns = [
 
     #for any user
     path(r"users/me", profile.get_user_info),
-    path(r"users/me/schedule", calendar.get_personal_schedule), #FIXME: works too slow
-    path(r"sports", group.sports_view), # TODO: probably remove info about trainings(not a bug, but a feature.)
+    path(r"users/me/schedule", calendar.get_personal_schedule),
+    path(r"sports", group.sports_view),
     path(r"sports/<int:sport_id>/schedule", calendar.get_schedule),
     path(r"sport-groups/<int:group_id>", group.group_info_view),
     path(r"semesters", semester.get_semesters),
@@ -52,7 +52,7 @@ urlpatterns = [
     #for teacher
     path(r"fitness-test/exercises", fitness_test.get_exercises),
     path(r"fitness-test/sessions", fitness_test.get_sessions),
-    path(r"fitness-test/sessions/<int:session_id>", fitness_test.fitness_test_session_view), #TODO: optimize schema
+    path(r"fitness-test/sessions/<int:session_id>", fitness_test.fitness_test_session_view),
     path(r"fitness-test/suggest-student", fitness_test.suggest_fitness_test_student),
     path(r"trainings/<int:training_id>/attendance", attendance.training_attendance_view),
     path(r"trainings/<int:training_id>/attendance.csv", attendance.get_grades_csv),
@@ -68,7 +68,7 @@ urlpatterns = [
     path(r"selfsport/types", self_sport_report.get_self_sport_types),
     path(r"selfsport/parse-strava", self_sport_report.get_strava_activity_info),
     path(r"selfsport/reports", self_sport_report.self_sport_reports),
-    #path(r"selfsport/reports/<int:report_id>", self_sport_report.self_sport_upload),#TODO: make endpoint for selfsport training report
+    path(r"selfsport/reports/<int:report_id>", self_sport_report.get_selfsport_report_by_id),
     path(r"references/medical-leave", reference.reference_upload),
     path(r"references/medical-group", reference.medical_group_upload),
 
@@ -76,7 +76,7 @@ urlpatterns = [
     #for admin
     path(r"users/<int:user_id>", admin.get_user_by_id),
     path(r"users/batch", admin.get_users_batch),
-    #TODO: find and delete cruds, serializers which was needeed for old endpoints
+    
     # API Documentation
     path(
         "schema/",

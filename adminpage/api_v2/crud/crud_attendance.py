@@ -389,6 +389,7 @@ def get_student_hours_summary(student_id: int):
     required_hours = float(current_semester.hours)
     
     return {
+        'semester_id': current_semester.id,
         'debt': float(debt),
         'self_sport_hours': float(self_sport_hours),
         'hours_from_groups': float(hours_from_groups),

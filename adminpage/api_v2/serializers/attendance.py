@@ -112,13 +112,12 @@ class SemesterHoursSummarySerializer(serializers.Serializer):
 
 
 class StudentHoursSummarySerializer(serializers.Serializer):
+    semester_id = serializers.FloatField(help_text="Current semester's id", required=False)
     debt = serializers.FloatField(help_text="Current student debt in hours", required=False)
     self_sport_hours = serializers.FloatField(help_text="Number of self sport hours", required=False)
     hours_from_groups = serializers.FloatField(help_text="Number of hours from sport groups", required=False)
     required_hours = serializers.FloatField(help_text="Number of hours required to achieve", required=False)
-    
-    semesters = SemesterHoursSummarySerializer(many=True, help_text="List of semesters with hours info", required=False)
-    
+        
 
 class GradesCsvRowSerializer(serializers.Serializer):
     student_id = serializers.IntegerField()
