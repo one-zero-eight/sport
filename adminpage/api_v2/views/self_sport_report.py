@@ -302,7 +302,7 @@ Optional filters:
     ),
     post=extend_schema(
         operation_id="v2_selfsport_reports_create",
-        tags=["Self Sport"],
+        tags=["For student"],
         summary="Upload self sport report",
         description="""
 Creates a new self-sport report.

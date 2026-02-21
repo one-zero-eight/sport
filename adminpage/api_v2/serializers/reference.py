@@ -14,13 +14,13 @@ class ReferenceUploadSerializer(serializers.ModelSerializer[Reference]):
         fields = ['image', 'start', 'end', 'student_comment']
 
 
-class ReferenceUploadResponseSerializer(serializers.Serializer):
-    message = serializers.CharField()
-    reference_id = serializers.IntegerField()
-    hours = serializers.FloatField()
-    start = serializers.DateField()
-    end = serializers.DateField()
-    uploaded = serializers.DateTimeField()
+class ReferenceUploadResponseSerializer(serializers.ModelSerializer[Reference]):
+    message = serializers.CharField(default="Medical certificate uploaded successfully")
+
+    class Meta:
+        model = Reference
+        fields = ("id", "student_id", "semester", "hours", "start", "end", "uploaded", "message")
+
 
 
 class MedicalGroupReferenceUploadSerializer(serializers.Serializer):
@@ -41,7 +41,9 @@ class MedicalGroupReferenceUploadSerializer(serializers.Serializer):
         max_length=1000,
     )
 
-class MedicalGroupReferenceUploadResponseSerializer(serializers.ModelSerializer[MedicalGroupReference]):
+class MedicalGroupReferenceUploadResponseSerializer(serializers.ModelSerializer):
     class Meta:
         model = MedicalGroupReference
-        fields = ('id', 'student', 'uploaded', 'semester')
+        fields = ('id', 'student_id', 'semester', 'uploaded')
+
+

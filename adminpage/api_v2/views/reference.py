@@ -31,7 +31,7 @@ class ReferenceErrors:
     methods=["POST"],
     tags=["For student"],
     summary="Upload medical certificate",
-    description="Upload a medical certificate for sick leave. The system automatically calculates hours based on the duration of illness. Only one upload per day is allowed.",
+    description="Upload a medical certificate for sick leave. Only one upload per day is allowed. Hours are calculated automatically.",
     request=ReferenceUploadSerializer,
     responses={
         status.HTTP_200_OK: ReferenceUploadResponseSerializer,
@@ -45,8 +45,6 @@ def reference_upload(request, **kwargs):
     serializer = ReferenceUploadSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
 
-    image = serializer.validated_data['image']
-
     student = request.user  # user.pk == user.student.pk
 
     try:
@@ -54,8 +52,12 @@ def reference_upload(request, **kwargs):
             ref = serializer.save(
                 semester=get_current_semester_crud(),
                 student_id=student.pk,
-                hours=(serializer.validated_data['end'] - serializer.validated_data['start']).days // 7 * get_current_semester_crud().number_hours_one_week_ill
+                hours=(
+                    (serializer.validated_data['end'] - serializer.validated_data['start']).days // 7
+                    * get_current_semester_crud().number_hours_one_week_ill
+                )
             )
+
             count = Reference.objects.filter(
                 student_id=student.pk,
                 uploaded__date=make_naive(ref.uploaded).date()
@@ -66,22 +68,16 @@ def reference_upload(request, **kwargs):
             status=status.HTTP_400_BAD_REQUEST,
             data=error_detail(*ReferenceErrors.TOO_MUCH_UPLOADS_PER_DAY)
         )
-    
-    # Return informative response
-    return Response({
-        "message": "Medical certificate uploaded successfully",
-        "reference_id": ref.id,
-        "hours": ref.hours,
-        "start": ref.start,
-        "end": ref.end,
-        "uploaded": ref.uploaded
-    })
+
+    response_serializer = ReferenceUploadResponseSerializer(ref)
+    return Response(response_serializer.data, status=status.HTTP_200_OK)
+
 
 @extend_schema(
     methods=["POST"],
     tags=["For student"],
     summary="Upload medical certificate",
-    description="Upload a medical certificate for sick leave. The system automatically calculates hours based on the duration of illness. Only one upload per day is allowed.",
+    description="Upload a medical certificate for sick leave. Only one upload per day is allowed.",
     request=MedicalGroupReferenceUploadSerializer,
     responses={
         status.HTTP_200_OK: MedicalGroupReferenceUploadResponseSerializer,
@@ -101,19 +97,18 @@ def medical_group_upload(request, **kwargs):
 
     try:
         with transaction.atomic():
-            
             reference = MedicalGroupReference.objects.create(
                 student_id=student.pk,
                 semester=get_current_semester_crud(),
                 student_comment=student_comment,
             )
-            
+
             reference_images = [
                 MedicalGroupReferenceImage(reference=reference, image=image)
                 for image in images
             ]
             MedicalGroupReferenceImage.objects.bulk_create(reference_images)
-    
+
     except Exception as e:
         return Response(
             {
@@ -122,4 +117,5 @@ def medical_group_upload(request, **kwargs):
             status=status.HTTP_400_BAD_REQUEST
         )
 
-    return Response(MedicalGroupReferenceUploadResponseSerializer(reference).data)
+    response_serializer = MedicalGroupReferenceUploadResponseSerializer(reference)
+    return Response(response_serializer.data, status=status.HTTP_200_OK)

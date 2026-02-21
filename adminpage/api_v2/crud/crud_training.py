@@ -262,37 +262,43 @@ def get_students_grades(training_id: int):
     @return list of student grades
     """
     with connection.cursor() as cursor:
-        cursor.execute('SELECT '
-                       'd.id AS student_id, '
-                       'd.first_name AS first_name, '
-                       'd.last_name AS last_name, '
-                       'd.email AS email, '
-                       'a.hours AS hours, '
-                       'm.name AS med_group, '
-                       'concat(d.first_name, \' \', d.last_name) as full_name '
-                       'FROM training t, attendance a, auth_user d, student s '
-                       'LEFT JOIN medical_group m ON m.id = s.medical_group_id '
-                       'WHERE s.user_id = a.student_id '
-                       'AND d.id = a.student_id '
-                       'AND a.training_id = %(training_id)s '
-                       'AND t.id = %(training_id)s '
-                       'UNION DISTINCT '
-                       'SELECT '
-                       'd.id AS student_id, '
-                       'd.first_name AS first_name, '
-                       'd.last_name AS last_name, '
-                       'd.email AS email, '
-                       'COALESCE(a.hours, 0) AS hours, '
-                       'm.name AS med_group, '
-                       'concat(d.first_name, \' \', d.last_name) as full_name '
-                       'FROM training t, sport_trainingcheckin e, auth_user d, student s '
-                       'LEFT JOIN attendance a ON a.student_id = s.user_id AND a.training_id = %(training_id)s '
-                       'LEFT JOIN medical_group m ON m.id = s.medical_group_id '
-                       'WHERE s.user_id = e.student_id '
-                       'AND d.id = e.student_id '
-                       'AND t.id = %(training_id)s '
-                       'AND t.id = e.training_id ', {"training_id": training_id})
-        return dictfetchall(cursor)
+        cursor.execute("""
+            SELECT 
+                u.id AS student_id,
+                u.first_name,
+                u.last_name,
+                u.email,
+                COALESCE(a.hours, 0) AS hours,
+                m.id AS med_group_id,
+                m.name AS med_group_name,
+                m.description AS med_group_description
+            FROM auth_user u
+            JOIN student s ON s.user_id = u.id
+            LEFT JOIN medical_group m ON m.id = s.medical_group_id
+            LEFT JOIN attendance a 
+                ON a.student_id = u.id AND a.training_id = %(training_id)s
+            WHERE u.id IN (
+                SELECT student_id FROM attendance WHERE training_id = %(training_id)s
+                UNION
+                SELECT student_id FROM sport_trainingcheckin WHERE training_id = %(training_id)s
+            )
+        """, {"training_id": training_id})
+
+        rows = dictfetchall(cursor)
+
+        for row in rows:
+            row["id"] = row.pop("student_id")
+            if row.get("med_group_id") is not None:
+                row["medical_group"] = {
+                    "id": row.pop("med_group_id"),
+                    "name": row.pop("med_group_name"),
+                    "description": row.pop("med_group_description"),
+                }
+            else:
+                row["medical_group"] = None
+
+        return rows
+
 
 
 def get_student_last_attended_dates(group_id: int):
