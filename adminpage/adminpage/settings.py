@@ -172,6 +172,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'adminpage.context_processors.metrika',
             ],
         },
     },
@@ -187,6 +188,8 @@ CACHES = {
 WSGI_APPLICATION = 'adminpage.wsgi.application'
 
 AUTH_USER_MODEL = 'accounts.User'
+
+YANDEX_METRIKA = os.getenv("YANDEX_METRIKA", None)
 
 # Authentication
 OAUTH_CLIENT_ID = os.getenv("oauth_appID", "?")

@@ -8,6 +8,7 @@
     <title>{% block title %} {% endblock %}</title>
     <link rel="stylesheet" href="{% static "sport/css/header.css" %}">
     <script src="{% static "sport/js/header.js" %}"></script>
+    {% include "metrika.html" %}
     {% block extrahead %} {% endblock %}
 </head>
 <body>
