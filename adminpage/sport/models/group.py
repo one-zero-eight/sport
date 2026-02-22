@@ -51,7 +51,7 @@ class Group(models.Model):
         'Student',
         related_name='always_allow_groups',
         blank=True,
-        help_text='List of students that are always allowed to attend classes.'
+        help_text='List of students that are always included in sport complex access lists on top of general checkins list. Useful for specifying main team members.'
     )
 
     class Meta:
