@@ -2,8 +2,6 @@ from rest_framework import serializers
 from api_v2.crud.crud_groups import get_trainer_groups
 
 
-
-
 class StudentInfoSerializer(serializers.Serializer):
     medical_group = serializers.CharField(allow_null=True)
     student_status = serializers.CharField(allow_null=True, required=False)

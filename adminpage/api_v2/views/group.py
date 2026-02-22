@@ -11,11 +11,8 @@ from api_v2.permissions import IsStudent, IsTrainer, IsStaff, IsSuperUser
 from api_v2.serializers import (
     GroupInfoSerializer,
     NotFoundSerializer,
-    SportsSerializer,
-    EmptySerializer,
-    ErrorSerializer,
 )
-from api_v2.serializers.group import SportsWithGroupsSerializer, DetailedSportSerializer
+from api_v2.serializers.group import DetailedSportSerializer
 from sport.models import Group, Schedule, Student, Sport
 
 
@@ -32,7 +29,6 @@ from sport.models import Group, Schedule, Student, Sport
 @api_view(["GET"])
 @permission_classes([IsStudent | IsTrainer | IsStaff | IsSuperUser])
 def group_info_view(request, group_id, **kwargs):
-    # student = request.user  # user.pk == user.student.pk
     get_object_or_404(Group, pk=group_id)
     group_info = get_group_info(group_id)
     print(group_info)

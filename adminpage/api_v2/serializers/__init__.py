@@ -5,27 +5,15 @@ from .faq import (
 from .attendance import (
     SuggestionQuerySerializer,
     SuggestionSerializer,
-    StudentInfoSerializer,
-    GradeReportSerializer,
     TrainingGradesSerializer,
-    LastAttendedStat,
-    LastAttendedDatesSerializer,
     BadGradeReportGradeSerializer,
     BadGradeReport,
     AttendanceMarkSerializer,
-    HoursInfoSerializer,
-    HoursInfoFullSerializer,
-    AttendanceSerializer,
     StudentHoursSummarySerializer,
-    SemesterHoursSummarySerializer,
-    GradesCsvRowSerializer,
 )
 from .calendar import (
     CalendarRequestSerializer,
-    ScheduleExtendedPropsSerializer,
-    CalendarSerializer,
     CalendarPersonalSerializer,
-    CalendarSportSerializer,
 )
 from .common import (
     EmptySerializer,
@@ -38,13 +26,9 @@ from .common import (
 
 from .group import (
     ScheduleSerializer,
-    SportSerializer,
-    SportsSerializer,
     GroupInfoSerializer,
 )
-from .profile import (
-    TrainingHourSerializer,
-)
+
 from .reference import (
     ReferenceUploadSerializer,
     ReferenceUploadResponseSerializer,
@@ -71,6 +55,5 @@ from .training_classes import (
 )
 
 from .student import (
-    # StudentSerializer,
     UserSerializer,
 )

@@ -14,7 +14,6 @@ from api_v2.serializers import (
     ReferenceUploadResponseSerializer,
     MedicalGroupReferenceUploadSerializer,
     MedicalGroupReferenceUploadResponseSerializer,
-    EmptySerializer,
     ErrorSerializer,
     error_detail,
 )

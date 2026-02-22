@@ -22,7 +22,6 @@ class ReferenceUploadResponseSerializer(serializers.ModelSerializer[Reference]):
         fields = ("id", "student_id", "semester", "hours", "start", "end", "uploaded", "message")
 
 
-
 class MedicalGroupReferenceUploadSerializer(serializers.Serializer):
     images = serializers.ListField(
         child=serializers.ImageField(

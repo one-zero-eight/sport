@@ -24,18 +24,16 @@ from api_v2.crud import (
     post_student_exercises_result_crud,
     get_email_name_like_students,
     get_current_semester_crud,
-    get_score,
-    get_max_score,
 )
 from api_v2.serializers.attendance import SuggestionQueryFTSerializer
 from api_v2.serializers.fitness_test import (
     FitnessTestExerciseSerializer,
     FitnessTestSessionSerializer,
-    FitnessTestSessionWithResult,
     FitnessTestUpload,
     FitnessTestSessionWithGroupedResults,
 )
 from api_v2.serializers.semester import SemesterInSerializer
+from api_v2.serializers.fitness_test import PostStudentExerciseResult
 from sport.models import (
     FitnessTestSession,
     FitnessTestResult,
@@ -92,11 +90,6 @@ def get_sessions(request, **kwargs):
         sessions = FitnessTestSession.objects.filter(semester_id=semester_id)
 
     return Response(FitnessTestSessionSerializer(sessions, many=True).data)
-
-
-class PostStudentExerciseResult(serializers.Serializer):
-    result = serializers.CharField(default="ok")
-    session_id = serializers.IntegerField()
 
 
 @extend_schema_view(
@@ -218,7 +211,6 @@ def fitness_test_session_view(request, session_id: int, **kwargs):
     )
 
 
-# TODO: Rewrite suggest to JSON
 @extend_schema(
     methods=["GET"],
     tags=["For teacher"],
@@ -243,12 +235,3 @@ def suggest_fitness_test_student(request, **kwargs):
     )
     return Response(
         SuggestionSerializer(suggested_students, many=True).data)
-
-# def convert_suggest(student: dict) -> dict:
-#     return {
-#         "id": student['id'],
-#         "first_name": student['first_name'],
-#         "last_name": student['last_name'],
-#         "email": student['email'],
-#         "medical_group_name": student["medical_group__name"]
-#     }

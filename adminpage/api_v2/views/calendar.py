@@ -12,9 +12,8 @@ from api_v2.crud import (
     get_trainings_for_student,
     get_trainings_for_trainer,
 )
-from api_v2.crud.crud_training import get_weekly_schedule_with_participants
 from api_v2.permissions import IsStaff, IsStudent, IsTrainer
-from api_v2.serializers import TrainingInfoSerializer, CalendarRequestSerializer, CalendarSerializer, CalendarPersonalSerializer, CalendarSportSerializer
+from api_v2.serializers import TrainingInfoSerializer, CalendarRequestSerializer, CalendarPersonalSerializer
 
 
 def convert_training_schedule(t) -> dict:

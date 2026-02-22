@@ -6,9 +6,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
 from api_v2.crud.crud_attendance import (
-    get_detailed_hours,
     get_detailed_hours_and_self,
-    get_student_hours,
     get_student_all_semesters_history_crud,
 )
 from api_v2.crud.crud_fitness_test import (
@@ -22,13 +20,8 @@ from api_v2.permissions import (
 )
 from api_v2.serializers import (
     get_error_serializer,
-    EmptySerializer,
 )
 from api_v2.serializers.profile import (
-    GenderSerializer,
-    TrainingHourSerializer,
-    SemesterHistorySerializer,
-    StudentSpecificSemesterHistorySerializer,
     SemesterHistoryWithFitnessSerializer,
 )
 from api_v2.serializers.student import UserSerializer
@@ -109,8 +102,6 @@ def get_student_specific_semester_history(request, semester_id: int, **kwargs):
 
     serializer = SemesterHistoryWithFitnessSerializer(semester_payload)
     return Response(serializer.data)
-
-
 
 
 @extend_schema(

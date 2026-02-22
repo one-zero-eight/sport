@@ -22,9 +22,6 @@ from api_v2.crud import (
     Training,
     get_students_grades,
     mark_hours,
-    get_student_last_attended_dates,
-    get_student_hours,
-    get_negative_hours,
     better_than,
     get_email_name_like_students_filtered_by_group,
 )
@@ -39,13 +36,7 @@ from api_v2.serializers import (
     error_detail,
     BadGradeReportGradeSerializer,
     BadGradeReport,
-    LastAttendedDatesSerializer,
-    HoursInfoSerializer,
-    HoursInfoFullSerializer,
-    AttendanceSerializer,
-    ErrorSerializer,
     StudentHoursSummarySerializer,
-    GradesCsvRowSerializer,
 )
 from api_v2.serializers.attendance import BetterThanInfoSerializer
 from sport.models import Group, Student, Attendance
