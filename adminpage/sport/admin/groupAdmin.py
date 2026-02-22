@@ -8,10 +8,11 @@ from django.forms import ModelForm
 from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
 
 from api.crud import get_ongoing_semester
 from sport.models import Group, Semester
-# from .inlines import EnrollInline, TrainingInline
+from .inlines import TrainingInline
 from .site import site
 from .utils import custom_titled_filter, DefaultFilterMixIn, ScheduleInline
 
@@ -111,7 +112,7 @@ class GroupAdmin(DefaultFilterMixIn):
 
     inlines = (
         ScheduleInline,
-        # TrainingInline,
+        TrainingInline,
         # EnrollInline,
     )
 
@@ -129,12 +130,42 @@ class GroupAdmin(DefaultFilterMixIn):
         "accredited",
         "capacity",
         "trainers",
+        "always_allow_students",
         "allowed_education_level",
         "allowed_medical_groups",
         "allowed_gender",
-        "always_allow_students",
         "allowed_students",
         "banned_students",
+    )
+
+    fieldsets = (
+        (None, {
+            'fields': (
+                "semester",
+                "sport",
+                "name",
+                "is_club",
+                "accredited",
+                "trainers",
+            )
+        }),
+        (_('Check in criteria'), {
+            'description': "Which students can see trainings in the calendar and check in to the training?",
+            'fields': (
+                "capacity",
+                "allowed_education_level",
+                "allowed_medical_groups",
+                "allowed_gender",
+                "allowed_students",
+                "banned_students",
+            )
+        }),
+        (_('Sport complex access'), {
+            'description': "Which students are always listed in Sport complex access lists?",
+            'fields': (
+                "always_allow_students",
+            )
+        }),
     )
 
     def get_changeform_initial_data(self, request):

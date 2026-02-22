@@ -113,13 +113,22 @@ class GroupInline(admin.TabularInline):
 
 class TrainingInline(admin.TabularInline):
     model = Training
-    fields = ("start", "end", "training_class")
+    show_change_link = True
+    classes = ("collapse",)
+    fields = ("start", "end", "training_class", "checkins_count", "attendance_count")
+    readonly_fields = ("checkins_count", "attendance_count")
     autocomplete_fields = ("training_class",)
     extra = 0
-    ordering = ("-start",)
+    ordering = ("start",)
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related("training_class", "group__semester")
+
+    def checkins_count(self, obj):
+        return len(obj.checked_in_students)
+
+    def attendance_count(self, obj):
+        return Attendance.objects.filter(training_id=obj.id).count()
 
 
 class ViewTrainingInline(TrainingInline):
