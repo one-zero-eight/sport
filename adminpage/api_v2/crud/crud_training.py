@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 from django.db import connection
-from django.db.models import Q, Prefetch
+from django.db.models import Q, Prefetch, Count
 from django.utils import timezone
 
 from api_v2.crud.crud_semester import get_current_semester_crud
@@ -152,107 +152,126 @@ def can_check_in(
     )
 
 
-def get_trainings_for_student(student: Student, start: Optional[datetime], end: Optional[datetime], trainer: Optional[Trainer] = None):
-    # Assume current_semester() is a function that retrieves the current semester object.
-    # Prefetch groups and allowed medical groups.
-    group_prefetch = Prefetch("group", queryset=Group.objects.select_related("sport").prefetch_related(
-        "allowed_medical_groups"))
 
-    # Assuming TrainingCheckIn model has a 'student' and 'training' foreign key.
-    # And Training has a 'group' foreign key with an 'allowed_medical_groups' many-to-many field.
+def get_trainings_for_student(student: Student, start, end, trainer: Optional[Trainer] = None):
+
     semester_id = get_current_semester_crud().id
+
     trainings = (
-        Training.objects.filter(
-            # Filter by requested time range
-            Q(start__range=(start, end))
-            | Q(end__range=(start, end))
-            | (Q(start__lte=start) & Q(end__gte=end)),
-            # Do not show 'Self training', 'Extra sport events', 'Medical leave', etc. trainings
-            ~Q(group__sport=None),
-            # The student must either have acceptable medical group
-            Q(group__allowed_medical_groups=student.medical_group)
-            # ... or be in 'Allowed students' list
-            | Q(group__allowed_students=student.pk),
-            # Show only for current semester
-            group__semester=semester_id,
-        )
-        # Do not show the training if a student is in 'Banned students' list
-        .exclude(group__banned_students=student.pk)
-        .prefetch_related(
-            group_prefetch,
+        Training.objects
+        .select_related(
+            "group",
+            "group__sport",
             "training_class",
+        )
+        .prefetch_related(
+            "group__allowed_medical_groups",
             "checkins",
         )
+        .annotate(load=Count("checkins"))
+        .filter(
+            (
+                Q(start__range=(start, end))
+                | Q(end__range=(start, end))
+                | (Q(start__lte=start) & Q(end__gte=end))
+            ),
+            ~Q(group__sport=None),
+            (
+                Q(group__allowed_medical_groups=student.medical_group)
+                | Q(group__allowed_students=student.pk)
+            ),
+            group__semester=semester_id,
+        )
+        .exclude(group__banned_students=student.pk)
+        .distinct()
     )
 
-    # get all student check-ins for the given time range
-    student_checkins = (
-        TrainingCheckIn.objects.filter(student=student, training__start__range=(start, end))
-        .select_related("training", "training__group__sport")
-    )
-    student_checkins_map = {checkin.training_id: checkin for checkin in student_checkins}
+    student_checkins = TrainingCheckIn.objects.filter(
+        student=student,
+        training__start__range=(start, end)
+    ).select_related("training", "training__group__sport")
+
+    student_checkins_map = {c.training_id: c for c in student_checkins}
 
     trainings_data = []
     time_now = timezone.now()
 
     for t in trainings:
-        # Example of calculating can_check_in data. You need to adapt this to your actual model structure and data.
-        # This is a placeholder for the logic to calculate the necessary data for can_check_in.
-        can_check_in_result = can_check_in(student, t, student_checkins, time_now)
-        group_frontend_name = t.group.to_frontend_name()
 
-        # Determine can_grade based on whether trainer is assigned to this group
-        # can_grade = False
-        # if trainer and t.group.trainers.filter(user_id=trainer.user.id).exists():
-        #     can_grade = True
-
-        training_dict = {
+        trainings_data.append({
             "id": t.id,
             "start": t.start,
             "end": t.end,
-            "group_id": t.group.id,
-            "group_name": group_frontend_name,
+
+            "group__id": t.group.id,
+            "group_name": t.group.to_frontend_name(),
+
+            "group__sport__id": t.group.sport.id if t.group.sport else None,
+            "sport_name": t.group.sport.name if t.group.sport else None,
+
+            "training_class__id": t.training_class.id if t.training_class else None,
             "training_class": t.training_class.name if t.training_class else None,
+
+            "capacity": t.group.capacity,
+            "is_club": t.group.is_club,
+            "custom_name": t.group.name,
+            "load": t.load,
+
             "group_accredited": t.group.accredited,
             "can_grade": False,
-            "can_check_in": can_check_in_result,
-            "checked_in": student_checkins_map.get(t.id) is not None,
-        }
-        trainings_data.append(training_dict)
+            "can_check_in": can_check_in(student, t, student_checkins, time_now),
+            "checked_in": t.id in student_checkins_map,
+        })
+
     return trainings_data
 
 
-def get_trainings_for_trainer(trainer: Trainer, start: Optional[datetime], end: Optional[datetime]):
-    """
-    Retrieves existing trainings in the given range for given student
-    @param trainer - searched trainer
-    @param start - range start date
-    @param end - range end date
-    @return list of trainings for trainer
-    """
-    trainings = Training.objects.select_related(
-        'group',
-        'training_class',
-    ).filter(
-        Q(group__semester__id=get_current_semester_crud().id) &
-        Q(group__trainers=trainer) & (
-            Q(start__gt=start) & Q(start__lt=end) |
-            Q(end__gt=start) & Q(end__lt=end) |
-            Q(start__lt=start) & Q(end__gt=end)
+def get_trainings_for_trainer(trainer: Trainer, start, end):
+
+    trainings = (
+        Training.objects
+        .select_related(
+            "group",
+            "group__sport",
+            "training_class",
+        )
+        .annotate(load=Count("checkins"))
+        .filter(
+            group__semester__id=get_current_semester_crud().id,
+            group__trainers=trainer,
+        )
+        .filter(
+            Q(start__gt=start, start__lt=end)
+            | Q(end__gt=start, end__lt=end)
+            | Q(start__lt=start, end__gt=end)
         )
     )
+
     return [{
-        'id': e.id,
-        'start': e.start,
-        'end': e.end,
-        'group_id': e.group_id,
-        'group_name': e.group.to_frontend_name(),
-        'training_class': e.training_class.name if e.training_class else None,
-        'group_accredited': e.group.accredited,
+        "id": t.id,
+        "start": t.start,
+        "end": t.end,
+
+        "group__id": t.group.id,
+        "group_name": t.group.to_frontend_name(),
+
+        "group__sport__id": t.group.sport.id if t.group.sport else None,
+        "sport_name": t.group.sport.name if t.group.sport else None,
+
+        "training_class__id": t.training_class.id if t.training_class else None,
+        "training_class": t.training_class.name if t.training_class else None,
+
+        "capacity": t.group.capacity,
+        "is_club": t.group.is_club,
+        "custom_name": t.group.name,
+        "load": t.load,
+
+        # personal-only
+        "group_accredited": t.group.accredited,
         "can_grade": True,
         "can_check_in": True,
         "checked_in": False,
-    } for e in trainings]
+    } for t in trainings]
 
 
 def get_students_grades(training_id: int):

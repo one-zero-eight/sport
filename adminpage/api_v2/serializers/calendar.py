@@ -3,6 +3,7 @@ from django.utils import timezone
 from django.conf import settings
 from datetime import time
 from datetime import datetime
+from .training import TrainingInfoSerializer
 
 
 
@@ -22,20 +23,19 @@ class CalendarRequestSerializer(serializers.Serializer):
         return attrs
 
 
-class CalendarPersonalSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
-    title = serializers.CharField(source="group_name")
-    start = serializers.DateTimeField()
-    end = serializers.DateTimeField()
-    group_id = serializers.IntegerField()
+class CalendarPersonalSerializer(TrainingInfoSerializer):
+    sport_id = serializers.IntegerField(allow_null=True)
+    training_class_id = serializers.IntegerField(allow_null=True)
+    training_class = serializers.CharField(allow_null=True)
+
     can_edit = serializers.SerializerMethodField()
     allDay = serializers.SerializerMethodField()
     can_grade = serializers.BooleanField()
-    training_class = serializers.CharField(allow_null=True, allow_blank=True, required=False)
     group_accredited = serializers.BooleanField()
     can_check_in = serializers.BooleanField(required=False, default=False)
     checked_in = serializers.BooleanField(required=False, default=False)
-    
+
+
     def get_can_edit(self, obj):
         start_time = timezone.localtime(obj["start"])
         now = timezone.localtime()
@@ -48,4 +48,6 @@ class CalendarPersonalSerializer(serializers.Serializer):
             start_time.time() == time(0, 0, 0)
             and end_time.time() == time(23, 59, 59)
         )
+
+
 

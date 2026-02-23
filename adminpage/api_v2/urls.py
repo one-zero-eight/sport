@@ -11,7 +11,6 @@ from api_v2.views import (
     self_sport_report,
     fitness_test,
     semester,
-    analytics,
     medical_groups,
     faq,
     student_statuses,
