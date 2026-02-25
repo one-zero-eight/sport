@@ -298,7 +298,7 @@ function add_student_row(
                         <button type="button"
                                 class="btn btn-outline-danger trainer-editable"
                                 title="Delete student"
-                                onclick="deleteStudent(${student_id})">
+                                onclick="deleteStudent('${student_id}', '${full_name}')">
                             <i class="fa fa-trash"></i>
                         </button>
                     </td>
@@ -817,11 +817,37 @@ fetch('/api/fitnesstest/result', {
     })
     .catch(() => {});
 
-async function deleteStudent(studentId) {
+async function deleteStudent(
+    studentId,
+    full_name,
+) {
     const training_id = $('#save-hours-btn').attr('data-training-id');
-    const studentRow = $(`#student_${student_id}`);
+    const studentRow = $(`#student_${studentId}`);
 
-    if (!confirm('Remove student from record?')) return;
+    if (!document.getElementById('swal-custom-styles')) {
+        $('<style id="swal-custom-styles">' +
+            '.swal2-container { z-index: 99999 !important; } ' +
+            '.swal-icon-small { transform: scale(0.7); margin-bottom: 0px !important; }' +
+          '</style>').appendTo('head');
+    }
+
+    const result = await Swal.fire({
+        title: `Delete a student?`,
+        html: `The entry for <b>${full_name}</b> will be deleted from the training.`,
+        icon: 'warning',
+        customClass: {
+            icon: 'swal-icon-small'
+        },
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Confirm',
+        cancelButtonText: 'Cancel',
+        reverseButtons: true,
+        heightAuto: false
+    });
+
+    if (!result.isConfirmed) return;
 
     studentRow.css('opacity', '0.5').css('pointer-events', 'none');
 
