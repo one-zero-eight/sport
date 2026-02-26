@@ -379,7 +379,7 @@ def self_sport_reports(request, **kwargs):
     methods=["GET"],
     tags=["For student"],
     summary="Get self-sport report by ID",
-    description="",
+    description="Retrieve self sport report information by id.",
     responses={
         status.HTTP_200_OK: SelfSportReportSerializer(),
         status.HTTP_404_NOT_FOUND: NotFoundSerializer(),

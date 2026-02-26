@@ -105,7 +105,7 @@ def get_sessions(request, **kwargs):
     post=extend_schema(
         tags=["For teacher"],
         summary="Upload or update student fitness test results",
-        description="",
+        description="Retrieve session informtion by id.",
         request=FitnessTestUpload,
         responses={
             status.HTTP_201_CREATED: PostStudentExerciseResult(),

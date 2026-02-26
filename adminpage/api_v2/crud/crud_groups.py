@@ -137,26 +137,13 @@ def get_sports_with_groups(student: Optional[Student] = None):
         # Prepare groups data
         groups_data = []
         for group in sport_groups:
-            # Get trainings for this group - only upcoming trainings
-            # Get trainers for this group
-            
-            # Clean HTML tags from group name and description
-            group_name = strip_tags(group.name) if group.name else ''
-            group_description = strip_tags(group.sport.description) if group.sport and group.sport.description else ''
-            
+            group_name = strip_tags(group.name) if group.name else ''            
             group_info = {
                 'id': group.id,
                 'name': group_name,
-                'description': group_description,
-                'capacity': group.capacity,
-                'is_club': group.is_club,
-                'accredited': group.accredited,
-                'trainers': get_trainers_group(group.id),
-                'allowed_medical_groups': [mg.name for mg in group.allowed_medical_groups.all()],
             }
             groups_data.append(group_info)
         
-        # Clean HTML tags from sport name and description
         sport_name = strip_tags(sport.name) if sport.name else ''
         sport_description = strip_tags(sport.description) if sport.description else ''
         

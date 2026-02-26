@@ -38,7 +38,7 @@ def get_semesters(request, **kwargs):
     methods=["GET"],
     tags=["For any user"],
     summary="Get semester information via id",
-    description="",
+    description="Retrieve information about semestr by id.",
     responses={
         status.HTTP_200_OK: SemesterSerializer(),
         status.HTTP_404_NOT_FOUND: NotFoundSerializer(),
@@ -60,7 +60,7 @@ def get_semester_by_id(request, semester_id, **kwargs):
     methods=["GET"],
     tags=["For any user"],
     summary="Get current semester information",
-    description="",
+    description="Retrieve current semestr information.",
     responses={
         status.HTTP_200_OK: SemesterSerializer(),
         status.HTTP_404_NOT_FOUND: NotFoundSerializer(),

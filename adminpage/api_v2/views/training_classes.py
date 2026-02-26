@@ -13,6 +13,7 @@ from api_v2.serializers import TrainingClassesSerializer, NotFoundSerializer
 @extend_schema(
     methods=["GET"],
     tags=["For any user"],
+    description="Retrieve all training class information.",
     responses={
         status.HTTP_200_OK: TrainingClassesSerializer(many=True),
         status.HTTP_404_NOT_FOUND: NotFoundSerializer,
