@@ -344,3 +344,6 @@ class StudentAdmin(HijackUserAdminMixin, ImportExportActionModelAdmin, DefaultFi
         "user",
         "medical_group",
     )
+
+    class Media:
+        js = ('admin/js/admin/CopyEmail.js',)
