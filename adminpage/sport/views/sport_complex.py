@@ -1,5 +1,6 @@
 import datetime
 
+from django.db.models import Q
 from django.forms.utils import to_current_timezone
 from django.shortcuts import render, redirect
 
@@ -16,6 +17,7 @@ def sport_complex_view(request, **kwargs):
 
     today_trainings = (
         Training.objects.filter(
+            ~Q(group__sport=None),  # Do not show 'Self training', 'Extra sport events', 'Medical leave', etc. trainings
             start__lte=today_end,  # Starts today
             end__gte=now,  # And not finished yet
         )
@@ -36,7 +38,7 @@ def sport_complex_view(request, **kwargs):
         {
             "training_id": training.id,
             "title": training.group.to_frontend_name(),
-            "location": training.training_class.name,
+            "location": training.training_class.name if training.training_class else "",
             "formatted_timerange": f"{to_current_timezone(training.start).time().strftime('%H:%M')}-{to_current_timezone(training.end).time().strftime('%H:%M')}",
             "trainers": sorted([
                 f"{trainer.user.get_full_name()} ({trainer.user.email})" for trainer in training.group.trainers.all()
