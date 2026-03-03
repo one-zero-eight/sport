@@ -31,6 +31,7 @@ from .measurement_session import MeasurementSession
 from .measurement_result import MeasurementResult
 from .measurement import Measurement
 from .training_checkin import TrainingCheckIn
+from .checkout_history import CheckoutHistory
 
 DjangoGroup.add_to_class(
     'verbose_name',

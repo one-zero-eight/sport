@@ -13,7 +13,7 @@ from api.permissions import IsStudent, IsTrainer, IsStaff
 from api.serializers import NotFoundSerializer, EmptySerializer, ErrorSerializer, error_detail
 from api.serializers.training import NewTrainingInfoStudentSerializer
 from api.views.attendance import AttendanceErrors
-from sport.models import Training, Student, TrainingCheckIn, Attendance, Group
+from sport.models import Training, Student, TrainingCheckIn, Attendance, Group, CheckoutHistory
 
 
 @extend_schema(
@@ -118,7 +118,9 @@ def training_cancel_checkin(request, training_id, **kwargs):
         )
 
     try:
-        TrainingCheckIn.objects.get(training_id=training_id, student=student).delete()
+        checkin = TrainingCheckIn.objects.get(training_id=training_id, student=student)
+        CheckoutHistory.from_checkin(checkin, CheckoutHistory.Reason.STUDENT_CANCEL)
+        checkin.delete()
         return Response({})
     except TrainingCheckIn.DoesNotExist:
         return Response(
@@ -174,7 +176,9 @@ def trainer_cancel_checkin(request, training_id, student_id, **kwargs):
         )
 
     try:
-        TrainingCheckIn.objects.get(training_id=training_id, student=student).delete()
+        checkin = TrainingCheckIn.objects.get(training_id=training_id, student=student)
+        CheckoutHistory.from_checkin(checkin, CheckoutHistory.Reason.TRAINER_CANCEL)
+        checkin.delete()
         return Response({})
     except TrainingCheckIn.DoesNotExist:
         return Response(

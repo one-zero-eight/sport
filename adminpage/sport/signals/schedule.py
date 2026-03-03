@@ -7,7 +7,7 @@ from django.dispatch.dispatcher import receiver
 from django.forms.utils import to_current_timezone
 from django.utils import timezone
 
-from sport.models import Schedule, Training
+from sport.models import Schedule, Training, CheckoutHistory
 
 
 def get_today() -> date:
@@ -61,12 +61,18 @@ def notify_about_changed_time(instance: Training, **kwargs):
                                group_name=instance.group.to_frontend_name(),
                                previous_time=to_current_timezone(old.start).strftime('%d.%m.%Y %H:%M'),
                                new_time=to_current_timezone(instance.start).strftime('%d.%m.%Y %H:%M'))
+            CheckoutHistory.bulk_from_checkins(
+                instance.checkins.all(), CheckoutHistory.Reason.TRAINING_TIME_CHANGED
+            )
             instance.checkins.all().delete()
 
 
 
 @receiver(pre_delete, sender=Training)
 def notify_about_removed_training(instance: Training, **kwargs):
+    CheckoutHistory.bulk_from_checkins(
+        instance.checkins.all(), CheckoutHistory.Reason.TRAINING_CANCELLED
+    )
     for student in instance.checked_in_students:
         student.notify(*settings.EMAIL_TEMPLATES['training_deleted'],
                        student_name=student.user.first_name,
