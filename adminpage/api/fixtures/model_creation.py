@@ -68,6 +68,7 @@ def group_factory():
             trainer: Optional[Trainer] = None,
             description: Optional[str] = None,
             is_club: bool = False,
+            is_paid: bool = False,
             allowed_medical_groups: Optional[List[MedicalGroups]] = None,
     ) -> Group:
         if allowed_medical_groups is None:
@@ -84,6 +85,7 @@ def group_factory():
                 "capacity": capacity,
                 "sport": sport,
                 "is_club": is_club,
+                "is_paid": is_paid,
             }
         )
 

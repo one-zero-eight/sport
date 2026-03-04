@@ -23,6 +23,7 @@ def get_group_info(group_id: int, student: Student):
             'g.name AS group_name, '
             'g.capacity AS capacity, '
             'g.is_club AS is_club, '
+            'g.is_paid AS is_paid, '
             'count(e.id) AS current_load, '
             'd.first_name AS trainer_first_name, '
             'd.last_name AS trainer_last_name, '
@@ -173,6 +174,7 @@ def get_trainings_for_student(student: Student, start: datetime, end: datetime):
             "can_grade": False,
             "can_check_in": can_check_in_result,
             "checked_in": student_checkins_map.get(t.id) is not None,
+            "is_paid": t.group.is_paid,
         }
         trainings_data.append(training_dict)
     return trainings_data
@@ -205,6 +207,7 @@ def get_trainings_for_trainer(trainer: Trainer, start: datetime, end: datetime):
         'group_name': e.group.to_frontend_name(),
         'training_class': e.training_class.name if e.training_class else None,
         'group_accredited': e.group.accredited,
+        'is_paid': e.group.is_paid,
         'can_grade': True,
     } for e in trainings]
 

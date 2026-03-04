@@ -133,8 +133,17 @@ async function openMedicalInfoModal(groupName, groupDescription) {
 function render(info) {
     let element = info.el;
     let event = info.event;
-
     let props = event.extendedProps;
+
+    if (paid_filter === 'free' && props.is_paid) {
+        element.style.display = 'none';
+        return;
+    }
+    if (paid_filter === 'paid' && !props.is_paid) {
+        element.style.display = 'none';
+        return;
+    }
+
     element.style.fontSize = '99';
     element.style.cursor = 'pointer';
     if (props.can_grade) {
@@ -880,4 +889,10 @@ async function deleteStudent(
         studentRow.css('opacity', '1').css('pointer-events', 'auto');
         toastr.error(err.message || 'Failed to delete student');
     }
+}
+
+let paid_filter = 'all';
+function filter_paid(type) {
+    paid_filter = type;
+    calendar.rerenderEvents();
 }

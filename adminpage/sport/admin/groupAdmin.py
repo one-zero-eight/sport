@@ -100,6 +100,7 @@ class GroupAdmin(DefaultFilterMixIn):
     list_filter = (
         ("semester", admin.RelatedOnlyFieldListFilter),
         ("is_club", custom_titled_filter("club status")),
+        ("is_paid", custom_titled_filter("paid status")),
         TrainerTextFilter,
         ("sport", admin.RelatedOnlyFieldListFilter),
     )
@@ -107,6 +108,7 @@ class GroupAdmin(DefaultFilterMixIn):
     list_display = (
         "__str__",
         "is_club",
+        "is_paid",
         "teachers",  # check function below
     )
 
@@ -128,6 +130,7 @@ class GroupAdmin(DefaultFilterMixIn):
         "name",
         "is_club",
         "accredited",
+        "is_paid",
         "capacity",
         "trainers",
         "always_allow_students",
@@ -146,6 +149,7 @@ class GroupAdmin(DefaultFilterMixIn):
                 "name",
                 "is_club",
                 "accredited",
+                "is_paid",
                 "trainers",
             )
         }),

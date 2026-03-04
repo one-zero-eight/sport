@@ -22,10 +22,11 @@ class NewGroupSerializer(serializers.ModelSerializer[Group]):
     semester = SemesterSerializer()
     teachers = NewTrainerSerializer(source='trainers', many=True)
     accredited = serializers.BooleanField()
+    is_paid = serializers.BooleanField()
 
     class Meta:
         model = Group
-        fields = ('id', 'name', 'capacity', 'is_club', 'sport',
+        fields = ('id', 'name', 'capacity', 'is_club', 'is_paid', 'sport',
                   'semester', 'teachers', 'accredited', 'allowed_education_level')
 
 

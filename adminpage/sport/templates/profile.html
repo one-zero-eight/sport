@@ -385,7 +385,20 @@
         {% if student.obj.student_status.id == 0 or trainer.sport_groups %}
             <div class='container'>
                 <hr>
-                <h2>Schedule</h2>
+                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                    <h2>Schedule</h2>
+                    <div class="btn-group btn-group-toggle mb-2" data-toggle="buttons">
+                        <label class="btn btn-outline-secondary active" onclick="filter_paid('all')">
+                            <input type="radio" name="options" id="option1" autocomplete="off" checked> All
+                        </label>
+                        <label class="btn btn-outline-secondary" onclick="filter_paid('free')">
+                            <input type="radio" name="options" id="option2" autocomplete="off"> Free
+                        </label>
+                        <label class="btn btn-outline-secondary" onclick="filter_paid('paid')">
+                            <input type="radio" name="options" id="option3" autocomplete="off"> Paid
+                        </label>
+                    </div>
+                </div>
                 <div id='calendar'></div>
             </div>
         {% endif %}

@@ -23,6 +23,7 @@ def convert_training_schedule(t) -> dict:
             "training_class": t["training_class"],
             "current_load": t["current_load"],
             "capacity": t["capacity"],
+            "is_paid": t.get("is_paid", False),
         }
     }
 
@@ -48,6 +49,7 @@ def convert_personal_training(t) -> dict:
             "can_grade": t["can_grade"],
             "training_class": t["training_class"],
             "group_accredited": t["group_accredited"],
+            "is_paid": t["is_paid"],
         }
     }
     if 'can_check_in' in t:

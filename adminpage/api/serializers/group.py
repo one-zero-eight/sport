@@ -36,6 +36,7 @@ class GroupInfoSerializer(serializers.Serializer):
     group_name = serializers.CharField()
     capacity = serializers.IntegerField()
     current_load = serializers.IntegerField()
+    is_paid = serializers.BooleanField()
 
     trainer_first_name = serializers.CharField()
     trainer_last_name = serializers.CharField()

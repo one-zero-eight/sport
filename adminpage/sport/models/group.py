@@ -14,6 +14,7 @@ class Group(models.Model):
     trainer = models.ForeignKey('Trainer', on_delete=models.SET_NULL, null=True, blank=True, verbose_name='teacher')
     trainers = models.ManyToManyField('Trainer', related_name='m2m', blank=True, verbose_name='teachers')
     accredited = models.BooleanField(default=True, null=False)
+    is_paid = models.BooleanField(default=False, null=False)
     # minimum_medical_group = models.ForeignKey('MedicalGroup', on_delete=models.DO_NOTHING, null=True, blank=True)
     allowed_education_level = models.IntegerField(
         choices=EducationLevelChoice.choices,
