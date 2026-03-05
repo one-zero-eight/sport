@@ -51,6 +51,7 @@ function renderGroupModalBody(body, data) {
         current_load,
         training_class,
         hours,
+        is_paid,
     } = data;
 
     const p = body.append('<p>').children('p:last-child');
@@ -59,6 +60,9 @@ function renderGroupModalBody(body, data) {
     }
     if (training_class) {
         p.append(`<div>Class: <strong>${training_class}</strong></div>`);
+    }
+    if (typeof is_paid !== 'undefined') {
+        p.append(`<div>Payment: <span class="badge ${is_paid ? 'badge-warning' : 'badge-success'}">${is_paid ? 'Paid' : 'Free'}</span></div>`);
     }
 
     if (trainers.length) {
@@ -81,7 +85,7 @@ function formatTime(time) {
 
 async function openGroupInfoModalForStudent(apiUrl, enrollErrorCb = () => 0) {
     const {data, title, body, footer} = await openModal('#group-info-modal', apiUrl)
-    const {custom_name, group_id, group_name, is_enrolled, capacity, current_load, is_primary, can_enroll, schedule} = data;
+    const {custom_name, group_id, group_name, is_enrolled, capacity, current_load, is_primary, can_enroll, schedule, is_paid} = data;
 
     let disabled_attr;
 
@@ -109,10 +113,10 @@ async function openGroupInfoModalForStudent(apiUrl, enrollErrorCb = () => 0) {
         footer.find('.btn-success').click(() => enroll(group_id, 'enroll', enrollErrorCb));
     }
     title.text('');
-    if (!!custom_name) {
-        title.append(`<h2> <span class="badge badge-info text-uppercase">${group_name}</span></h2>`);
-    } else {
-        title.append(`<h2> <span class="badge badge-info text-uppercase">${custom_name}</span></h2>`);
+    const name = custom_name || group_name;
+    title.append(`<h2> <span class="badge badge-info text-uppercase">${name}</span></h2>`);
+    if (typeof is_paid !== 'undefined') {
+        title.find('h2').append(` <span class="badge ${is_paid ? 'badge-warning' : 'badge-success'} text-uppercase">${is_paid ? 'Paid' : 'Free'}</span>`);
     }
     renderGroupModalBody(body, data);
     if (schedule && schedule.length > 0) {
@@ -179,10 +183,10 @@ async function openTrainingInfoModalForStudent(apiUrl, checkinErrorCb = () => 0)
     }
 
     title.text(''); // To clear after loading
-    if (!!training.custom_name) {
-        title.append(`<h2> <span class="badge badge-info text-uppercase">${training.custom_name}</span></h2>`);
-    } else {
-        title.append(`<h2> <span class="badge badge-info text-uppercase">${group.name}</span></h2>`);
+    const name = training.custom_name || group.name;
+    title.append(`<h2> <span class="badge badge-info text-uppercase">${name}</span></h2>`);
+    if (typeof group.is_paid !== 'undefined') {
+        title.find('h2').append(` <span class="badge ${group.is_paid ? 'badge-warning' : 'badge-success'} text-uppercase">${group.is_paid ? 'Paid' : 'Free'}</span>`);
     }
 
     if (hours) {
@@ -196,6 +200,7 @@ async function openTrainingInfoModalForStudent(apiUrl, checkinErrorCb = () => 0)
     if (training.place) {
         body.append(`<div>Place: <b>${training.place}</b></div>`);
     }
+    body.append(`<div>Payment: <b>${group.is_paid ? 'Paid' : 'Free'}</b></div>`);
     body.append(`<div>Accredited: <b>${group.accredited ? 'Yes' : 'No'}</b></div>`);
     if (group.allowed_education_level === -1) {
         body.append(`<div>Education level: <b>Both higher education and college</b></div>`);
@@ -206,7 +211,6 @@ async function openTrainingInfoModalForStudent(apiUrl, checkinErrorCb = () => 0)
     if (!group.accredited) {
         body.append(`<div class="alert alert-warning" role="alert">You <b>can't get</b> sport hours for this training.</div>`);
     }
-
 
     body.append('<br><b>Description</b>:')
     if (group.sport.description) {

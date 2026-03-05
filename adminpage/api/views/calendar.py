@@ -23,7 +23,7 @@ def convert_training_schedule(t) -> dict:
             "training_class": t["training_class"],
             "current_load": t["current_load"],
             "capacity": t["capacity"],
-            "is_paid": t.get("is_paid", False),
+            "is_paid": t["is_paid"],
         }
     }
 

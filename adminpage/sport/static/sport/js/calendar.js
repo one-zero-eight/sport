@@ -23,6 +23,45 @@ function render(info) {
     element.style.fontSize = "99";
     element.style.backgroundColor = (props.load >= props.capacity) ? '#f00' : get_color(props.group_id)
     element.style.cursor = 'pointer';
+
+    if (props.is_paid) {
+        if (!document.getElementById('paid-badge-styles')) {
+            const style = document.createElement('style');
+            style.id = 'paid-badge-styles';
+            style.innerHTML = `
+                .paid-badge {
+                    margin-left: 5px;
+                    padding: 1px 5px;
+                    background-color: #f1c40f;
+                    color: #000 !important;
+                    border-radius: 10px;
+                    font-size: 10px;
+                    font-weight: bold;
+                    text-transform: uppercase;
+                    vertical-align: middle;
+                    display: inline-block;
+                    line-height: 1;
+                    border: 1px solid #f1c40f;
+                }
+                .fc-event:hover .paid-badge, .fc-list-item:hover .paid-badge {
+                    background-color: transparent !important;
+                    color: #fff !important;
+                    border: 1px solid #fff;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        const titleEls = element.querySelectorAll('.fc-title, .fc-list-item-title, .fc-event-title');
+        titleEls.forEach(el => {
+            if (!el.querySelector('.paid-badge')) {
+                const badge = document.createElement('span');
+                badge.className = 'paid-badge';
+                badge.innerText = 'PAID';
+                el.appendChild(badge);
+            }
+        });
+    }
 }
 
 let calendar;
