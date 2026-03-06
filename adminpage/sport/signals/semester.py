@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group as AuthGroup
 from django.db.models.functions import Coalesce
-from django.db.models.signals import post_save, pre_save, m2m_changed
+from django.db.models.signals import post_save, pre_save, m2m_changed, post_migrate
 from django.dispatch.dispatcher import receiver
 from django.db.models import F, OuterRef, ExpressionWrapper, IntegerField
 from datetime import datetime
@@ -41,6 +41,14 @@ def get_or_create_trainer_group():
             "name": settings.TRAINER_AUTH_GROUP_NAME,
         }
     )[0]
+
+
+@receiver(post_migrate)
+def create_auth_groups(sender, **kwargs):
+    if sender.name == 'sport':
+        get_or_create_trainer_group()
+        get_or_create_student_group()
+        get_or_create_college_group()
 
 
 @receiver(post_save, sender=Semester)
