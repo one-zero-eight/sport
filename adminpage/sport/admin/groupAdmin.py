@@ -124,23 +124,6 @@ class GroupAdmin(DefaultFilterMixIn):
         "trainer__user",
     )
 
-    fields = (
-        "semester",
-        "sport",
-        "name",
-        "is_club",
-        "accredited",
-        "is_paid",
-        "capacity",
-        "trainers",
-        "always_allow_students",
-        "allowed_education_level",
-        "allowed_medical_groups",
-        "allowed_gender",
-        "allowed_students",
-        "banned_students",
-    )
-
     fieldsets = (
         (None, {
             'fields': (
