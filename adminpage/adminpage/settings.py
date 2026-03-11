@@ -519,8 +519,8 @@ School of Sport and Healthy Lifestyle
     ),
 }
 
-# if DEBUG:
-#     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", None)
 
