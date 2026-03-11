@@ -27,6 +27,26 @@ services:
     env_file:
       - .env
 
+  cron:
+    build: ../adminpage
+    command: >
+      sh -c "cp /deploy/crontab /etc/cron.d/training-reminders
+             chmod 0644 /etc/cron.d/training-reminders
+             cron -f"
+    restart: always
+    volumes:
+      - "../deploy/crontab:/deploy/crontab:ro"
+      - "django-auth-preserve:/opt/pysetup/.venv/lib/python3.12/site-packages/django/contrib/auth/migrations/"
+      - "/sport/media:/uploaded_media"
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      NO_MIGRATE: 'true'
+      TZ: 'Europe/Moscow'
+
   db:
     # See more: https://hub.docker.com/_/postgres
     image: "postgres:17.1-alpine"

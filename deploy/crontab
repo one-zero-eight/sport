@@ -1,0 +1,10 @@
+# Training reminder cron jobs
+# Morning run at 08:00: sends reminders for evening trainings (start >= 12:00) today
+# Evening run at 20:00: sends reminders for morning trainings (start < 12:00) tomorrow
+#
+# Timezone is set via TZ environment variable in the cron service (Europe/Moscow)
+
+PATH=/opt/pysetup/.venv/bin:/usr/local/bin:/usr/bin:/bin
+
+0 8  * * *  root  cd /app && python manage.py send_training_reminders >> /proc/1/fd/1 2>&1
+0 20 * * *  root  cd /app && python manage.py send_training_reminders >> /proc/1/fd/1 2>&1

@@ -467,6 +467,24 @@ EMAIL_TEMPLATES = {
         'Best regards,\n'
         'School of Sport and Healthy Lifestyle'
     ),
+    'training_reminder': (
+        'Reminder: {group_name} — {date} at {start_time}',
+        'Dear {student_name},\n\n'
+        'This is a reminder that you have an upcoming training session:\n\n'
+        'Group: {group_name}\n'
+        'Date: {date}\n'
+        'Time: {start_time} – {end_time}\n'
+        'Location: {location}\n\n'
+        'Please cancel your check-in if you are unable to attend the training session: '
+        'https://sport.innopolis.university\n\n'
+        'Failure to attend a training session may result in sanctions, including restrictions '
+        'on access to training check-ins.\n\n'
+        'Your university pass grants access only to the sessions you have checked in for. '
+        'In case of misuse of the university pass, you may be subject to sanctions, including '
+        'a monetary fine from the sports complex and disciplinary action from the university.\n\n'
+        'Best regards,\n'
+        'School of Sport and Healthy Lifestyle'
+    ),
 }
 
 if DEBUG:

@@ -55,6 +55,10 @@ RUN poetry install --no-interaction
 # Production stage. Copy only runtime deps that were installed in the Builder stage.
 FROM base AS production
 
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y cron \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY --from=builder $VENV_PATH $VENV_PATH
 
 COPY --chmod=755 ./docker-entrypoint.sh /
