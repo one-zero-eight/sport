@@ -2,6 +2,7 @@ from datetime import datetime, time, timedelta
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
+from django.db.models import Q
 from django.forms.utils import to_current_timezone
 from django.utils import timezone
 
@@ -43,7 +44,11 @@ class Command(BaseCommand):
             return
 
         trainings = Training.objects.filter(
-            start__gte=window_start, start__lt=window_end
+            # Exclude 'Self training', 'Extra sport events', 'Medical leave', etc. trainings
+            ~Q(group__sport=None),
+            # Training time is inside target window
+            start__gte=window_start,
+            start__lt=window_end,
         ).select_related("group", "training_class")
 
         already_reminded = set(
