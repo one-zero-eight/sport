@@ -19,6 +19,7 @@ ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
 
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
+        curl \
         gcc \
         git \
         python3-dev \
@@ -55,9 +56,16 @@ RUN poetry install --no-interaction
 # Production stage. Copy only runtime deps that were installed in the Builder stage.
 FROM base AS production
 
-RUN apt-get update \
-    && apt-get install --no-install-recommends -y cron \
-    && rm -rf /var/lib/apt/lists/*
+# Install supercronic (cron alternative for Docker)
+# Latest releases available at https://github.com/aptible/supercronic/releases
+ENV SUPERCRONIC_URL=https://github.com/aptible/supercronic/releases/download/v0.2.44/supercronic-linux-amd64 \
+    SUPERCRONIC_SHA1SUM=6eb0a8e1e6673675dc67668c1a9b6409f79c37bc \
+    SUPERCRONIC=supercronic-linux-amd64
+RUN curl -fsSLO "$SUPERCRONIC_URL" \
+ && echo "${SUPERCRONIC_SHA1SUM}  ${SUPERCRONIC}" | sha1sum -c - \
+ && chmod +x "$SUPERCRONIC" \
+ && mv "$SUPERCRONIC" "/usr/local/bin/${SUPERCRONIC}" \
+ && ln -s "/usr/local/bin/${SUPERCRONIC}" /usr/local/bin/supercronic
 
 COPY --from=builder $VENV_PATH $VENV_PATH
 
