@@ -22,23 +22,23 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='attendance',
-            constraint=models.CheckConstraint(check=models.Q(hours__gt=0), name='positive_hours'),
+            constraint=models.CheckConstraint(condition=models.Q(hours__gt=0), name='positive_hours'),
         ),
         migrations.AddConstraint(
             model_name='schedule',
-            constraint=models.CheckConstraint(check=models.Q(start__lt=django.db.models.expressions.F('end')),
+            constraint=models.CheckConstraint(condition=models.Q(start__lt=django.db.models.expressions.F('end')),
                                               name='schedule_start_before_end'),
         ),
         migrations.AddConstraint(
             model_name='semester',
             constraint=models.CheckConstraint(
-                check=models.Q(('choice_deadline__lte', django.db.models.expressions.F('end')),
+                condition=models.Q(('choice_deadline__lte', django.db.models.expressions.F('end')),
                                ('start__lte', django.db.models.expressions.F('choice_deadline'))),
                 name='semester_start_before_end'),
         ),
         migrations.AddConstraint(
             model_name='training',
-            constraint=models.CheckConstraint(check=models.Q(start__lt=django.db.models.expressions.F('end')),
+            constraint=models.CheckConstraint(condition=models.Q(start__lt=django.db.models.expressions.F('end')),
                                               name='training_start_before_end'),
         ),
         migrations.RunSQL('''

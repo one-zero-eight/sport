@@ -39,7 +39,7 @@ class Semester(models.Model):
         db_table = "semester"
         verbose_name_plural = "semesters"
         constraints = [
-            models.CheckConstraint(check=Q(start__lte=F('end')), name='semester_start_before_end')
+            models.CheckConstraint(condition=Q(start__lte=F('end')), name='semester_start_before_end')
         ]
         indexes = [
             models.Index(fields=("start",)),

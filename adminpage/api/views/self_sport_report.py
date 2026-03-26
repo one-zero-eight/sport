@@ -160,7 +160,7 @@ def get_strava_activity_info(request, **kwargs):
             data="Something went wrong"
         )
     txt = requests.get(url).text
-    soup = BeautifulSoup(txt)
+    soup = BeautifulSoup(txt, "html.parser")
     try:
         json_string = soup.html.body.find_all(
             'div', attrs={"data-react-class": "ActivityPublic"})[0].get("data-react-props")

@@ -23,7 +23,7 @@ class Schedule(models.Model):
         verbose_name = "schedule timeslot"
         verbose_name_plural = "schedule timeslots"
         constraints = [
-            models.CheckConstraint(check=Q(start__lt=F('end')), name='schedule_start_before_end'),
+            models.CheckConstraint(condition=Q(start__lt=F('end')), name='schedule_start_before_end'),
         ]
 
     def __str__(self):

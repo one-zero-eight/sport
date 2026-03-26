@@ -59,7 +59,7 @@ class Group(models.Model):
         db_table = "group"
         verbose_name_plural = "groups"
         constraints = [
-            models.CheckConstraint(check=Q(Q(sport__isnull=False) | (Q(name__isnull=False) & (~Q(name__exact="")))),
+            models.CheckConstraint(condition=Q(Q(sport__isnull=False) | (Q(name__isnull=False) & (~Q(name__exact="")))),
                                    name='sport_or_name'),
         ]
         indexes = [

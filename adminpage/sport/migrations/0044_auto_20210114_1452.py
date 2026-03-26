@@ -31,6 +31,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='selfsportreport',
-            constraint=models.CheckConstraint(check=models.Q(models.Q(('link__isnull', True), models.Q(_negated=True, image__exact='')), models.Q(('image__exact', ''), ('link__isnull', False)), _connector='OR'), name='link_xor_image'),
+            constraint=models.CheckConstraint(condition=models.Q(models.Q(('link__isnull', True), models.Q(_negated=True, image__exact='')), models.Q(('image__exact', ''), ('link__isnull', False)), _connector='OR'), name='link_xor_image'),
         ),
     ]
