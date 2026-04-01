@@ -137,7 +137,7 @@ def get_personal_schedule(
         else:
             trainings_by_id[ev.training.id] = ev
 
-    return sorted(trainings_by_id.values(), key=lambda x: x.start)
+    return sorted(trainings_by_id.values(), key=lambda x: x.training.start)
 
 
 @router.get(
