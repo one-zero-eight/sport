@@ -208,10 +208,7 @@ async function openTrainingInfoModalForStudent(apiUrl, checkinErrorCb = () => 0)
                 </div>
             </div>
         `);
-        footer.find('.btn-success').click(() => {
-            training_check_in(training.id);
-            $('#group-info-modal').modal('hide');
-        });
+        footer.find('.btn-success').click(() => training_check_in(training.id));
     }
 
     title.text(''); // To clear after loading
