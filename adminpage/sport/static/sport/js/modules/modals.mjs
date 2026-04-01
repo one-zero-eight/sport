@@ -211,7 +211,6 @@ async function openTrainingInfoModalForStudent(apiUrl, checkinErrorCb = () => 0)
         footer.find('.btn-success').click(() => {
             training_check_in(training.id);
             $('#group-info-modal').modal('hide');
-            $('#checkin-rules-modal').modal('show');
         });
     }
 
