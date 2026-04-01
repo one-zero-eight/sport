@@ -9,7 +9,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
 from api.crud.crud_training import can_check_in
-from api.permissions import IsStudent, IsTrainer, IsStaff
+from api.permissions import IsStudent, IsTrainer, IsStaff, is_student
 from api.serializers import NotFoundSerializer, EmptySerializer, ErrorSerializer, error_detail
 from api.serializers.training import NewTrainingInfoStudentSerializer
 from api.views.attendance import AttendanceErrors
@@ -28,7 +28,7 @@ from sport.models import Training, Student, TrainingCheckIn, Attendance, Group, 
 def training_info(request, training_id, **kwargs):
     training = get_object_or_404(Training, pk=training_id)
 
-    if not hasattr(request.user, 'student'):  # Allow to get training info
+    if not is_student(request.user):  # Allow to get training info
         return Response(NewTrainingInfoStudentSerializer({
             'training': training,
             'can_check_in': False,

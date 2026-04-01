@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from django.utils import timezone
 
 from api.crud import get_sport_schedule, get_trainings_for_student, get_trainings_for_trainer
-from api.permissions import IsStudent, IsTrainer
+from api.permissions import IsStudent, IsTrainer, is_student, is_trainer
 from api.serializers import CalendarRequestSerializer, CalendarSerializer
 
 
@@ -70,7 +70,7 @@ def convert_personal_training(t) -> dict:
 def get_schedule(request, sport_id, **kwargs):
     serializer = CalendarRequestSerializer(data=request.GET)
     serializer.is_valid(raise_exception=True)
-    student = getattr(request.user, "student", None)
+    student = request.user.student_or_none
     trainings = get_sport_schedule(
         sport_id,
         student=student,
@@ -95,16 +95,16 @@ def get_personal_schedule(request, **kwargs):
     student_trainings = []
     trainer_trainings = []
 
-    if hasattr(request.user, "student"):
+    if is_student(request.user):
         student_trainings = get_trainings_for_student(
-            request.user.student,
+            request.user.student_or_none,
             serializer.validated_data["start"],
             serializer.validated_data["end"],
         )
 
-    if hasattr(request.user, "trainer"):
+    if is_trainer(request.user):
         trainer_trainings = get_trainings_for_trainer(
-            request.user.trainer,
+            request.user.trainer_or_none,
             serializer.validated_data["start"],
             serializer.validated_data["end"],
         )

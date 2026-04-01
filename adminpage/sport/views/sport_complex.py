@@ -9,7 +9,7 @@ from sport.models import Training
 
 
 def sport_complex_view(request, **kwargs):
-    if not (request.user.is_authenticated and (request.user.is_staff or getattr(request.user, "email", None) == SPORT_COMPLEX_EMAIL)):
+    if not (request.user.is_authenticated and (request.user.is_staff or request.user.email == SPORT_COMPLEX_EMAIL)):
         return redirect("/admin/login/?next=/sport-complex/")
 
     now = datetime.datetime.now(tz=datetime.timezone.utc)

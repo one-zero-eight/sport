@@ -22,7 +22,7 @@ def profile_view(request, **kwargs):
     student = Student.objects.filter(pk=user.pk).select_related(
         "medical_group"
     ).first()  # type: Optional[Student]
-    trainer = getattr(user, "trainer", None)  # type: Optional[Trainer]
+    trainer = user.trainer_or_none
 
     current_semester = get_ongoing_semester()
     sports = get_sports(student=student)

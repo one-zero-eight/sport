@@ -10,6 +10,12 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
+import django_stubs_ext
+
+# Monkeypatching Django, so stubs will work for all generics,
+# see: https://github.com/typeddjango/django-stubs
+django_stubs_ext.monkeypatch()
+
 import os
 from datetime import timedelta
 
@@ -185,7 +191,8 @@ CACHES = {
     }
 }
 
-WSGI_APPLICATION = 'adminpage.wsgi.application'
+ASGI_APPLICATION = 'adminpage.asgi.application'
+
 
 AUTH_USER_MODEL = 'accounts.User'
 

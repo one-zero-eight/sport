@@ -2,6 +2,8 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from sport.models import Student, Trainer
+
 
 class UserManager(BaseUserManager):
     """Define a model manager for User model with no username field."""
@@ -49,3 +51,11 @@ class User(AbstractUser):
 
     class Meta:
         db_table = 'auth_user'
+
+    @property
+    def student_or_none(self) -> Student | None:
+        return getattr(self, 'student', None)
+
+    @property
+    def trainer_or_none(self) -> Trainer | None:
+        return getattr(self, 'trainer', None)

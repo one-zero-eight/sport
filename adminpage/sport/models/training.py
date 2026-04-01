@@ -1,18 +1,15 @@
-from __future__ import annotations
 from typing import TYPE_CHECKING
 from django.db import models
 from django.db.models import Q, F, QuerySet
 from django.forms.utils import to_current_timezone
 from django.conf import settings
 
-from sport.utils import notify_students
-
 if TYPE_CHECKING:
     from sport.models import Student
 
 
 class Training(models.Model):
-    group = models.ForeignKey("Group", on_delete=models.CASCADE)
+    group = models.ForeignKey("sport.Group", on_delete=models.CASCADE)
     schedule = models.ForeignKey("Schedule", on_delete=models.SET_NULL, null=True, blank=True)
     start = models.DateTimeField(null=False)
     end = models.DateTimeField(null=False)
@@ -35,19 +32,19 @@ class Training(models.Model):
                f"{to_current_timezone(self.end).time().strftime('%H:%M')}"
 
     @property
-    def checked_in_students(self) -> QuerySet[Student]:
+    def checked_in_students(self) -> QuerySet['Student']:
         from sport.models import Student
         return Student.objects.filter(checkins__in=self.checkins.all()).distinct()
 
     @property
-    def academic_duration(self) -> float:
+    def academic_duration(self) -> int:
         if not self.group.accredited:
             return 0
 
         secs = (self.end - self.start).total_seconds()
-        duration_sec = 2700
+        duration_sec = 45 * 60  # 45 minutes equals 1 academic hour
         duration_for_1h = duration_sec * settings.ACADEMIC_DURATION_PERCENTAGE
         return min(
-            (secs + duration_for_1h) // duration_sec,
-            settings.ACADEMIC_DURATION_MAX
+            int((secs + duration_for_1h) // duration_sec),
+            int(settings.ACADEMIC_DURATION_MAX)
         )

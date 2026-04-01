@@ -1,4 +1,5 @@
 import json
+import logging
 from datetime import datetime, timedelta
 from typing import List
 
@@ -13,7 +14,7 @@ from rest_framework.authentication import get_authorization_header, BaseAuthenti
 
 from accounts.models import User as _User_type
 
-User: _User_type = get_user_model()
+User: type[_User_type] = get_user_model()
 
 
 class InNoHassleAuthentication(BaseAuthentication):
@@ -137,7 +138,8 @@ class InNoHassleAccounts:
             response = requests.get(jwks_uri)
             response.raise_for_status()
             result = response.json()
-        except requests.RequestException:
+        except requests.RequestException as e:
+            logging.error("Cannot fetch InNoHassle Accounts JWKS: %s", e, exc_info=True)
             return False
 
         # Load the keys
