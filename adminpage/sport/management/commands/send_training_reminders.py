@@ -1,7 +1,9 @@
+import urllib.parse
 from datetime import datetime, time, timedelta
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
+from django.db.models import Q
 from django.forms.utils import to_current_timezone
 from django.utils import timezone
 
@@ -11,8 +13,8 @@ from sport.models import Training, TrainingReminder
 class Command(BaseCommand):
     help = (
         "Send training reminder emails to checked-in students. "
-        "Run at 08:00 to remind about evening trainings (start >= 12:00) today. "
-        "Run at 20:00 to remind about morning trainings (start < 12:00) tomorrow. "
+        "Run at 08:00 to remind about evening trainings (start >= 14:00) today. "
+        "Run at 19:00 to remind about morning trainings (start < 14:00) tomorrow. "
         "Students who check in after a previous run will receive a reminder on the next run."
     )
 
@@ -21,9 +23,9 @@ class Command(BaseCommand):
         today = now.date()
         local_tz = timezone.get_current_timezone()
 
-        if 6 <= now.hour < 12:
+        if 6 <= now.hour < 14:
             window_start = timezone.make_aware(
-                datetime.combine(today, time(12, 0)), local_tz
+                datetime.combine(today, time(14, 0)), local_tz
             )
             window_end = timezone.make_aware(
                 datetime.combine(today + timedelta(days=1), time(0, 0)), local_tz
@@ -35,15 +37,19 @@ class Command(BaseCommand):
                 datetime.combine(tomorrow, time(0, 0)), local_tz
             )
             window_end = timezone.make_aware(
-                datetime.combine(tomorrow, time(12, 0)), local_tz
+                datetime.combine(tomorrow, time(14, 0)), local_tz
             )
             self.stdout.write("Evening run: reminding about morning trainings tomorrow")
         else:
-            self.stdout.write("Outside reminder windows (06-12 and 18-24), nothing to do.")
+            self.stdout.write("Outside reminder windows (06-14 and 18-24), nothing to do.")
             return
 
         trainings = Training.objects.filter(
-            start__gte=window_start, start__lt=window_end
+            # Exclude 'Self training', 'Extra sport events', 'Medical leave', etc. trainings
+            ~Q(group__sport=None),
+            # Training time is inside target window
+            start__gte=window_start,
+            start__lt=window_end,
         ).select_related("group", "training_class")
 
         already_reminded = set(
@@ -78,6 +84,7 @@ class Command(BaseCommand):
                     start_time=local_start.strftime("%H:%M"),
                     end_time=local_end.strftime("%H:%M"),
                     location=location,
+                    location_url=f"https://innohassle.ru/maps?q={urllib.parse.quote(location)}",
                 )
                 reminders_to_create.append(
                     TrainingReminder(training=training, student=student)

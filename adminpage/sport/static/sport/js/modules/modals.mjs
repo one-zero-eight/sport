@@ -1,3 +1,32 @@
+$(function () {
+    $('body').append(`
+        <div class="modal fade" id="checkin-rules-modal" tabindex="-1" aria-labelledby="checkinRulesTitle" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="checkinRulesTitle">Checked in successfully!</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Please cancel your check-in in advance if you are unable to attend the training session.</p>
+                        <p>Missing a training session may lead to certain consequences, including temporary restrictions on future training check-ins.</p>
+                        <p>Your university pass grants access only to the sessions you have checked in for. In case of misuse of the university pass, you may be subject to sanctions, including a monetary fine from the sports complex and disciplinary action from the university.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-success" id="confirm-checkin-btn">Okay</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `);
+
+    $(document).on('click', '#confirm-checkin-btn', function () {
+        $('#checkin-rules-modal').modal('hide');
+    });
+});
+
 function prepareModal(id, size = 'modal-md') {
     const modal = $(id);
     modal.addClass('modal')

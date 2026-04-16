@@ -11,6 +11,7 @@ from django import forms
 from django.contrib.admin.widgets import AutocompleteSelectMultiple, AdminDateWidget, AutocompleteSelect
 from django.db import transaction
 from django.utils import timezone
+from rangefilter.filters import DateRangeFilter
 
 import datetime
 from api.crud import get_ongoing_semester, mark_hours
@@ -171,7 +172,7 @@ class TrainingAdmin(DefaultFilterMixIn):
         ),
         "group__sport",
         ("training_class", admin.RelatedOnlyFieldListFilter),
-        ("start", cache_alternative_filter(admin.DateFieldListFilter, ["group__semester"])),
+        ("start", DateRangeFilter),
     )
 
     list_display = (

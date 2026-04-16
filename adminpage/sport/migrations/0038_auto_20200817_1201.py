@@ -21,6 +21,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='semester',
-            constraint=models.CheckConstraint(check=models.Q(start__lte=django.db.models.expressions.F('end')), name='semester_start_before_end'),
+            constraint=models.CheckConstraint(condition=models.Q(start__lte=django.db.models.expressions.F('end')), name='semester_start_before_end'),
         ),
     ]

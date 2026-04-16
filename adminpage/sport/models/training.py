@@ -23,7 +23,7 @@ class Training(models.Model):
         db_table = "training"
         verbose_name_plural = "trainings"
         constraints = [
-            models.CheckConstraint(check=Q(start__lt=F('end')), name='training_start_before_end')
+            models.CheckConstraint(condition=Q(start__lt=F('end')), name='training_start_before_end')
         ]
         indexes = [
             models.Index(fields=("group", "start")),

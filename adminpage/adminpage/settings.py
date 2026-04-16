@@ -445,7 +445,7 @@ EMAIL_TEMPLATES = {
         'Your submission:\n{submission}'
     ),
     'training_changed': (
-        'Training Schedule Change',
+        '[IU Sport] Training Schedule Change',
         'Dear {student_name},\n\n'
         'The training time for <i>{group_name}</i> has been moved from <i>{previous_time}</i> to <i>{new_time}</i>. '
         'We kindly ask you to <b>check in for the training again</b> on '
@@ -456,7 +456,7 @@ EMAIL_TEMPLATES = {
         'School of Sport and Healthy Lifestyle'
     ),
     'training_deleted': (
-        'Training Cancellation',
+        '[IU Sport] Training Cancellation',
         'Dear {student_name},\n\n'
         'Unfortunately, the <i>{group_name}</i> training session scheduled for <i>{time}</i> has been cancelled. '
         'Please check the updated training calendar on '
@@ -468,22 +468,54 @@ EMAIL_TEMPLATES = {
         'School of Sport and Healthy Lifestyle'
     ),
     'training_reminder': (
-        'Reminder: {group_name} — {date} at {start_time}',
-        'Dear {student_name},\n\n'
-        'This is a reminder that you have an upcoming training session:\n\n'
-        'Group: {group_name}\n'
-        'Date: {date}\n'
-        'Time: {start_time} – {end_time}\n'
-        'Location: {location}\n\n'
-        'Please cancel your check-in if you are unable to attend the training session: '
-        'https://sport.innopolis.university\n\n'
-        'Failure to attend a training session may result in sanctions, including restrictions '
-        'on access to training check-ins.\n\n'
-        'Your university pass grants access only to the sessions you have checked in for. '
-        'In case of misuse of the university pass, you may be subject to sanctions, including '
-        'a monetary fine from the sports complex and disciplinary action from the university.\n\n'
-        'Best regards,\n'
-        'School of Sport and Healthy Lifestyle'
+        '[IU Sport] Reminder: you have an upcoming training session',
+        """\
+Уважаемый студент,
+
+<b>Напоминаем, что у вас скоро состоится тренировка.</b>
+
+Группа: {group_name}
+Дата: {date}
+Время: {start_time} – {end_time}
+Место: <a href="{location_url}">{location}</a>
+
+Пожалуйста, отмените запись, если вы не сможете присутствовать на тренировке: \
+<a href="https://sport.innopolis.university">sport.innopolis.university</a>
+
+Пропуск занятия может повлечь за собой определённые последствия, \
+включая временные ограничения на будущие записи на тренировки.
+
+Студенческий абонемент предоставляет доступ только к тем занятиям, на которые вы записаны. \
+В случае неправомерного использования абонемента к вам могут быть применены меры, \
+включая денежный штраф со стороны спортивного комплекса и дисциплинарные меры со стороны университета.
+
+С уважением,
+Школа физической культуры и ЗОЖ
+
+------------------------------------------------------------
+
+Dear student,
+
+<b>This is a reminder that you have an upcoming training session.</b>
+
+Group: {group_name}
+Date: {date}
+Time: {start_time} – {end_time}
+Location: <a href="{location_url}">{location}</a>
+
+Please cancel your check-in if you are unable to attend the training session: \
+<a href="https://sport.innopolis.university">sport.innopolis.university</a>
+
+Missing a training session may lead to certain consequences, \
+including temporary restrictions on future training check-ins.
+
+Your university pass grants access only to the sessions you have checked in for. \
+In case of misuse of the university pass, you may be subject to sanctions, \
+including a monetary fine from the sports complex and disciplinary action from the university.
+
+Best regards,
+School of Sport and Healthy Lifestyle
+"""
     ),
 }
 

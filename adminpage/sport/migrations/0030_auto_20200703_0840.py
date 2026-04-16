@@ -26,6 +26,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='attendance',
-            constraint=models.CheckConstraint(check=models.Q(hours__gte=0), name='positive_hours'),
+            constraint=models.CheckConstraint(condition=models.Q(hours__gte=0), name='positive_hours'),
         ),
     ]

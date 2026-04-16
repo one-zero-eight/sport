@@ -36,10 +36,7 @@ services:
 
   cron:
     build: ../adminpage
-    command: >
-      sh -c "cp /deploy/crontab /etc/cron.d/training-reminders
-             chmod 0644 /etc/cron.d/training-reminders
-             cron -f"
+    command: supercronic /deploy/crontab
     restart: unless-stopped
     volumes:
       - "../adminpage:/app"

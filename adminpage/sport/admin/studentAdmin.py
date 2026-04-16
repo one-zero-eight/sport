@@ -129,6 +129,8 @@ class StudentResource(resources.ModelResource):
             "gender",
             "student_status",
             "is_college",
+            "sport",
+            "complex_hours",
         )
         export_order = (
             "user",

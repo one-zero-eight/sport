@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='group',
-            constraint=models.CheckConstraint(check=models.Q(models.Q(('sport__isnull', False),
+            constraint=models.CheckConstraint(condition=models.Q(models.Q(('sport__isnull', False),
                                                                       models.Q(('name__isnull', False),
                                                                                models.Q(_negated=True, name__exact='')),
                                                                       _connector='OR')), name='sport_or_name'),

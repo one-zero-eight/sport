@@ -22,6 +22,7 @@ async function training_check_in(training_id, errorHandler=function(training_id)
         .then(() => {
             toastr.success(`You have been successfuly checked in.`, `Checked in`, 1000);
             $('#group-info-modal').modal('hide');
+            $('#checkin-rules-modal').modal('show');
             calendar.refetchEvents();
         })
         .catch(function (error) {

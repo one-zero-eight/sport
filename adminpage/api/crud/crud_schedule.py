@@ -56,7 +56,6 @@ def get_sport_schedule(
         current_load=Count('enrolls__id'),
         group_id=F('id'),
         group_name=F('name'),
-        is_paid=F('is_paid'),
         weekday=F('schedule__weekday'),
         start=F('schedule__start'),
         end=F('schedule__end'),

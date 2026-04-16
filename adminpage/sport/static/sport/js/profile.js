@@ -429,6 +429,22 @@ function make_grades_table(grades, maxHours) {
     return table;
 }
 
+async function copy_student_emails() {
+    const emails = [];
+    $('#marking-students-table tbody tr').each(function () {
+        const email = $(this).find('td').eq(1).text().trim();
+        if (email) emails.push(email);
+    });
+
+    if (emails.length === 0) {
+        toastr.warning('No emails to copy');
+        return;
+    }
+
+    await navigator.clipboard.writeText(emails.join('\n'));
+    toastr.success(`Copied ${emails.length} email(s)`);
+}
+
 function mark_all(el) {
     const duration_academic_hours = parseFloat($(el).attr('data-hours'));
     $('#grading-modal .modal-body-table input[type=number]')
