@@ -298,6 +298,35 @@ AUTH_INNOHASSLE = {
     "USERNAME_CLAIM": "email",
 }
 
+INNOHASSLE_ACCOUNTS_API = {
+    "ENABLED": getenv_boolean("INNOHASSLE_ACCOUNTS_API_ENABLED", True),
+    "BASE_URL": os.getenv(
+        "INNOHASSLE_ACCOUNTS_API_URL",
+        AUTH_INNOHASSLE["API_URL"],
+    ).rstrip("/"),
+    "BY_INNOMAIL_PATH": os.getenv(
+        "INNOHASSLE_ACCOUNTS_BY_INNOMAIL_PATH",
+        "/users/by-innomail/{email}",
+    ),
+    # Service token for Authorization: Bearer <token>
+    "TOKEN": os.getenv("INNOHASSLE_ACCOUNTS_API_TOKEN"),
+    "TIMEOUT_SECONDS": int(os.getenv("INNOHASSLE_ACCOUNTS_API_TIMEOUT_SECONDS", 10)),
+    "TG_ID_PATH": ("telegram_info", "id"),
+}
+
+proxy_url = os.getenv("TELEGRAM_PROXY")
+
+TELEGRAM_BOT = {
+    "TOKEN": os.getenv("TELEGRAM_BOT_TOKEN", None),
+    "PARSE_MODE": os.getenv("TELEGRAM_BOT_PARSE_MODE", "HTML"),
+    "TIMEOUT_SECONDS": 10,
+    "PROXY": {
+        "http": proxy_url,
+        "https": proxy_url,
+    } if proxy_url else None,
+}
+
+
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "profile"
 

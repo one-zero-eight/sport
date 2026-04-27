@@ -61,6 +61,12 @@ class Student(models.Model):
         default=get_current_study_year,
     )
 
+    telegram_id = models.BigIntegerField(
+        null=True,
+        blank=True,
+        db_index=True,
+    )
+
     telegram = models.CharField(
         max_length=50,
         null=True,
@@ -96,8 +102,34 @@ class Student(models.Model):
             html_message=msg.replace("\n", "<br>"),
         )
 
+    def _ensure_telegram_id(self):
+        if self.telegram_id is not None:
+            return self.telegram_id
+
+        from sport.integrations import get_student_telegram_id
+
+        telegram_id = get_student_telegram_id(self.user.email)
+        if telegram_id is None:
+            return None
+
+        self.telegram_id = telegram_id
+        type(self).objects.filter(pk=self.pk).update(telegram_id=telegram_id)
+        return telegram_id
+
+    def send_telegram(self, text: str) -> bool:
+        if not settings.TELEGRAM_BOT.get("TOKEN"):
+            return False
+
+        telegram_id = self._ensure_telegram_id()
+        if telegram_id is None:
+            return False
+
+        from sport.integrations import send_telegram_message
+
+        return send_telegram_message(telegram_id, text)
+
     def save(self, *args, **kwargs):
-        if self.telegram is not None and self.telegram[0] != '@':
+        if self.telegram and self.telegram[0] != '@':
             self.telegram = '@' + self.telegram
         if self.medical_group_id != self.__original_medical_group_id:
             MedicalGroupHistory.objects.create(student=self,

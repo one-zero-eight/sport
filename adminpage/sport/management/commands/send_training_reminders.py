@@ -1,5 +1,6 @@
-import urllib.parse
 from datetime import datetime, time, timedelta
+
+import urllib.parse
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -8,6 +9,7 @@ from django.forms.utils import to_current_timezone
 from django.utils import timezone
 
 from sport.models import Training, TrainingReminder
+from sport.notifications import build_training_reminder_telegram_message
 
 
 class Command(BaseCommand):
@@ -61,10 +63,13 @@ class Command(BaseCommand):
         subject, message = settings.EMAIL_TEMPLATES["training_reminder"]
         reminders_to_create = []
         sent_count = 0
+        telegram_sent_count = 0
+        telegram_skipped_count = 0
+        telegram_enabled = bool(settings.TELEGRAM_BOT.get("TOKEN"))
 
         for training in trainings:
             students = [
-                s for s in training.checked_in_students
+                s for s in training.checked_in_students.select_related("user")
                 if (training.pk, s.pk) not in already_reminded
             ]
             if not students:
@@ -75,17 +80,38 @@ class Command(BaseCommand):
             location = training.training_class.name if training.training_class else "—"
 
             for student in students:
+                date_str = local_start.strftime("%d.%m.%Y")
+                start_time = local_start.strftime("%H:%M")
+                end_time = local_end.strftime("%H:%M")
+
                 student.notify(
                     subject,
                     message,
-                    student_name=student.user.first_name,
                     group_name=training.group.to_frontend_name(),
-                    date=local_start.strftime("%d.%m.%Y"),
-                    start_time=local_start.strftime("%H:%M"),
-                    end_time=local_end.strftime("%H:%M"),
+                    date=date_str,
+                    start_time=start_time,
+                    end_time=end_time,
                     location=location,
                     location_url=f"https://innohassle.ru/maps?q={urllib.parse.quote(location)}",
                 )
+
+                telegram_message = build_training_reminder_telegram_message(
+                    message=message,
+                    group_name=training.group.to_frontend_name(),
+                    date=date_str,
+                    start_time=start_time,
+                    end_time=end_time,
+                    location=location,
+                    location_url=f"https://innohassle.ru/maps?q={urllib.parse.quote(location)}",
+                )
+
+                if telegram_enabled:
+                    telegram_success = student.send_telegram(telegram_message)
+                    if telegram_success:
+                        telegram_sent_count += 1
+                    else:
+                        telegram_skipped_count += 1
+
                 reminders_to_create.append(
                     TrainingReminder(training=training, student=student)
                 )
@@ -94,5 +120,10 @@ class Command(BaseCommand):
         TrainingReminder.objects.bulk_create(reminders_to_create, ignore_conflicts=True)
 
         self.stdout.write(
-            self.style.SUCCESS(f"Done: sent {sent_count} reminder emails.")
+            self.style.SUCCESS(
+                "Done: sent "
+                f"{sent_count} reminder emails, "
+                f"{telegram_sent_count} telegram messages "
+                f"({telegram_skipped_count} skipped)."
+            )
         )
