@@ -8,6 +8,7 @@ from rest_framework.decorators import (
 )
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
+from urllib.parse import urlparse
 
 from api.crud import get_ongoing_semester, get_student_hours, get_negative_hours
 from api.permissions import IsStudent
@@ -129,6 +130,24 @@ def self_sport_upload(request, **kwargs):
     return Response({})
 
 
+_TRUSTED_STRAVA_DOMAINS = {
+    "www.strava.com",
+    "strava.com",
+    "strava.app.link",
+}
+
+
+def is_valid_strava_url(url: str) -> bool:
+    """Check that the URL points to a trusted Strava domain."""
+    try:
+        parsed = urlparse(url)
+    except Exception:
+        return False
+
+    hostname = (parsed.hostname or "").lower()
+    return hostname in _TRUSTED_STRAVA_DOMAINS
+
+
 @extend_schema(
     methods=["GET"],
     description="Strava link parsing",
@@ -143,7 +162,7 @@ def self_sport_upload(request, **kwargs):
 @permission_classes([IsStudent])
 def get_strava_activity_info(request, **kwargs):
     url = request.GET['link']
-    if re.match(r'https?://.*strava.*', url, re.IGNORECASE) is None:
+    if not is_valid_strava_url(url):
         return Response(
             status=status.HTTP_400_BAD_REQUEST,
             data="Invalid link"
