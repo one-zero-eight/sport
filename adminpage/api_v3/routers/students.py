@@ -1,6 +1,6 @@
 from typing import Any
 
-from django.db.models import F
+from django.db.models import F, Q
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from starlette import status
@@ -8,8 +8,7 @@ from starlette import status
 from api_v3.dependencies import VerifiedDep
 from api_v3.permissions import is_student
 from api_v3.routers.fitness_test import FitnessTestSessionSchema
-from sport.models import Semester, Group
-
+from sport.models import Semester, Group, FitnessTestResult, Student, FitnessTestGrading
 
 router = APIRouter(
     tags=["Students"],
@@ -35,7 +34,10 @@ class FitnessTestExerciseResultSchema(BaseModel):
     exercise_id: int
     exercise_name: str
     unit: str | None
-    value: str
+    value: int
+    display_value: str
+    score: int
+    max_score: int
 
 
 class FitnessTestStudentSessionResultSchema(BaseModel):
@@ -325,6 +327,9 @@ def get_student_all_semesters_history(
                     "exercise_name": ex.exercise_name,
                     "unit": ex.value_unit,
                     "value": r.value,
+                    "display_value": f"{r.value} {ex.value_unit}".strip() if ex.select is None else ex.select.split(",")[r.value],
+                    "score": get_score(student, r),
+                    "max_score": get_max_score(student, r),
                 }
             )
 
@@ -350,7 +355,10 @@ def get_student_all_semesters_history(
                     exercise_id=e["exercise_id"],
                     exercise_name=e["exercise_name"],
                     unit=e.get("unit"),
-                    value=str(e["value"]),
+                    value=e["value"],
+                    display_value=e["display_value"],
+                    score=e["score"],
+                    max_score=e["max_score"],
                 )
                 for e in item.get("exercise_results", [])
             ]
@@ -390,3 +398,15 @@ def get_student_all_semesters_history(
 
     return result
 
+
+def get_grading_scheme(student: Student, result: FitnessTestResult):
+    return FitnessTestGrading.objects.filter(Q(gender__exact=-1) | Q(gender__exact=student.gender),
+                                             exercise=result.exercise)
+
+
+def get_score(student: Student, result: FitnessTestResult):
+    return get_grading_scheme(student, result).get(start_range__lte=result.value, end_range__gt=result.value).score
+
+
+def get_max_score(student: Student, result: FitnessTestResult):
+    return max(map(lambda x: x[0], get_grading_scheme(student, result).values_list('score')))
