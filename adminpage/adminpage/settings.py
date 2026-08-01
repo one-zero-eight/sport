@@ -309,7 +309,7 @@ CORS_ALLOWED_ORIGIN_REGEXES=[
     # Allow requests from InNoHassle frontends
     r"^https://innohassle\.ru$",
     r"^https://\w+\.innohassle\.ru$",
-    r"^https://local\.innohassle\.ru:3000$",
+    r"^https://local\.innohassle\.ru:300[0-5]$",  # only 3000-3005 ports
 ]
 
 # Database
