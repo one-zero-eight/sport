@@ -11,6 +11,8 @@ services:
         condition: service_healthy
     env_file:
       - .test.env
+    environment:
+      NO_MIGRATE: 'true'
     ports:
       - 8000:8000
 
@@ -20,7 +22,7 @@ services:
     env_file:
       - .test.env
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       start_interval: 1s
       interval: 10s
       retries: 5

@@ -2,7 +2,7 @@
 
 ###########################################################
 # Base Python image. Set shared environment variables.
-FROM python:3.12-slim-bullseye AS base
+FROM python:3.12-slim-bookworm AS base
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=off \
@@ -41,7 +41,7 @@ RUN apt-get update \
     && apt-get install --no-install-recommends -y \
         build-essential \
         curl \
-        netcat \
+        netcat-openbsd \
         vim \
     && rm -rf /var/lib/apt/lists/*
 
