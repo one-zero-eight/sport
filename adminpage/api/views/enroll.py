@@ -1,4 +1,4 @@
-from django.db import transaction, InternalError, IntegrityError
+from django.db import transaction, IntegrityError, ProgrammingError
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
@@ -109,7 +109,7 @@ def enroll(request, **kwargs):
                 *EnrollErrors.DOUBLE_ENROLL
             )
         )
-    except InternalError as e:
+    except ProgrammingError as e:
         if "too much groups" in str(e):
             return Response(
                 status=status.HTTP_400_BAD_REQUEST,

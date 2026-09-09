@@ -132,22 +132,22 @@ def mark_hours(training: Training, student_hours: Iterable[Tuple[int, float]]):
             raise ValueError(f"All students marks must floor to less than {floor_max}, "
                              f"got {student_mark} -> {floor(student_mark)} >= {floor_max}")
     with connection.cursor() as cursor:
-        args_add_str = b",".join(
+        args_add_str = ",".join(
             cursor.mogrify("(%s, %s, %s)", (student_id,
                            training.pk, student_mark))
             for student_id, student_mark in student_hours if student_mark > 0
         )
-        args_del_str = b",".join(
+        args_del_str = ",".join(
             cursor.mogrify("(%s, %s)", (student_id, training.pk))
             for student_id, student_mark in student_hours if student_mark == 0
         )
         if len(args_add_str) > 0:
-            cursor.execute(f'INSERT INTO attendance (student_id, training_id, hours) VALUES {args_add_str.decode()} '
+            cursor.execute(f'INSERT INTO attendance (student_id, training_id, hours) VALUES {args_add_str} '
                            f'ON CONFLICT ON CONSTRAINT unique_attendance '
                            f'DO UPDATE set hours=excluded.hours')
         if len(args_del_str) > 0:
             cursor.execute(f'DELETE FROM attendance '
-                           f'WHERE  (student_id, training_id) IN ({args_del_str.decode()})')
+                           f'WHERE  (student_id, training_id) IN ({args_del_str})')
 
 
 def toggle_has_QR(student: Student):

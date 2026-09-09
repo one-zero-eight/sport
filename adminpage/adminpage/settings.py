@@ -313,7 +313,7 @@ CORS_ALLOWED_ORIGIN_REGEXES=[
 ]
 
 # Database
-# https://docs.djangoproject.com/en/2.2/ref/settings/#databases
+# https://docs.djangoproject.com/en/5.2/ref/databases/#connection-pool
 
 
 DATABASES = {
@@ -324,6 +324,13 @@ DATABASES = {
         "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
         "HOST": os.getenv("POSTGRES_SERVER"),
         "PORT": "",  # default 5432 will be set
+        "OPTIONS": {
+            "pool": {
+                "min_size": int(os.getenv("POSTGRES_POOL_MIN_SIZE", "1")),
+                "max_size": int(os.getenv("POSTGRES_POOL_MAX_SIZE", "5")),
+                "timeout": float(os.getenv("POSTGRES_POOL_TIMEOUT", "30")),
+            },
+        },
     }
 }
 
