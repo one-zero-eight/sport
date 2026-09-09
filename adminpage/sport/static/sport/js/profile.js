@@ -212,10 +212,23 @@ function render(info) {
 
 let local_hours_changes = {};
 
+function has_unsaved_hours_changes() {
+    return Object.keys(local_hours_changes).length > 0;
+}
+
 function local_save_hours(e, student_id) {
-    e.parentNode.parentNode.parentNode.className = '';
-    $(e).parent().parent().parent().addClass('table-warning');
-    local_hours_changes[student_id] = parseFloat(e.value);
+    const row = $(e).parent().parent().parent();
+    row.removeClass('table-warning table-danger');
+
+    const hours = parseFloat(e.value);
+    const initial_hours = parseFloat(e.defaultValue);
+    if (hours === initial_hours) {
+        delete local_hours_changes[student_id];
+        return;
+    }
+
+    row.addClass('table-warning');
+    local_hours_changes[student_id] = hours;
 }
 
 function show_alert(alert_id, level, text = '') {
@@ -245,7 +258,7 @@ function parse_local_storage() {
 }
 
 async function save_hours() {
-    if (Object.keys(local_hours_changes).length === 0) return;
+    if (!has_unsaved_hours_changes()) return;
     const btn = $('#save-hours-btn');
     btn.prop('disabled', true);
     const training_id = btn.attr('data-training-id');
@@ -296,6 +309,24 @@ async function save_hours() {
     btn.prop('disabled', false);
     calc_marked_students();
 }
+
+$(document).on('hide.bs.modal', '#grading-modal', function (event) {
+    if (has_unsaved_hours_changes()) {
+        event.preventDefault();
+        show_alert(
+            'hours-alert',
+            'warning',
+            'Save your changes before closing this window'
+        );
+    }
+});
+
+window.addEventListener('beforeunload', function (event) {
+    if (has_unsaved_hours_changes()) {
+        event.preventDefault();
+        event.returnValue = '';
+    }
+});
 
 $(document).on('hidden.bs.modal', '#grading-modal', function () {
     hide_alert('hours-alert');
