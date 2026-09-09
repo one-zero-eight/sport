@@ -87,24 +87,24 @@ class ScheduleInline(admin.TabularInline):
 class DefaultFilterMixIn(admin.ModelAdmin):
     def changelist_view(self, request, *args, **kwargs):
         from django.http import HttpResponseRedirect
-        if hasattr(self, 'semester_filter') and self.semester_filter:
-            if not isinstance(self.semester_filter, tuple):
-                self.semester_filter = (self.semester_filter, get_ongoing_semester)
-            filter = F'{self.semester_filter[0]}={self.semester_filter[1]().pk}'
-            if hasattr(self, 'default_filters') and self.default_filters:
-                self.default_filters.append(filter)
-            else:
-                self.default_filters = [filter]
-        if hasattr(self, 'default_filters') and self.default_filters:
+        default_filters = list(getattr(self, 'default_filters', None) or [])
+        semester_filter = getattr(self, 'semester_filter', None)
+        if semester_filter:
+            if not isinstance(semester_filter, tuple):
+                semester_filter = (semester_filter, get_ongoing_semester)
+            default_filters.append(
+                F'{semester_filter[0]}={semester_filter[1]().pk}'
+            )
+        if default_filters:
             try:
                 test = request.META['HTTP_REFERER'].split(request.META['PATH_INFO'])
                 if test and test[-1] and not test[-1].startswith('?'):
                     url = reverse('admin:%s_%s_changelist' % (self.opts.app_label, self.opts.model_name))
                     filters = []
-                    for filter in self.default_filters:
-                        key = filter.split('=')[0]
-                        if key not in request.GET and filter not in filters:
-                            filters.append(filter)
+                    for default_filter in default_filters:
+                        key = default_filter.split('=')[0]
+                        if key not in request.GET and default_filter not in filters:
+                            filters.append(default_filter)
                     if filters:
                         return HttpResponseRedirect("%s?%s" % (url, "&".join(filters)))
             except:
