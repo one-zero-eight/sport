@@ -23,17 +23,42 @@ User = get_user_model()
 )
 # if user is add to a group, this will create a corresponding profile
 def create_student_profile(instance, action, reverse, pk_set, **kwargs):
-    if not reverse:
-        current_user_groups = [v.verbose_name for v in instance.groups.filter(
-            verbose_name__in=[
-                settings.STUDENT_AUTH_GROUP_VERBOSE_NAME,
-                settings.COLLEGE_AUTH_GROUP_VERBOSE_NAME,
-                settings.TRAINER_AUTH_GROUP_VERBOSE_NAME,
-            ],
-        ).all()]
-        has_student_group = settings.STUDENT_AUTH_GROUP_VERBOSE_NAME in current_user_groups
-        has_college_group = settings.COLLEGE_AUTH_GROUP_VERBOSE_NAME in current_user_groups
-        has_trainer_group = settings.TRAINER_AUTH_GROUP_VERBOSE_NAME in current_user_groups
+    if reverse or action not in {"post_add", "post_remove", "post_clear"}:
+        return
+
+    student_role_names = {
+        settings.STUDENT_AUTH_GROUP_VERBOSE_NAME,
+        settings.COLLEGE_AUTH_GROUP_VERBOSE_NAME,
+    }
+    auth_role_names = student_role_names | {
+        settings.TRAINER_AUTH_GROUP_VERBOSE_NAME,
+    }
+
+    if action == "post_clear":
+        changed_role_names = auth_role_names
+    else:
+        changed_role_names = set(
+            Group.objects.filter(
+                pk__in=pk_set or (),
+                verbose_name__in=auth_role_names,
+            ).values_list("verbose_name", flat=True)
+        )
+
+    # Student status groups are implementation details of Student and must not
+    # create or delete the profile. Deleting it would cascade to debts and other
+    # student data.
+    if not changed_role_names:
+        return
+
+    current_role_names = set(
+        instance.groups.filter(
+            verbose_name__in=auth_role_names,
+        ).values_list("verbose_name", flat=True)
+    )
+
+    if changed_role_names & student_role_names:
+        has_student_group = settings.STUDENT_AUTH_GROUP_VERBOSE_NAME in current_role_names
+        has_college_group = settings.COLLEGE_AUTH_GROUP_VERBOSE_NAME in current_role_names
 
         if has_student_group or has_college_group:
             student, _ = Student.objects.get_or_create(pk=instance.pk)
@@ -43,8 +68,11 @@ def create_student_profile(instance, action, reverse, pk_set, **kwargs):
         else:
             Student.objects.filter(pk=instance.pk).delete()
 
-        if action == "post_add" and has_trainer_group:
-            Trainer.objects.get_or_create(pk=instance.pk)
+    if (
+        action == "post_add"
+        and settings.TRAINER_AUTH_GROUP_VERBOSE_NAME in changed_role_names
+    ):
+        Trainer.objects.get_or_create(pk=instance.pk)
 
 
 @receiver(post_save, sender=Student)
