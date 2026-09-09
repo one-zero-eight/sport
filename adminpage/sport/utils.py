@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from datetime import date
 from enum import IntEnum
 
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives, send_mail
 from django.conf import settings
 from django.db.models import QuerySet
 from django.utils.html import format_html
@@ -58,10 +58,14 @@ def str_or_empty(field) -> str:
 def notify_students(students: QuerySet[Student], subject, message, **kwargs):
     msg = message.format(**kwargs)
     emails = list(students.values_list("user__email", flat=True).distinct())
-    send_mail(
-        subject,
-        msg,
+    if not emails:
+        return
+
+    email = EmailMultiAlternatives(
+        subject=subject,
+        body=msg,
         from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=emails,
-        html_message=msg.replace("\n", "<br>"),
+        bcc=emails,
     )
+    email.attach_alternative(msg.replace("\n", "<br>"), "text/html")
+    email.send()
