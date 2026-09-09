@@ -464,7 +464,7 @@ EMAIL_TEMPLATES = {
     ),
     'training_deleted': (
         '[IU Sport] Training Cancellation',
-        'Dear {student_name},\n\n'
+        'Dear student,\n\n'
         'Unfortunately, the <i>{group_name}</i> training session scheduled for <i>{time}</i> has been cancelled. '
         'Please check the updated training calendar on '
         '<a href="https://sport.innopolis.university">sport.innopolis.university</a> '
