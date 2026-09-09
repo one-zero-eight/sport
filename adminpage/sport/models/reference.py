@@ -1,13 +1,14 @@
+import datetime
 import uuid
 from typing import Tuple
 
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
+from PIL import Image
 from smartfields import fields
 from smartfields.dependencies import FileDependency
 from smartfields.processors import ImageProcessor
-import datetime
 
 from sport.utils import SubmissionType
 
@@ -22,6 +23,12 @@ def get_reference_path(instance, filename):
            f'{instance.student.pk}/{uuid.uuid4()}.{ext}'
 
 
+class PillowCompatibleImageProcessor(ImageProcessor):
+    @property
+    def resample(self):
+        return Image.Resampling.LANCZOS
+
+
 class Reference(models.Model):
     student = models.ForeignKey(
         'Student',
@@ -34,7 +41,7 @@ class Reference(models.Model):
         null=False,
     )
     image = fields.ImageField(dependencies=[
-        FileDependency(processor=ImageProcessor(
+        FileDependency(processor=PillowCompatibleImageProcessor(
             format='JPEG', scale={'max_width': 2000, 'max_height': 2000}))],
         upload_to=get_reference_path
     )

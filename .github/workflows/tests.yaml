@@ -4,7 +4,7 @@ jobs:
   run_tests:
     name: Run tests
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -19,6 +19,7 @@ jobs:
         run: |
           docker compose -f deploy/docker-compose.test.yaml exec -T adminpanel python manage.py makemigrations
           docker compose -f deploy/docker-compose.test.yaml exec -T adminpanel python manage.py migrate auth
+          docker compose -f deploy/docker-compose.test.yaml exec -T adminpanel python manage.py collectstatic --noinput
 
       - name: Run tests
         run: docker compose -f deploy/docker-compose.test.yaml exec -T adminpanel pytest
