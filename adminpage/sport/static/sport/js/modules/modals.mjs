@@ -13,6 +13,7 @@ $(function () {
                         <p>Please cancel your check-in in advance if you are unable to attend the training session.</p>
                         <p>Missing a training session may lead to certain consequences, including temporary restrictions on future training check-ins.</p>
                         <p>Your university pass grants access only to the sessions you have checked in for. In case of misuse of the university pass, you may be subject to sanctions, including a monetary fine from the sports complex and disciplinary action from the university.</p>
+                        <p><b>Please don't forget a change of shoes.</b></p>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-success" id="confirm-checkin-btn">Okay</button>
