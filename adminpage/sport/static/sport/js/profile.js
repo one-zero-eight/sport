@@ -295,11 +295,16 @@ async function save_hours() {
                 ' row(s)'
         );
     } else {
+        const students_hours = parse_local_storage();
         await sendResults('/api/attendance/mark', {
             training_id,
-            students_hours: parse_local_storage(),
+            students_hours,
         });
 
+        students_hours.forEach(({ student_id, hours }) => {
+            const input = document.querySelector(`#student_${student_id} .studentHourField`);
+            if (input) input.defaultValue = hours;
+        });
         $('#grading-modal tr').removeClass('table-warning');
         local_hours_changes = {};
 
@@ -608,9 +613,9 @@ function parse_student_from_server(data, hours = 0) {
             email,
             is_college === 'True',
             med_group,
-            hours,
+            0,
             current_duration_academic_hours,
-        ); // add if student isn't present
+        ); // New rows have no saved hours yet
     }
     const student_row = $(`#student_${student_id}`);
     student_row[0]?.scrollIntoView({
