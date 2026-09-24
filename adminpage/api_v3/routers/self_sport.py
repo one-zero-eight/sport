@@ -2,6 +2,7 @@ import datetime
 import json
 import re
 from typing import Any
+from urllib.parse import urlparse
 
 import requests
 from bs4 import BeautifulSoup
@@ -129,7 +130,7 @@ def parse_self_sport_strava(
             detail="Only students can parse Strava activities",
         )
 
-    if re.match(r"https?://.*strava.*", str(link), re.IGNORECASE) is None:
+    if not is_valid_strava_url(str(link)):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid link",
@@ -477,3 +478,20 @@ def get_self_sport_report_by_id(
 
     return SelfSportReportSchema.model_validate(report, from_attributes=True)
 
+
+_TRUSTED_STRAVA_DOMAINS = {
+    "www.strava.com",
+    "strava.com",
+    "strava.app.link",
+}
+
+
+def is_valid_strava_url(url: str) -> bool:
+    """Check that the URL points to a trusted Strava domain."""
+    try:
+        parsed = urlparse(url)
+    except Exception:
+        return False
+
+    hostname = (parsed.hostname or "").lower()
+    return hostname in _TRUSTED_STRAVA_DOMAINS
