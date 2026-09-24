@@ -22,6 +22,7 @@ router = APIRouter(
 class StudentInfoSchema(BaseModel):
     student_status: str
     medical_group: str
+    is_college: bool
 
 
 class GroupInfoSchema(BaseModel):
@@ -31,6 +32,7 @@ class GroupInfoSchema(BaseModel):
 
 class TrainerInfoSchema(BaseModel):
     groups: list[GroupInfoSchema]
+    "Groups that this trainer teaches in the current semester."
 
 
 class UserSchema(BaseModel):
@@ -42,7 +44,7 @@ class UserSchema(BaseModel):
     trainer_info: TrainerInfoSchema | None
 
     @classmethod
-    def from_user(cls, user: User):
+    def from_model(cls, user: User):
         student_info = None
         trainer_info = None
 
@@ -50,6 +52,7 @@ class UserSchema(BaseModel):
             student_info = StudentInfoSchema(
                 student_status=user.student_or_none.student_status.name,
                 medical_group=user.student_or_none.medical_group.name,
+                is_college=user.student_or_none.is_college,
             )
 
         if is_trainer(user):
@@ -85,7 +88,7 @@ def get_me(user: VerifiedDep) -> UserSchema:
     """
     Retrieve current user information.
     """
-    return UserSchema.from_user(user)
+    return UserSchema.from_model(user)
 
 
 @router.get(
@@ -107,7 +110,7 @@ def get_user_by_id(current_user: VerifiedDep, user_id: int) -> UserSchema:
     except User.DoesNotExist:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
-    return UserSchema.from_user(user)
+    return UserSchema.from_model(user)
 
 
 @router.post(
@@ -125,4 +128,4 @@ def get_many_users(current_user: VerifiedDep, user_ids: list[int]) -> list[UserS
 
     users: Iterable[User] = User.objects.prefetch_related("student", "trainer").filter(id__in=user_ids)
 
-    return [UserSchema.from_user(user) for user in users]
+    return [UserSchema.from_model(user) for user in users]
