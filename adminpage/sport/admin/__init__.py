@@ -5,8 +5,8 @@ admin.ModelAdmin.save_on_top = True
 
 from .site import SportAdminSite, site
 from .userAdmin import UserAdmin
-from .enrollAdmin import EnrollAdmin
 from .trainerAdmin import TrainerAdmin
+from .courseAdmin import CourseAdmin
 from .sportAdmin import SportAdmin
 from .trainingAdmin import TrainingAdmin
 from .groupAdmin import GroupAdmin
@@ -22,7 +22,6 @@ from .referenceAdmin import ReferenceAdmin
 from .medicalGroupAdmin import MedicalGroupAdmin
 from .medicalGroupReferenceAdmin import MedicalGroupReferenceAdmin
 from .studentStatusAdmin import StudentStatusAdmin
-from .custompermissionAdmin import CustomPermissionAdmin
 from .medicalGroupHistoryAdmin import MedicalGroupHistoryAdmin
 from .debtAdmin import DebtAdmin
 from .FAQAdmin import FAQAdmin

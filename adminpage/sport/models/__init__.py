@@ -17,6 +17,7 @@ from .sport import Sport
 from .student import Student, save_student_profile
 from .student_status import StudentStatus
 from .trainer import Trainer
+from .course import Course
 from .training import Training
 from .training_class import TrainingClass
 from .custom_permission import CustomPermission

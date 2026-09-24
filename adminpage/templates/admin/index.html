@@ -8,7 +8,7 @@
 
         {% if app_list %}
             {% for app in app_list %}
-                <div class="app-{{ app.app_label }} module">
+                <div id="app-{{ app.app_label }}" class="app-{{ app.app_label }} module">
                     <table>
                         <caption>
                             <a href="{{ app.app_url }}" class="section"
