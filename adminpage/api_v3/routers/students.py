@@ -1,14 +1,16 @@
-from typing import Any
+from collections import defaultdict
+from datetime import date, datetime
 
 from django.db.models import F, Q
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from starlette import status
 
+from api_v3.utils.semester import get_current_semester
 from api_v3.dependencies import VerifiedDep
 from api_v3.permissions import is_student
 from api_v3.routers.fitness_test import FitnessTestSessionSchema
-from sport.models import Semester, Group, FitnessTestResult, Student, FitnessTestGrading
+from sport.models import Semester, Group, FitnessTestResult, FitnessTestSession, Student, FitnessTestGrading
 
 router = APIRouter(
     tags=["Students"],
@@ -30,6 +32,15 @@ class TrainingHistorySchema(BaseModel):
     custom_name: str | None = None
 
 
+class TrainingHistoryRowSchema(BaseModel):
+    group_id: int
+    group: str
+    custom_name: str | None
+    timestamp: datetime
+    hours: int
+    approved: bool
+
+
 class FitnessTestExerciseResultSchema(BaseModel):
     exercise_id: int
     exercise_name: str
@@ -43,17 +54,66 @@ class FitnessTestExerciseResultSchema(BaseModel):
 class FitnessTestStudentSessionResultSchema(BaseModel):
     session: FitnessTestSessionSchema
     exercise_results: list[FitnessTestExerciseResultSchema]
+    total_score: int
+    max_score: int
+    passed: bool
+
+
+def build_fitness_test_session_result(
+    session: FitnessTestSession,
+    results: list[FitnessTestResult],
+    student: Student,
+    ongoing_semester_id: int | None,
+) -> FitnessTestStudentSessionResultSchema:
+    exercise_results = [
+        FitnessTestExerciseResultSchema(
+            exercise_id=result.exercise_id,
+            exercise_name=result.exercise.exercise_name,
+            unit=result.exercise.value_unit,
+            value=result.value,
+            display_value=(
+                f"{result.value} {result.exercise.value_unit}".strip()
+                if result.exercise.select is None
+                else result.exercise.select.split(",")[result.value]
+            ),
+            score=get_score(student, result),
+            max_score=get_max_score(student, result),
+        )
+        for result in results
+    ]
+    total_score = sum(result.score for result in exercise_results)
+    max_score = sum(result.max_score for result in exercise_results)
+    grade = all(
+        exercise.score >= result.exercise.threshold
+        for exercise, result in zip(exercise_results, results)
+    )
+    if (
+        session.semester_id == ongoing_semester_id
+        and student.medical_group_id == 0
+        and results
+    ):
+        grade = True
+    else:
+        grade = grade and total_score >= session.semester.points_fitness_test
+
+    return FitnessTestStudentSessionResultSchema(
+        session=FitnessTestSessionSchema.model_validate(session, from_attributes=True),
+        exercise_results=exercise_results,
+        total_score=total_score,
+        max_score=max_score,
+        passed=grade,
+    )
 
 
 class SemesterHistorySchema(BaseModel):
     semester_id: int
     semester_name: str
-    semester_start: Any
-    semester_end: Any
+    semester_start: date
+    semester_end: date
     required_hours: int
     total_hours: int
     trainings: list[TrainingHistorySchema]
-    fitness_tests: list[FitnessTestStudentSessionResultSchema] | None = None
+    fitness_tests: list[FitnessTestStudentSessionResultSchema]
 
 
 @router.get(
@@ -135,79 +195,48 @@ def get_student_specific_semester_history(
     )
 
     trainings: list[TrainingHistorySchema] = []
-    for t in att.union(self_qs).union(ref_qs).order_by("timestamp"):
+    for row in att.union(self_qs).union(ref_qs).order_by("timestamp"):
+        training = TrainingHistoryRowSchema.model_validate(row)
         group_name = (
-            t["group"]
-            if t.get("group_id", -1) < 0
-            else Group.objects.get(pk=t["group_id"]).to_frontend_name()
+            training.group
+            if training.group_id < 0
+            else Group.objects.get(pk=training.group_id).to_frontend_name()
         )
         trainings.append(
             TrainingHistorySchema(
-                training_id=t.get("id", -1),
-                date=t["timestamp"].strftime("%Y-%m-%d"),
-                time=t["timestamp"].strftime("%H:%M"),
-                hours=t.get("hours", 0),
+                training_id=-1,
+                date=training.timestamp.strftime("%Y-%m-%d"),
+                time=training.timestamp.strftime("%H:%M"),
+                hours=training.hours,
                 group_name=group_name,
-                sport_name=t.get("sport_name", "Unknown"),
-                training_class=t.get("training_class", "") or "",
-                custom_name=t.get("custom_name", "") or "",
+                sport_name="Unknown",
+                training_class="",
+                custom_name=training.custom_name or "",
             )
         )
 
-    from collections import defaultdict
-    from sport.models import FitnessTestResult, FitnessTestSession
-
-    sessions_qs = (
+    sessions = list(
         FitnessTestSession.objects.filter(semester=semester)
         .select_related("semester")
         .order_by("-date", "-id")
     )
-    sessions = list(sessions_qs)
-
-    fitness_tests_raw = []
+    by_session_id: dict[int, list[FitnessTestResult]] = defaultdict(list)
     if sessions:
-        results_qs = (
+        results = (
             FitnessTestResult.objects.filter(student=student, session__in=sessions)
-            .select_related("exercise", "session", "session__semester")
+            .select_related("exercise")
             .order_by("-session__date", "exercise__id")
         )
+        for result in results:
+            by_session_id[result.session_id].append(result)
 
-        by_session_id = defaultdict(list)
-        for r in results_qs:
-            ex = r.exercise
-            by_session_id[r.session_id].append(
-                {
-                    "exercise_id": ex.id,
-                    "exercise_name": ex.exercise_name,
-                    "unit": ex.value_unit,
-                    "value": r.value,
-                }
-            )
-
-        fitness_tests_raw = [
-            {"session": s, "exercise_results": by_session_id.get(s.id, [])}
-            for s in sessions
-        ]
-    fitness_tests: list[FitnessTestStudentSessionResultSchema] = []
-    for item in fitness_tests_raw:
-        session = FitnessTestSessionSchema.model_validate(
-            item["session"], from_attributes=True
+    ongoing_semester_id = get_current_semester().id if sessions else None
+    fitness_tests = [
+        build_fitness_test_session_result(
+            session, by_session_id[session.id], student, ongoing_semester_id
         )
-        ex_results = [
-            FitnessTestExerciseResultSchema(
-                exercise_id=e["exercise_id"],
-                exercise_name=e["exercise_name"],
-                unit=e.get("unit"),
-                value=str(e["value"]),
-            )
-            for e in item.get("exercise_results", [])
-        ]
-        fitness_tests.append(
-            FitnessTestStudentSessionResultSchema(
-                session=session,
-                exercise_results=ex_results,
-            )
-        )
+        for session in sessions
+    ]
 
     total_hours = sum(t.hours for t in trainings)
 
@@ -252,7 +281,7 @@ def get_student_all_semesters_history(
         Q(start__year=student.enrollment_year) & Q(start__month__lte=7)
     ).order_by("start")
 
-    history: list[dict[str, Any]] = []
+    history: list[SemesterHistorySchema] = []
     for semester in semesters:
         attendances = (
             Attendance.objects.filter(
@@ -274,129 +303,62 @@ def get_student_all_semesters_history(
             .order_by("training__start")
         )
         total_hours = attendances.aggregate(total=Sum("hours"))["total"] or 0
-        trainings = []
-        for attendance in attendances:
-            trainings.append(
-                {
-                    "training_id": attendance.training.id,
-                    "date": attendance.training_date.strftime("%Y-%m-%d"),
-                    "time": attendance.training_date.strftime("%H:%M"),
-                    "hours": attendance.hours,
-                    "group_name": attendance.group_name,
-                    "sport_name": attendance.sport_name,
-                    "training_class": attendance.training_class_name or "",
-                    "custom_name": attendance.custom_name or "",
-                }
-            )
-        history.append(
-            {
-                "semester_id": semester.id,
-                "semester_name": semester.name,
-                "semester_start": semester.start.strftime("%Y-%m-%d"),
-                "semester_end": semester.end.strftime("%Y-%m-%d"),
-                "required_hours": semester.hours,
-                "total_hours": total_hours,
-                "trainings": trainings,
-            }
-        )
-
-    semester_ids = [h["semester_id"] for h in history]
-    from collections import defaultdict
-    from sport.models import FitnessTestResult, FitnessTestSession
-
-    sessions_qs = FitnessTestSession.objects.all().select_related("semester")
-    if semester_ids is not None:
-        sessions_qs = sessions_qs.filter(semester_id__in=semester_ids)
-    sessions_qs = sessions_qs.order_by("semester_id", "-date", "-id")
-    sessions = list(sessions_qs)
-
-    fitness_by_semester: dict[int, list[dict[str, Any]]] = {}
-    if sessions:
-        results_qs = (
-            FitnessTestResult.objects.filter(student=student, session__in=sessions)
-            .select_related("exercise", "session", "session__semester")
-            .order_by("session__semester_id", "-session__date", "exercise__id")
-        )
-
-        by_session_id = defaultdict(list)
-        for r in results_qs:
-            ex = r.exercise
-            by_session_id[r.session_id].append(
-                {
-                    "exercise_id": ex.id,
-                    "exercise_name": ex.exercise_name,
-                    "unit": ex.value_unit,
-                    "value": r.value,
-                    "display_value": f"{r.value} {ex.value_unit}".strip() if ex.select is None else ex.select.split(",")[r.value],
-                    "score": get_score(student, r),
-                    "max_score": get_max_score(student, r),
-                }
-            )
-
-        by_semester = defaultdict(list)
-        for s in sessions:
-            by_semester[s.semester_id].append(
-                {"session": s, "exercise_results": by_session_id.get(s.id, [])}
-            )
-        fitness_by_semester = dict(by_semester)
-
-    result: list[SemesterHistorySchema] = []
-    for h in history:
-        sem_id = h["semester_id"]
-        fitness_tests_raw = fitness_by_semester.get(sem_id, [])
-
-        fitness_tests: list[FitnessTestStudentSessionResultSchema] = []
-        for item in fitness_tests_raw:
-            session = FitnessTestSessionSchema.model_validate(
-                item["session"], from_attributes=True
-            )
-            ex_results = [
-                FitnessTestExerciseResultSchema(
-                    exercise_id=e["exercise_id"],
-                    exercise_name=e["exercise_name"],
-                    unit=e.get("unit"),
-                    value=e["value"],
-                    display_value=e["display_value"],
-                    score=e["score"],
-                    max_score=e["max_score"],
-                )
-                for e in item.get("exercise_results", [])
-            ]
-            fitness_tests.append(
-                FitnessTestStudentSessionResultSchema(
-                    session=session,
-                    exercise_results=ex_results,
-                )
-            )
-
         trainings = [
             TrainingHistorySchema(
-                training_id=t["training_id"],
-                date=t["date"],
-                time=t["time"],
-                hours=t["hours"],
-                group_name=t["group_name"],
-                sport_name=t["sport_name"],
-                training_class=t.get("training_class", "") or "",
-                custom_name=t.get("custom_name", "") or "",
+                training_id=attendance.training.id,
+                date=attendance.training_date.strftime("%Y-%m-%d"),
+                time=attendance.training_date.strftime("%H:%M"),
+                hours=attendance.hours,
+                group_name=attendance.group_name,
+                sport_name=attendance.sport_name,
+                training_class=attendance.training_class_name or "",
+                custom_name=attendance.custom_name or "",
             )
-            for t in h.get("trainings", [])
+            for attendance in attendances
         ]
-
-        result.append(
+        history.append(
             SemesterHistorySchema(
-                semester_id=h["semester_id"],
-                semester_name=h["semester_name"],
-                semester_start=h["semester_start"],
-                semester_end=h["semester_end"],
-                required_hours=h["required_hours"],
-                total_hours=h["total_hours"],
+                semester_id=semester.id,
+                semester_name=semester.name,
+                semester_start=semester.start,
+                semester_end=semester.end,
+                required_hours=semester.hours,
+                total_hours=total_hours,
                 trainings=trainings,
-                fitness_tests=fitness_tests,
+                fitness_tests=[],
             )
         )
 
-    return result
+    semester_ids = [semester.semester_id for semester in history]
+
+    sessions = list(
+        FitnessTestSession.objects.filter(semester_id__in=semester_ids)
+        .select_related("semester")
+        .order_by("semester_id", "-date", "-id")
+    )
+    by_session_id: dict[int, list[FitnessTestResult]] = defaultdict(list)
+    if sessions:
+        results = (
+            FitnessTestResult.objects.filter(student=student, session__in=sessions)
+            .select_related("exercise")
+            .order_by("session__semester_id", "-session__date", "exercise__id")
+        )
+        for fitness_result in results:
+            by_session_id[fitness_result.session_id].append(fitness_result)
+
+    ongoing_semester_id = get_current_semester().id if sessions else None
+    fitness_by_semester: dict[int, list[FitnessTestStudentSessionResultSchema]] = defaultdict(list)
+    for session in sessions:
+        fitness_by_semester[session.semester_id].append(
+            build_fitness_test_session_result(
+                session, by_session_id[session.id], student, ongoing_semester_id
+            )
+        )
+
+    for semester in history:
+        semester.fitness_tests = fitness_by_semester[semester.semester_id]
+
+    return history
 
 
 def get_grading_scheme(student: Student, result: FitnessTestResult):
