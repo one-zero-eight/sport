@@ -37,7 +37,7 @@ class SportAdminSite(admin.AdminSite):
 
         sections = {}
         for name in SIDEBAR_SECTIONS:
-            slug = slugify(name)
+            slug = f"section-{slugify(name)}"
             sections[slug] = {
                 "name": name,
                 "app_label": slug,
@@ -47,7 +47,7 @@ class SportAdminSite(admin.AdminSite):
             }
 
         model_sections = {
-            model: slugify(name)
+            model: f"section-{slugify(name)}"
             for name, models in SIDEBAR_SECTIONS.items()
             for model in models
         }
