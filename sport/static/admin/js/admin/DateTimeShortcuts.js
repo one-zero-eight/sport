@@ -27,9 +27,9 @@
         clockDurations: {
             default_: [
                 [gettext_noop('1 ac. hour'), 45],
-                [gettext_noop('60 minutes'), 60],
                 [gettext_noop('2 ac. hours'), 90],
                 [gettext_noop('3 ac. hours'), 135],
+                [gettext_noop('4 ac. hours'), 180],
             ]
         },
         dismissClockFunc: [],
