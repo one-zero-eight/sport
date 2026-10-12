@@ -14,7 +14,7 @@
 !/manage.py
 !/pytest.ini
 !/pyproject.toml
-!/poetry.lock
+!/uv.lock
 
 # And ignore cache files in the code
 **/__pycache__

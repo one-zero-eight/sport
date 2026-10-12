@@ -1,66 +1,52 @@
-# Based on https://github.com/svx/poetry-fastapi-docker/blob/main/Dockerfile
+# syntax=docker.io/docker/dockerfile-upstream:1.23.0
 
-###########################################################
-# Base Python image. Set shared environment variables.
-FROM python:3.12-slim-bookworm AS base
-ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PIP_NO_CACHE_DIR=off \
-    PIP_DISABLE_PIP_VERSION_CHECK=on \
-    PIP_DEFAULT_TIMEOUT=100 \
-    POETRY_HOME="/opt/poetry" \
-    POETRY_VIRTUALENVS_IN_PROJECT=true \
-    POETRY_NO_INTERACTION=1 \
-    POETRY_INSTALLER_MAX_WORKERS=10 \
-    PYSETUP_PATH="/opt/pysetup" \
-    VENV_PATH="/opt/pysetup/.venv"
-
-ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
-
-RUN apt-get update \
-    && apt-get install --no-install-recommends -y \
-        curl \
-        gcc \
-        git \
-        python3-dev \
-        libjpeg62-turbo-dev \
-        zlib1g-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-# Update certificates
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends ca-certificates \
-    && update-ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
-
+ARG SOURCE_DATE_EPOCH=0
 
 ###########################################################
 # Builder stage. Build dependencies.
-FROM base AS builder
-RUN apt-get update \
-    && apt-get install --no-install-recommends -y \
-        build-essential \
-        curl \
-        netcat-openbsd \
-        vim \
-    && rm -rf /var/lib/apt/lists/*
+FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS builder
 
-# Install Poetry. Respects $POETRY_VERSION and $POETRY_HOME
-ENV POETRY_VERSION=1.8.5
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-RUN curl -sS https://install.python-poetry.org | POETRY_HOME=${POETRY_HOME} python3 - --version ${POETRY_VERSION} && \
-    chmod a+x /opt/poetry/bin/poetry
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
+    rm -f /etc/apt/apt.conf.d/docker-clean \
+    && echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache \
+    && apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    git
 
-# We copy our Python requirements here to cache them
-# and install only runtime deps using poetry
-WORKDIR $PYSETUP_PATH
-COPY ./poetry.lock ./pyproject.toml ./
-RUN poetry install --no-interaction
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy \
+    UV_PYTHON_DOWNLOADS=0 \
+    UV_NO_DEV=1 \
+    UV_PROJECT_ENVIRONMENT=/opt/venv
+
+WORKDIR /app
+COPY ./pyproject.toml ./uv.lock ./
+
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-install-project --no-dev
 
 
 ###########################################################
-# Production stage. Copy only runtime deps that were installed in the Builder stage.
-FROM base AS production
+# Production stage.
+FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS production
+
+ARG SOURCE_DATE_EPOCH
+
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PATH="/opt/venv/bin:$PATH"
+
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
+    rm -f /etc/apt/apt.conf.d/docker-clean \
+    && echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache \
+    && apt-get update && apt-get install --no-install-recommends -y \
+    curl \
+    libjpeg62-turbo-dev \
+    zlib1g-dev
 
 # Install supercronic (cron alternative for Docker)
 # Latest releases available at https://github.com/aptible/supercronic/releases
@@ -73,13 +59,18 @@ RUN curl -fsSLO "$SUPERCRONIC_URL" \
  && mv "$SUPERCRONIC" "/usr/local/bin/${SUPERCRONIC}" \
  && ln -s "/usr/local/bin/${SUPERCRONIC}" /usr/local/bin/supercronic
 
-COPY --from=builder $VENV_PATH $VENV_PATH
+
+RUN --mount=from=builder,source=/opt/venv,target=/mnt/venv \
+    cp -a /mnt/venv /opt/venv \
+    && find /opt/venv -depth -exec touch -h -d "@${SOURCE_DATE_EPOCH}" {} +
 
 COPY --chmod=755 ./docker-entrypoint.sh /
-
 COPY --chmod=644 . /app
+
 WORKDIR /app
 
 EXPOSE 8000
+HEALTHCHECK --interval=1m --timeout=10s --retries=3 --start-period=1m --start-interval=1s \
+    CMD ["curl", "-fsSI", "http://127.0.0.1:8000/api/v3/openapi.json"]
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
 CMD [ "uvicorn", "config.asgi:application", "--host", "0.0.0.0", "--port", "8000", "--workers", "4", "--lifespan", "off", "--proxy-headers", "--forwarded-allow-ips=*" ]

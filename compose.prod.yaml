@@ -19,7 +19,7 @@ services:
     build: .
     restart: always
     volumes:
-      - "django-auth-preserve:/opt/pysetup/.venv/lib/python3.12/site-packages/django/contrib/auth/migrations/"
+      - "django-auth-preserve:/opt/venv/lib/python3.12/site-packages/django/contrib/auth/migrations/"
       - "django-static:/static"
       - "/sport/media:/uploaded_media"
     depends_on:
@@ -33,7 +33,7 @@ services:
     restart: always
     volumes:
       - "./deploy/crontab:/deploy/crontab:ro"
-      - "django-auth-preserve:/opt/pysetup/.venv/lib/python3.12/site-packages/django/contrib/auth/migrations/"
+      - "django-auth-preserve:/opt/venv/lib/python3.12/site-packages/django/contrib/auth/migrations/"
       - "/sport/media:/uploaded_media"
     depends_on:
       db:

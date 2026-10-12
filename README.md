@@ -9,11 +9,10 @@ The platform for conducting, tracking and checking students' sports activity at 
 
 ### Set up for development
 
-1. Install [Python 3.12](https://www.python.org/downloads/), [Poetry](https://python-poetry.org/docs/),
-   [Docker](https://docs.docker.com/engine/install/)
-2. Install project dependencies with [Poetry](https://python-poetry.org/docs/cli/#options-2).
+1. Install [uv](https://docs.astral.sh/uv/), [Docker](https://docs.docker.com/engine/install/), and Docker Compose **5.3.1** (minimum **5.3.0**, required for `pre_start` hooks).
+2. Install dependencies:
    ```bash
-   poetry install
+   uv sync
    ```
 3. Copy environment variables: `cp .env.example .env` (leave default values in development)
 4. Start services: `docker compose up --build`
