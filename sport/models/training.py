@@ -43,8 +43,7 @@ class Training(models.Model):
 
         secs = (self.end - self.start).total_seconds()
         duration_sec = 45 * 60  # 45 minutes equals 1 academic hour
-        duration_for_1h = duration_sec * settings.ACADEMIC_DURATION_PERCENTAGE
         return min(
-            int((secs + duration_for_1h) // duration_sec),
+            int(secs // duration_sec),
             int(settings.ACADEMIC_DURATION_MAX)
         )
