@@ -64,7 +64,6 @@ RUN --mount=from=builder,source=/opt/venv,target=/mnt/venv \
     cp -a /mnt/venv /opt/venv \
     && find /opt/venv -depth -exec touch -h -d "@${SOURCE_DATE_EPOCH}" {} +
 
-COPY --chmod=755 ./docker-entrypoint.sh /
 COPY --chmod=644 . /app
 
 WORKDIR /app
@@ -72,5 +71,4 @@ WORKDIR /app
 EXPOSE 8000
 HEALTHCHECK --interval=1m --timeout=10s --retries=3 --start-period=1m --start-interval=1s \
     CMD ["curl", "-fsSI", "http://127.0.0.1:8000/api/v3/openapi.json"]
-ENTRYPOINT [ "/docker-entrypoint.sh" ]
 CMD [ "uvicorn", "config.asgi:application", "--host", "0.0.0.0", "--port", "8000", "--workers", "4", "--lifespan", "off", "--proxy-headers", "--forwarded-allow-ips=*" ]

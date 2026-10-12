@@ -19,12 +19,12 @@ docker compose exec db psql -U postgres -f /database_backup.sql postgres
 docker compose exec db rm database_backup.sql
 
 # save the latest applied sport migration
-SPORT_STATE=$(docker compose run --rm --env NO_MIGRATE=1 app python manage.py showmigrations sport | grep "[X]" | tail -n 1 | cut -c 6-9)
+SPORT_STATE=$(docker compose run --rm app python manage.py showmigrations sport | grep "[X]" | tail -n 1 | cut -c 6-9)
 
 # purge inconsistent migration history and apply migrations appropriately
 docker compose exec db psql -U postgres -d sport_database -c "DELETE FROM django_migrations"
 
-docker compose run --rm --env NO_MIGRATE=1 app bash -c "python manage.py makemigrations &&\
+docker compose run --rm app bash -c "python manage.py makemigrations &&\
 python manage.py migrate --fake contenttypes &&\
 python manage.py migrate --fake auth 0011 &&\
 python manage.py migrate auth 0012 &&\

@@ -19,6 +19,10 @@ services:
     build: .
     # Run development server with hot reload
     command: uvicorn config.asgi:application --host 0.0.0.0 --port 8000 --reload
+    pre_start:
+      - command: ["python3", "manage.py", "collectstatic", "--noinput"]
+      - command: ["python3", "manage.py", "migrate"]
+      - command: ["python3", "manage.py", "createcachetable"]
     restart: no
     volumes:
       - ".:/app"
@@ -47,7 +51,6 @@ services:
         condition: service_healthy
     env_file: .env
     environment:
-      NO_MIGRATE: 'true'
       TZ: 'Europe/Moscow'
 
   db:

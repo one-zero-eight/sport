@@ -10,8 +10,6 @@ services:
       db:
         condition: service_healthy
     env_file: .env.test
-    environment:
-      NO_MIGRATE: 'true'
     ports:
       - "8000:8000"
 

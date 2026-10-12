@@ -18,6 +18,10 @@ services:
   app:
     build: .
     restart: always
+    pre_start:
+      - command: ["python3", "manage.py", "collectstatic", "--noinput"]
+      - command: ["python3", "manage.py", "migrate"]
+      - command: ["python3", "manage.py", "createcachetable"]
     volumes:
       - "django-auth-preserve:/opt/venv/lib/python3.12/site-packages/django/contrib/auth/migrations/"
       - "django-static:/static"
@@ -40,7 +44,6 @@ services:
         condition: service_healthy
     env_file: .env
     environment:
-      NO_MIGRATE: 'true'
       TZ: 'Europe/Moscow'
 
   db:
