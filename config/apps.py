@@ -9,4 +9,4 @@ class SportAdminConfig(AdminConfig):
         from django.contrib import admin
         from sport.admin.site import site
         admin.site = site  # hijack checks admin.site for User
-        import adminpage.schema  # NOQA
+        import config.schema  # NOQA

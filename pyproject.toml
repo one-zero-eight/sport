@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "adminpage"
+name = "config"
 version = "0.1.0"
 description = ""
 authors = ["one_zero_eight"]

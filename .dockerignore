@@ -3,7 +3,7 @@
 
 # Except what the image needs
 !/accounts/
-!/adminpage/
+!/config/
 !/api/
 !/api_v3/
 !/media/

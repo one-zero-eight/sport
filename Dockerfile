@@ -82,4 +82,4 @@ WORKDIR /app
 
 EXPOSE 8000
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
-CMD [ "uvicorn", "adminpage.asgi:application", "--host", "0.0.0.0", "--port", "8000", "--workers", "4", "--lifespan", "off", "--proxy-headers", "--forwarded-allow-ips=*" ]
+CMD [ "uvicorn", "config.asgi:application", "--host", "0.0.0.0", "--port", "8000", "--workers", "4", "--lifespan", "off", "--proxy-headers", "--forwarded-allow-ips=*" ]

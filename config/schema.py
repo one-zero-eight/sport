@@ -4,7 +4,7 @@ from drf_spectacular.types import OpenApiTypes
 
 
 class InNoHassleAuthenticationScheme(OpenApiAuthenticationExtension):
-    target_class = 'adminpage.authentication.InNoHassleAuthentication'
+    target_class = 'config.authentication.InNoHassleAuthentication'
     name = 'innohassle_token'
 
     def get_security_definition(self, auto_schema):

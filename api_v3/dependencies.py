@@ -5,7 +5,7 @@ from fastapi import Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from accounts.models import User
-from adminpage.authentication import innohassle_settings, InNoHassleAccounts
+from config.authentication import innohassle_settings, InNoHassleAccounts
 from api_v3.exceptions import IncorrectCredentialsException
 
 bearer_scheme = HTTPBearer(

@@ -4,7 +4,7 @@ from django.db.models import Q
 from django.forms.utils import to_current_timezone
 from django.shortcuts import render, redirect
 
-from adminpage.settings import SPORT_COMPLEX_EMAIL
+from config.settings import SPORT_COMPLEX_EMAIL
 from sport.models import Training
 
 
