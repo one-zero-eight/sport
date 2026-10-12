@@ -2,7 +2,7 @@ name: sport
 
 services:
   adminpanel:
-    build: ../adminpage
+    build: ..
     # Run development server with hot reload
     command: python manage.py runserver 0.0.0.0:8000
     restart: unless-stopped

@@ -15,7 +15,7 @@ services:
       - "/sport/media:/media:ro"
 
   adminpanel:
-    build: ../adminpage
+    build: ..
     restart: always
     volumes:
       - "django-auth-preserve:/opt/pysetup/.venv/lib/python3.12/site-packages/django/contrib/auth/migrations/"
@@ -28,11 +28,11 @@ services:
       - .env
 
   cron:
-    build: ../adminpage
+    build: ..
     command: supercronic /deploy/crontab
     restart: always
     volumes:
-      - "../deploy/crontab:/deploy/crontab:ro"
+      - "./crontab:/deploy/crontab:ro"
       - "django-auth-preserve:/opt/pysetup/.venv/lib/python3.12/site-packages/django/contrib/auth/migrations/"
       - "/sport/media:/uploaded_media"
     depends_on:

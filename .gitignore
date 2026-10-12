@@ -13,8 +13,6 @@ htmlcov/
 .vscode/
 .idea/
 
-/media/
-
 venv/
 .prettierrc
 

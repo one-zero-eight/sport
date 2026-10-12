@@ -1,0 +1,20 @@
+# Ignore everything
+*
+
+# Except what the image needs
+!/accounts/
+!/adminpage/
+!/api/
+!/api_v3/
+!/media/
+!/sport/
+!/templates/
+!/conftest.py
+!/docker-entrypoint.sh
+!/manage.py
+!/pytest.ini
+!/pyproject.toml
+!/poetry.lock
+
+# And ignore cache files in the code
+**/__pycache__

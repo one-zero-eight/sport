@@ -13,7 +13,6 @@ The platform for conducting, tracking and checking students' sports activity at 
    [Docker](https://docs.docker.com/engine/install/)
 2. Install project dependencies with [Poetry](https://python-poetry.org/docs/cli/#options-2).
    ```bash
-   cd adminpage
    poetry install
    ```
 3. Copy environment variables: `cp deploy/.example.env deploy/.env` (leave default values in development)
@@ -50,34 +49,33 @@ The platform for conducting, tracking and checking students' sports activity at 
 
 ```
 .
-├── adminpage - Django project
-│   ├── adminpage - main django app
-│   │   ├── settings.py
-│   │   ├── swagger.py
-│   │   ├── urls.py
-│   │   └── wsgi.py
-│   ├── api
-│   │   ├── crud - directory with database queries
-│   │   ├── fixtures - database tools for testing
-│   │   ├── serializers - DRF serializers
-│   │   ├── tests
-│   │   │   ├── api - endpoints tests
-│   │   │   └── crud - database queries tests
-│   │   └── views - api endpoints
-│   ├── sport
-│   │   ├── admin - django adminpage classes
-│   │   ├── dumps - database dumps for tests
-│   │   ├── migrations - django database migrations
-│   │   ├── models - django database models
-│   │   ├── signals - django ORM signal handlers
-│   │   ├── static - static files for app (css, fonts, images, js)
-│   │   │   └── sport
-│   │   │       ├── css
-│   │   │       ├── fonts
-│   │   │       ├── images
-│   │   │       └── js
-│   │   ├── templates - django templates for app pages
-│   │   └── views - app pages url handlers
+├── adminpage - main django app
+│   ├── settings.py
+│   ├── swagger.py
+│   ├── urls.py
+│   └── wsgi.py
+├── api
+│   ├── crud - directory with database queries
+│   ├── fixtures - database tools for testing
+│   ├── serializers - DRF serializers
+│   ├── tests
+│   │   ├── api - endpoints tests
+│   │   └── crud - database queries tests
+│   └── views - api endpoints
+├── sport
+│   ├── admin - django adminpage classes
+│   ├── dumps - database dumps for tests
+│   ├── migrations - django database migrations
+│   ├── models - django database models
+│   ├── signals - django ORM signal handlers
+│   ├── static - static files for app (css, fonts, images, js)
+│   │   └── sport
+│   │       ├── css
+│   │       ├── fonts
+│   │       ├── images
+│   │       └── js
+│   ├── templates - django templates for app pages
+│   └── views - app pages url handlers
 ├── deploy - deployment configuration
 │   ├── docker-compose.yaml - development Docker Compose file
 │   ├── docker-compose.prod.yaml - production Docker Compose file

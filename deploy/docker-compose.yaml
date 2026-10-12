@@ -15,12 +15,12 @@ services:
       - uploaded_media:/media:ro
 
   adminpanel:
-    build: ../adminpage
+    build: ..
     # Run development server with hot reload
     command: uvicorn adminpage.asgi:application --host 0.0.0.0 --port 8000 --reload
     restart: unless-stopped
     volumes:
-      - "../adminpage:/app"
+      - "..:/app"
       - "django-auth-preserve:/opt/pysetup/.venv/lib/python3.12/site-packages/django/contrib/auth/migrations/"
       - "django-static:/static"
       - "uploaded_media:/uploaded_media"
@@ -35,12 +35,12 @@ services:
       DEBUG: 'true'
 
   cron:
-    build: ../adminpage
+    build: ..
     command: supercronic /deploy/crontab
     restart: unless-stopped
     volumes:
-      - "../adminpage:/app"
-      - "../deploy/crontab:/deploy/crontab:ro"
+      - "..:/app"
+      - "./crontab:/deploy/crontab:ro"
       - "django-auth-preserve:/opt/pysetup/.venv/lib/python3.12/site-packages/django/contrib/auth/migrations/"
     depends_on:
       db:
