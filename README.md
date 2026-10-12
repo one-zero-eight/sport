@@ -15,10 +15,10 @@ The platform for conducting, tracking and checking students' sports activity at 
    ```bash
    poetry install
    ```
-3. Copy environment variables: `cp deploy/.example.env deploy/.env` (leave default values in development)
-4. Start services: `docker compose -f ./deploy/docker-compose.yaml up --build`
+3. Copy environment variables: `cp .env.example .env` (leave default values in development)
+4. Start services: `docker compose up --build`
 5. Make migrations and create superuser:
-   - Enter shell: `docker compose -f ./deploy/docker-compose.yaml exec -it adminpanel bash`
+   - Enter shell: `docker compose exec -it app bash`
    - Autocreate migration files: `python3 manage.py makemigrations`
    - Apply migrations to db: `python3 manage.py migrate`
      > If there are problems with migrations applying, try to run the same migrate command with `--fake` option.
@@ -32,11 +32,11 @@ The platform for conducting, tracking and checking students' sports activity at 
 
 - Dump database
   ```bash
-  docker compose -f ./deploy/docker-compose.yaml exec -t db pg_dumpall -c -U postgres > ./sport_dump.sql
+  docker compose exec -t db pg_dumpall -c -U postgres > ./sport_dump.sql
   ```
 - Drop database (**dangerous!**)
   ```bash
-  docker compose -f ./deploy/docker-compose.yaml down
+  docker compose down
   # Dangerous!!! - immediately removes all database data
   docker volume rm sport_db-data
   ```
@@ -44,50 +44,6 @@ The platform for conducting, tracking and checking students' sports activity at 
   ```bash
   sh scripts/setup_sport_database.sh ./sport_dump.sql
   ```
-
-### Project structure
-
-```
-.
-├── adminpage - main django app
-│   ├── settings.py
-│   ├── swagger.py
-│   ├── urls.py
-│   └── wsgi.py
-├── api
-│   ├── crud - directory with database queries
-│   ├── fixtures - database tools for testing
-│   ├── serializers - DRF serializers
-│   ├── tests
-│   │   ├── api - endpoints tests
-│   │   └── crud - database queries tests
-│   └── views - api endpoints
-├── sport
-│   ├── admin - django adminpage classes
-│   ├── dumps - database dumps for tests
-│   ├── migrations - django database migrations
-│   ├── models - django database models
-│   ├── signals - django ORM signal handlers
-│   ├── static - static files for app (css, fonts, images, js)
-│   │   └── sport
-│   │       ├── css
-│   │       ├── fonts
-│   │       ├── images
-│   │       └── js
-│   ├── templates - django templates for app pages
-│   └── views - app pages url handlers
-├── deploy - deployment configuration
-│   ├── docker-compose.yaml - development Docker Compose file
-│   ├── docker-compose.prod.yaml - production Docker Compose file
-│   ├── docker-compose.test.yaml - services for automatic testing
-│   ├── .example.env - example of environment variables
-│   ├── nginx-conf - reverse proxy configuration
-│   ├── nginx-logs - request logs
-│   ├── grafana-provisioning - default dashboards for Grafana
-│   └── prometheus - Prometheus configs
-├── scripts - development tools
-└── README.md
-```
 
 ## Flows
 

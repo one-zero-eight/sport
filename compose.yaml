@@ -3,50 +3,49 @@ name: sport
 services:
   nginx:
     # See more: https://hub.docker.com/_/nginx
-    image: "nginx:1.27"
-    restart: unless-stopped
-    ports: [ "80:80" ]
+    image: "nginx:1.31"
+    restart: no
+    ports:
+      - "80:80"
     depends_on:
-      - adminpanel
+      - app
     volumes:
-      - "./nginx-conf/dev.conf:/etc/nginx/conf.d/default.conf:ro"
-      - "./nginx-logs:/var/log/nginx"
-      - django-static:/static
-      - uploaded_media:/media:ro
+      - "./deploy/nginx-conf/dev.conf:/etc/nginx/conf.d/default.conf:ro"
+      - "./deploy/nginx-logs:/var/log/nginx"
+      - "django-static:/static"
+      - "uploaded_media:/media:ro"
 
-  adminpanel:
-    build: ..
+  app:
+    build: .
     # Run development server with hot reload
     command: uvicorn adminpage.asgi:application --host 0.0.0.0 --port 8000 --reload
-    restart: unless-stopped
+    restart: no
     volumes:
-      - "..:/app"
+      - ".:/app"
       - "django-auth-preserve:/opt/pysetup/.venv/lib/python3.12/site-packages/django/contrib/auth/migrations/"
       - "django-static:/static"
       - "uploaded_media:/uploaded_media"
     ports:
-      - "8000:8000"
+     - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
-    env_file:
-      - .env
+    env_file: .env
     environment:
       DEBUG: 'true'
 
   cron:
-    build: ..
+    build: .
     command: supercronic /deploy/crontab
-    restart: unless-stopped
+    restart: no
     volumes:
-      - "..:/app"
-      - "./crontab:/deploy/crontab:ro"
+      - ".:/app"
+      - "./deploy/crontab:/deploy/crontab:ro"
       - "django-auth-preserve:/opt/pysetup/.venv/lib/python3.12/site-packages/django/contrib/auth/migrations/"
     depends_on:
       db:
         condition: service_healthy
-    env_file:
-      - .env
+    env_file: .env
     environment:
       NO_MIGRATE: 'true'
       TZ: 'Europe/Moscow'
@@ -54,13 +53,12 @@ services:
   db:
     # See more: https://hub.docker.com/_/postgres
     image: "postgres:17.1-alpine"
-    restart: unless-stopped
+    restart: no
     ports:
       - "5432:5432"
     volumes:
       - "db-data:/var/lib/postgresql/data"
-    env_file:
-      - .env
+    env_file: .env
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s

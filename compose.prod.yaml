@@ -3,19 +3,20 @@ name: sport
 services:
   nginx:
     # See more: https://hub.docker.com/_/nginx
-    image: "nginx:1.27"
+    image: "nginx:1.31"
     restart: always
-    ports: [ "80:80" ]
+    ports:
+      - "80:80"
     depends_on:
-      - adminpanel
+      - app
     volumes:
-      - "./nginx-conf/prod.conf:/etc/nginx/conf.d/default.conf:ro"
-      - "./nginx-logs:/var/log/nginx"
+      - "./deploy/nginx-conf/prod.conf:/etc/nginx/conf.d/default.conf:ro"
+      - "./deploy/nginx-logs:/var/log/nginx"
       - "django-static:/static"
       - "/sport/media:/media:ro"
 
-  adminpanel:
-    build: ..
+  app:
+    build: .
     restart: always
     volumes:
       - "django-auth-preserve:/opt/pysetup/.venv/lib/python3.12/site-packages/django/contrib/auth/migrations/"
@@ -24,22 +25,20 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    env_file:
-      - .env
+    env_file: .env
 
   cron:
-    build: ..
+    build: .
     command: supercronic /deploy/crontab
     restart: always
     volumes:
-      - "./crontab:/deploy/crontab:ro"
+      - "./deploy/crontab:/deploy/crontab:ro"
       - "django-auth-preserve:/opt/pysetup/.venv/lib/python3.12/site-packages/django/contrib/auth/migrations/"
       - "/sport/media:/uploaded_media"
     depends_on:
       db:
         condition: service_healthy
-    env_file:
-      - .env
+    env_file: .env
     environment:
       NO_MIGRATE: 'true'
       TZ: 'Europe/Moscow'
@@ -50,8 +49,7 @@ services:
     restart: always
     volumes:
       - "db-data:/var/lib/postgresql/data"
-    env_file:
-      - .env
+    env_file: .env
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
@@ -64,7 +62,7 @@ services:
     image: "prom/prometheus:v2.55.1"
     restart: always
     volumes:
-      - "./prometheus:/etc/prometheus"
+      - "./deploy/prometheus:/etc/prometheus"
       - "prometheus-data:/prometheus"
     ports:
       - "127.0.0.1:9090:9090"
@@ -97,11 +95,10 @@ services:
       GF_AUTH_PROXY_HEADERS: "Name:X-WEBAUTH-NAME"
       GF_AUTH_PROXY_AUTO_SIGN_UP: "true"
       GF_AUTH_PROXY_SYNC_TTL: "0"
-    env_file:
-      - .env
+    env_file: .env
     volumes:
       - "grafana-data:/var/lib/grafana"
-      - "./grafana-provisioning:/etc/grafana/provisioning/"
+      - "./deploy/grafana-provisioning:/etc/grafana/provisioning/"
 
 
 volumes:

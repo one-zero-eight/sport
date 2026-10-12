@@ -1,26 +1,24 @@
 name: sport
 
 services:
-  adminpanel:
-    build: ..
+  app:
+    build: .
     # Run development server with hot reload
     command: python manage.py runserver 0.0.0.0:8000
     restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
-    env_file:
-      - .test.env
+    env_file: .env.test
     environment:
       NO_MIGRATE: 'true'
     ports:
-      - 8000:8000
+      - "8000:8000"
 
   db:
     image: postgres:17.1-alpine
     restart: unless-stopped
-    env_file:
-      - .test.env
+    env_file: .env.test
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       start_interval: 1s
