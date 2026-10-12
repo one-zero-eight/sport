@@ -220,17 +220,17 @@ REST_FRAMEWORK = {
 
 SPECTACULAR_SETTINGS = {
     # Metadata
-    'TITLE': 'InnoSport',
+    'TITLE': 'Sport',
     'DESCRIPTION': """
 ### About this project
 
-This is the API for InnoSport platform at Innopolis University.
+This is the API for Sport platform at Innopolis University.
 
 Students check in for sport classes, instructors manage the schedule and collect attendance.
 
 Useful links:
-- [InnoSport source code](https://github.com/one-zero-eight/sport)
-- [InnoSport Website](https://sport.innopolis.university/)
+- [Sport source code](https://github.com/one-zero-eight/sport)
+- [Sport Website](https://sport.innopolis.university/)
 """,
     'VERSION': 'v1',
     'CONTACT': {

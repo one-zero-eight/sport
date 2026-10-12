@@ -8,19 +8,19 @@ from fastapi.routing import APIRoute
 VERSION = "v3"
 
 # Info for OpenAPI specification
-TITLE = "InnoSport"
-SUMMARY = "InnoSport platform at Innopolis University."
+TITLE = "Sport"
+SUMMARY = "Sport platform at Innopolis University."
 
 DESCRIPTION = """
 ### About this project
 
-This is the API for InnoSport platform at Innopolis University.
+This is the API for Sport platform at Innopolis University.
 
 Students check in for sport classes, instructors manage the schedule and collect attendance.
 
 Useful links:
-- [InnoSport source code](https://github.com/one-zero-eight/sport)
-- [InnoSport Website](https://sport.innopolis.university/)
+- [Sport source code](https://github.com/one-zero-eight/sport)
+- [Sport Website](https://sport.innopolis.university/)
 """
 
 CONTACT_INFO = {

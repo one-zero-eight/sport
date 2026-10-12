@@ -24,9 +24,9 @@ SIDEBAR_SECTIONS = {
 
 
 class SportAdminSite(admin.AdminSite):
-    site_header = "InnoSport"
-    index_title = "InnoSport"
-    site_title = "InnoSport"
+    site_header = "Sport admin"
+    index_title = "Sport admin"
+    site_title = "Sport admin"
 
     login_form = AuthenticationForm  # Allow college/students to log in using password
 
