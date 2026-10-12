@@ -45,6 +45,48 @@ dependencies = [
     "fastapi-swagger>=0.4.44,<0.5",
 ]
 
+[dependency-groups]
+dev = [
+    "prek>=0.5.5",
+    "ruff>=0.17.0",
+    "ty>=0.0.86",
+]
+
 [tool.uv.sources]
 django-smartfields = { git = "https://github.com/ViniciusBernardo/django-smartfields.git", branch = "master" }
 pytest-freezegun = { git = "https://github.com/oizik/pytest-freezegun.git", branch = "master" }
+
+[tool.ruff]
+extend-exclude = [".agents/skills"]
+line-length = 120
+lint.preview = true
+lint.extend-select = [
+    "E", # pycodestyle error
+    "I", # isort
+    "N", # pep-8 naming
+    "S", # bandit
+    "UP", # pyupgrade
+    "PL", # pylint
+    "A", # flake8-builtins
+    "DTZ", # flake8-datetimez
+    "ICN", # flake8-import-conventions
+    "TID251", # flake8-tidy-imports banned-api
+]
+lint.extend-ignore = [
+    "PLC0415", # import-outside-top-level
+    "PLR", # pylint refactor
+    "PLW0717", # too-many-statements-in-try-clause — broad try/except at route boundaries is intentional
+    "E501", # line-too-long (handled by formatter)
+    "PLW1514", # unspecified-encoding in open(...) function
+]
+lint.unfixable = ["F401"] # unused-import — report only, do not remove on fix
+target-version = "py312"
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101"] # assert is standard in pytest
+[tool.ruff.lint.flake8-builtins]
+ignorelist = ["id"]
+[tool.ruff.lint.flake8-import-conventions]
+banned-from = ["datetime", "time"]
+[tool.ruff.lint.flake8-import-conventions.aliases]
+datetime = "dtm"
+time = "tm"
