@@ -36,6 +36,8 @@ services:
   cron:
     build: .
     command: supercronic /deploy/crontab
+    healthcheck:
+      test: ["NONE"]
     restart: always
     volumes:
       - "./deploy/crontab:/deploy/crontab:ro"
