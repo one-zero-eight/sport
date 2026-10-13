@@ -78,7 +78,7 @@ def can_check_in(student: Student, training: Training, student_checkins=None, ti
 
     # The student can only get 4 hours at one day
     total_hours = sum(c.training.academic_duration for c in student_checkins if c.training.start.date() == t_date)
-    if total_hours + training.academic_duration > 4:
+    if total_hours != 0 and total_hours + training.academic_duration > 4:
         return False
 
     # The student can only get 2 hours at one day for the same sport type
@@ -88,7 +88,7 @@ def can_check_in(student: Student, training: Training, student_checkins=None, ti
         for c in student_checkins
         if c.training.group.sport.id == t_sport_id and c.training.start.date() == t_date
     )
-    if same_type_hours + training.academic_duration > 2:
+    if same_type_hours != 0 and same_type_hours + training.academic_duration > 2:
         return False
 
     # Students in "Banned students" list are always prohibited
