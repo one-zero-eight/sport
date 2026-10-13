@@ -1,5 +1,5 @@
-import datetime
-from typing import Any
+import datetime as dtm
+from typing import Annotated, Any
 
 from django.core.files.base import ContentFile
 from django.db import transaction
@@ -31,8 +31,8 @@ class ReferenceUploadResponseSchema(BaseModel):
     student_id: int
     semester: int = Field(validation_alias="semester_id")
     hours: int
-    start: datetime.date
-    end: datetime.date
+    start: dtm.date
+    end: dtm.date
     uploaded: Any
     message: str = "Medical certificate uploaded successfully"
 
@@ -60,10 +60,10 @@ class ReferenceErrors:
 )
 def reference_upload(
     user: VerifiedDep,
-    image: UploadFile = File(...),
-    start: datetime.date = Form(...),
-    end: datetime.date = Form(...),
-    student_comment: str | None = Form(None),
+    image: Annotated[UploadFile, File()],
+    start: Annotated[dtm.date, Form()],
+    end: Annotated[dtm.date, Form()],
+    student_comment: Annotated[str | None, Form()] = None,
 ) -> ReferenceUploadResponseSchema:
     """
     Upload a medical certificate for sick leave. Only one upload per day is allowed.
@@ -131,8 +131,8 @@ def reference_upload(
 )
 def medical_group_upload(
     user: VerifiedDep,
-    images: list[UploadFile] = File(..., description="Image files to upload"),
-    student_comment: str | None = Form(""),
+    images: Annotated[list[UploadFile], File(description="Image files to upload")],
+    student_comment: Annotated[str | None, Form()] = "",
 ) -> MedicalGroupReferenceUploadResponseSchema:
     """
     Upload medical group reference with multiple images.

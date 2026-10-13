@@ -1,8 +1,5 @@
 from django.contrib import admin
 
-# add save button on top for all admins
-admin.ModelAdmin.save_on_top = True
-
 from .attendanceAdmin import AttendanceAdmin as AttendanceAdmin
 from .courseAdmin import CourseAdmin as CourseAdmin
 from .debtAdmin import DebtAdmin as DebtAdmin
@@ -34,3 +31,6 @@ from .trainingAdmin import TrainingAdmin as TrainingAdmin
 from .trainingCheckInAdmin import TrainingCheckInAdmin as TrainingCheckInAdmin
 from .trainingClassAdmin import TrainingClassAdmin as TrainingClassAdmin
 from .userAdmin import UserAdmin as UserAdmin
+
+# add save button on top for all admins
+admin.ModelAdmin.save_on_top = True

@@ -108,15 +108,13 @@ def get_history(request, semester_id: int, **kwargs):
     student = request.user  # user.pk == user.student.pk
     return Response(
         {
-            "trainings": list(
-                map(
-                    lambda g: {
-                        **g,
-                        "timestamp": timezone.localtime(g["timestamp"]).strftime("%b %d %H:%M"),
-                    },
-                    get_detailed_hours(student, semester),
-                )
-            )
+            "trainings": [
+                {
+                    **g,
+                    "timestamp": timezone.localtime(g["timestamp"]).strftime("%b %d %H:%M"),
+                }
+                for g in get_detailed_hours(student, semester)
+            ]
         }
     )
 
@@ -138,17 +136,15 @@ def get_history_with_self(request, semester_id: int, **kwargs):
     student = request.user  # user.pk == user.student.pk
     return Response(
         {
-            "trainings": list(
-                map(
-                    lambda g: {
-                        **g,
-                        "group": g["group"]
-                        if g["group_id"] < 0
-                        else Group.objects.get(pk=g["group_id"]).to_frontend_name(),
-                        "timestamp": timezone.localtime(g["timestamp"]).strftime("%b %d %H:%M"),
-                    },
-                    get_detailed_hours_and_self(student, semester),
-                )
-            )
+            "trainings": [
+                {
+                    **g,
+                    "group": g["group"]
+                    if g["group_id"] < 0
+                    else Group.objects.get(pk=g["group_id"]).to_frontend_name(),
+                    "timestamp": timezone.localtime(g["timestamp"]).strftime("%b %d %H:%M"),
+                }
+                for g in get_detailed_hours_and_self(student, semester)
+            ]
         }
     )

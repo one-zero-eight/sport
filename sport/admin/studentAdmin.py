@@ -105,7 +105,7 @@ class StudentResource(resources.ModelResource):
         student_import_fields = row.keys() & student_model_fields
 
         student, student_created = Student.objects.get_or_create(
-            user=user, defaults=dict([(key, row[key]) for key in student_import_fields])
+            user=user, defaults={key: row[key] for key in student_import_fields}
         )
         if student_created:
             user.groups.add(student_group)

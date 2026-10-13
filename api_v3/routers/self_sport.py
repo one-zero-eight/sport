@@ -1,7 +1,7 @@
-import datetime
+import datetime as dtm
 import json
 import re
-from typing import Any
+from typing import Annotated, Any
 from urllib.parse import urlparse
 
 import requests
@@ -45,7 +45,7 @@ class SelfSportReportSchema(BaseModel):
     student_name: str | None = Field(validation_alias="student")
     training_type_name: str | None = Field(default=None, validation_alias=AliasPath("training_type", "name"))
     hours: int
-    uploaded: datetime.datetime
+    uploaded: dtm.datetime
     approval: bool | None
     debt: bool
     semester_id: int
@@ -114,7 +114,7 @@ def get_self_sport_types(_user: VerifiedDep) -> list[SelfSportTypeSchema]:
 )
 def parse_self_sport_strava(
     user: VerifiedDep,
-    link: AnyUrl = Query(..., description="Strava activity link"),
+    link: Annotated[AnyUrl, Query(description="Strava activity link")],
 ) -> ParsedStravaSchema:
     """
     Parse Strava activity information and calculate academic hours.
@@ -169,8 +169,8 @@ def parse_self_sport_strava(
     elif len(time_string) == 7:
         time_string = "0" + time_string
 
-    parsed_time = datetime.datetime.strptime(time_string, "%H:%M:%S")
-    final_time = datetime.time(
+    parsed_time = dtm.datetime.strptime(time_string, "%H:%M:%S")
+    final_time = dtm.time(
         parsed_time.hour,
         parsed_time.minute + (1 if parsed_time.second else 0),
         0,
@@ -226,14 +226,12 @@ def parse_self_sport_strava(
 )
 def list_self_sport_reports(
     user: VerifiedDep,
-    student_id: int | None = Query(
-        None,
-        description="Filter by student ID (trainers/admins only, students can only see their own)",
-    ),
-    semester_id: int | None = Query(
-        None,
-        description="Filter by semester ID; if omitted, all semesters are returned",
-    ),
+    student_id: Annotated[
+        int | None, Query(description="Filter by student ID (trainers/admins only, students can only see their own)")
+    ] = None,
+    semester_id: Annotated[
+        int | None, Query(description="Filter by semester ID; if omitted, all semesters are returned")
+    ] = None,
 ) -> list[SelfSportReportSchema]:
     """
     Returns self-sport reports with access rules similar to v2.
@@ -283,10 +281,10 @@ def create_self_sport_report(
             detail="Only students can submit self-sport reports",
         )
 
-    current_time = datetime.datetime.now()
+    current_time = dtm.datetime.now()
     semester = get_current_semester()
-    semester_start = datetime.datetime.combine(semester.start, datetime.datetime.min.time())
-    semester_end = datetime.datetime.combine(semester.end, datetime.datetime.max.time())
+    semester_start = dtm.datetime.combine(semester.start, dtm.datetime.min.time())
+    semester_end = dtm.datetime.combine(semester.end, dtm.datetime.max.time())
     if not (semester_start <= current_time <= semester_end):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

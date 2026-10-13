@@ -1,4 +1,4 @@
-import datetime
+import datetime as dtm
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
@@ -20,8 +20,8 @@ router = APIRouter(
 class SemesterSchema(BaseModel):
     id: int
     name: str
-    start: datetime.date
-    end: datetime.date
+    start: dtm.date
+    end: dtm.date
     required_hours: int = Field(..., validation_alias="hours")
 
 

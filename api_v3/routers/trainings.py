@@ -1,4 +1,5 @@
-import datetime
+import datetime as dtm
+from typing import Annotated
 
 import pglock
 from django.db import IntegrityError
@@ -25,8 +26,8 @@ router = APIRouter(
 
 class TrainingInfoSchema(BaseModel):
     id: int
-    start: datetime.datetime
-    end: datetime.datetime
+    start: dtm.datetime
+    end: dtm.datetime
     is_all_day: bool
     training_location: TrainingLocationSchema | None
 
@@ -53,7 +54,7 @@ class TrainingInfoSchema(BaseModel):
             id=obj.id,
             start=obj.start,
             end=obj.end,
-            is_all_day=(obj.start.time() == datetime.time(0, 0, 0) and obj.end.time() == datetime.time(23, 59, 59)),
+            is_all_day=(obj.start.time() == dtm.time(0, 0, 0) and obj.end.time() == dtm.time(23, 59, 59)),
             training_location=TrainingLocationSchema.model_validate(obj.training_class, from_attributes=True)
             if obj.training_class
             else None,
@@ -124,14 +125,10 @@ def get_training_info(user: VerifiedDep, training_id: int) -> TrainingInfoSchema
 def training_checkin(
     user: VerifiedDep,
     training_id: int,
-    checkin: bool = Query(
-        ...,
-        description="True - check in; False - cancel check-in",
-    ),
-    student_id: int | None = Query(
-        None,
-        description="Student ID if a trainer wants to cancel check in for some student",
-    ),
+    checkin: Annotated[bool, Query(description="True - check in; False - cancel check-in")],
+    student_id: Annotated[
+        int | None, Query(description="Student ID if a trainer wants to cancel check in for some student")
+    ] = None,
 ) -> None:
     """
     Check-in or cancel check-in for a training.

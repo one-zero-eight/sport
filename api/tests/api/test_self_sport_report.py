@@ -54,7 +54,7 @@ def setup(
 @pytest.mark.django_db
 @pytest.mark.freeze_time(frozen_time)
 def test_reference_upload_link_only(setup, freezer):
-    student, semester, selfsport_type, client = setup
+    _student, _semester, selfsport_type, client = setup
 
     response = client.post(
         f"/{settings.PREFIX}api/selfsport/upload",
@@ -71,7 +71,7 @@ def test_reference_upload_link_only(setup, freezer):
 @pytest.mark.django_db
 @pytest.mark.freeze_time(frozen_time)
 def test_reference_upload_invalid_link(setup, freezer):
-    student, semester, selfsport_type, client = setup
+    _student, _semester, selfsport_type, client = setup
 
     response = client.post(
         f"/{settings.PREFIX}api/selfsport/upload",
@@ -89,7 +89,7 @@ def test_reference_upload_invalid_link(setup, freezer):
 @pytest.mark.django_db
 @pytest.mark.freeze_time(frozen_time)
 def test_reference_upload_valid_link(setup, freezer):
-    student, semester, selfsport_type, client = setup
+    _student, _semester, selfsport_type, client = setup
 
     response = client.post(
         f"/{settings.PREFIX}api/selfsport/upload",
@@ -107,7 +107,7 @@ def test_reference_upload_valid_link(setup, freezer):
 @pytest.mark.django_db
 @pytest.mark.freeze_time(frozen_time)
 def test_reference_upload_more_three_hours(setup, freezer):
-    student, semester, selfsport_type, client = setup
+    _student, _semester, selfsport_type, client = setup
 
     response = client.post(
         f"/{settings.PREFIX}api/selfsport/upload",
@@ -125,7 +125,7 @@ def test_reference_upload_more_three_hours(setup, freezer):
 @pytest.mark.django_db
 @pytest.mark.freeze_time(frozen_time)
 def test_self_sport_same_type_same_day(setup, freezer):
-    student, semester, selfsport_type, client = setup
+    student, semester, selfsport_type, _client = setup
     self_sport_group = Group.objects.get(semester=semester, name=settings.SELF_TRAINING_GROUP_NAME)
     report1 = SelfSportReport.objects.create(
         student_id=student.pk,
@@ -187,7 +187,7 @@ def test_self_sport_same_type_same_day(setup, freezer):
 @pytest.mark.django_db
 @pytest.mark.freeze_time(frozen_time)
 def test_invalid_strava_link_parsing(setup, freezer):
-    student, semester, selfsport_type, client = setup
+    _student, _semester, _selfsport_type, client = setup
 
     response = client.get(
         f"/{settings.PREFIX}api/selfsport/strava_parsing",
@@ -201,7 +201,7 @@ def test_invalid_strava_link_parsing(setup, freezer):
 @pytest.mark.django_db
 @pytest.mark.freeze_time(frozen_time)
 def test_invalid_link_parsing(setup, freezer):
-    student, semester, selfsport_type, client = setup
+    _student, _semester, _selfsport_type, client = setup
 
     response = client.get(
         f"/{settings.PREFIX}api/selfsport/strava_parsing", data={"link": "https://www.google.com"}, format="multipart"
@@ -213,7 +213,7 @@ def test_invalid_link_parsing(setup, freezer):
 @pytest.mark.django_db
 @pytest.mark.freeze_time(frozen_time)
 def test_reference_upload_duplicate_link(setup, freezer):
-    student, semester, selfsport_type, client = setup
+    _student, _semester, selfsport_type, client = setup
 
     response = client.post(
         f"/{settings.PREFIX}api/selfsport/upload",

@@ -1,4 +1,4 @@
-import datetime
+import datetime as dtm
 import operator
 
 from django import forms
@@ -55,15 +55,15 @@ class YourModelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.instance.pk is not None:
-            self.fields["duration"].initial = datetime.datetime.combine(
-                datetime.date.today(), self.instance.end
-            ) - datetime.datetime.combine(datetime.date.today(), self.instance.start)
+            self.fields["duration"].initial = dtm.datetime.combine(
+                dtm.date.today(), self.instance.end
+            ) - dtm.datetime.combine(dtm.date.today(), self.instance.start)
         else:
-            self.fields["duration"].initial = datetime.timedelta(hours=1, minutes=30)
+            self.fields["duration"].initial = dtm.timedelta(hours=1, minutes=30)
 
     def save(self, commit=True):
         duration = self.cleaned_data.get("duration", None)
-        self.instance.end = (datetime.datetime.combine(datetime.date.today(), self.instance.start) + duration).time()
+        self.instance.end = (dtm.datetime.combine(dtm.date.today(), self.instance.start) + duration).time()
         return super().save(commit=commit)
 
     class Meta:
@@ -103,14 +103,14 @@ class DefaultFilterMixIn(admin.ModelAdmin):
             try:
                 test = request.META["HTTP_REFERER"].split(request.META["PATH_INFO"])
                 if test and test[-1] and not test[-1].startswith("?"):
-                    url = reverse("admin:%s_%s_changelist" % (self.opts.app_label, self.opts.model_name))
+                    url = reverse(f"admin:{self.opts.app_label}_{self.opts.model_name}_changelist")
                     filters = []
                     for default_filter in default_filters:
                         key = default_filter.split("=")[0]
                         if key not in request.GET and default_filter not in filters:
                             filters.append(default_filter)
                     if filters:
-                        return HttpResponseRedirect("%s?%s" % (url, "&".join(filters)))
+                        return HttpResponseRedirect("{}?{}".format(url, "&".join(filters)))
             except:
                 pass
         return super().changelist_view(request, *args, **kwargs)
@@ -195,7 +195,7 @@ def cache_filter(cls, clear_list: list[str]):
     return CacheAwareFilter
 
 
-def cache_dependent_filter(translation: dict[str, str], order=None, select_related: list[str] = None):
+def cache_dependent_filter(translation: dict[str, str], order=None, select_related: list[str] | None = None):
     """
     Creates foreign key list filter, that can use cached values from other filters
     @param translation: rules for translating cached keys, if 'key' is cached,
@@ -206,7 +206,7 @@ def cache_dependent_filter(translation: dict[str, str], order=None, select_relat
 
     class CacheRelatedFieldListFilter(admin.RelatedFieldListFilter):
         def field_choices(self, field, request, model_admin):
-            self.no_output = any(map(lambda x: request.cache_filter[x] is None, translation))
+            self.no_output = any(request.cache_filter[x] is None for x in translation)
             if self.no_output:
                 return []
             additional_filter = {translation[k]: int(request.cache_filter[k][0]) for k in translation}
@@ -241,7 +241,7 @@ def cache_alternative_filter(cls, cache_keys: list[str]):
 
     class CacheRelatedFieldListFilter(cls):
         def __init__(self, field, request, *args, **kwargs):
-            self.no_output = any(map(lambda x: request.cache_filter[x] is None, cache_keys))
+            self.no_output = any(request.cache_filter[x] is None for x in cache_keys)
             super().__init__(field, request, *args, **kwargs)
 
         def has_output(self):

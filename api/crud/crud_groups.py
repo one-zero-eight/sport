@@ -33,7 +33,7 @@ def get_sports(all=False, student: Student | None = None):
             trainers |= set(group_trainers)
 
         try:
-            trainers = list(map(lambda t: Trainer.objects.get(user_id=t), trainers))
+            trainers = [Trainer.objects.get(user_id=t) for t in trainers]
         except Trainer.DoesNotExist:
             trainers = []
 

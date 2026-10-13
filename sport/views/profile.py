@@ -1,4 +1,4 @@
-import datetime
+import datetime as dtm
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -32,7 +32,7 @@ def profile_view(request, **kwargs):
     sports = get_sports(student=student)
 
     context = {
-        "now": datetime.datetime.now(tz=datetime.UTC),
+        "now": dtm.datetime.now(tz=dtm.UTC),
         "user": request.user,
         "common": {"semester_name": current_semester.name},
         "forms": {"medical_group_reference": MedicalGroupReferenceForm()},

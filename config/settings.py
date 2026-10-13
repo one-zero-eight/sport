@@ -10,14 +10,15 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
+import os
+from datetime import timedelta
+
 import django_stubs_ext
 
 # Monkeypatching Django, so stubs will work for all generics,
 # see: https://github.com/typeddjango/django-stubs
 django_stubs_ext.monkeypatch()
 
-import os
-from datetime import timedelta
 
 SENTRY_DSN = os.getenv("SENTRY_DSN", None)
 
@@ -412,9 +413,11 @@ EMAIL_USE_TLS = True
 EMAIL_TEMPLATES = {
     "medical_leave_success": (
         "[IU Sport] Reference Accepted",
-        "Your reference from {date} was accepted.\n"
-        "You received {hours} hour(-s) for it.\n\n"
-        "Your submission:\n{submission}",
+        (
+            "Your reference from {date} was accepted.\n"
+            "You received {hours} hour(-s) for it.\n\n"
+            "Your submission:\n{submission}"
+        ),
     ),
     "medical_leave_reject": (
         "[IU Sport] Reference Rejected",
@@ -422,53 +425,65 @@ EMAIL_TEMPLATES = {
     ),
     "medical_group_success": (
         "[IU Sport] Medical Group Reference Processed",
-        "Your medical group reference for semester {semester} was processed.\n"
-        'You were assigned a medical group "{medical_group}".\n\n'
-        "Your submission:\n{submission}",
+        (
+            "Your medical group reference for semester {semester} was processed.\n"
+            'You were assigned a medical group "{medical_group}".\n\n'
+            "Your submission:\n{submission}"
+        ),
     ),
     "medical_group_reject": (
         "[IU Sport] Medical Group Reference Rejected",
-        "Your medical group reference for semester {semester} was rejected.\n"
-        "Please, submit a new reference or contact the course support.\n"
-        "Comment: {comment}\n\n"
-        "Your submission:\n{submission}",
+        (
+            "Your medical group reference for semester {semester} was rejected.\n"
+            "Please, submit a new reference or contact the course support.\n"
+            "Comment: {comment}\n\n"
+            "Your submission:\n{submission}"
+        ),
     ),
     "self_sport_success": (
         "[IU Sport] Self-training Proof Accepted",
-        "Your self-training proof for {training_type} "
-        "from {date} was accepted.\n"
-        "You received {hours} hour(-s) for it.\n\n"
-        "Your submission:\n{submission}",
+        (
+            "Your self-training proof for {training_type} "
+            "from {date} was accepted.\n"
+            "You received {hours} hour(-s) for it.\n\n"
+            "Your submission:\n{submission}"
+        ),
     ),
     "self_sport_reject": (
         "[IU Sport] Self-training Report Rejected",
-        "Your self-training proof for {training_type} "
-        " from {date} was rejected.\n"
-        "Comment: {comment}\n\n"
-        "Your submission:\n{submission}",
+        (
+            "Your self-training proof for {training_type} "
+            " from {date} was rejected.\n"
+            "Comment: {comment}\n\n"
+            "Your submission:\n{submission}"
+        ),
     ),
     "training_changed": (
         "[IU Sport] Training Schedule Change",
-        "Dear {student_name},\n\n"
-        "The training time for <i>{group_name}</i> has been moved from <i>{previous_time}</i> to <i>{new_time}</i>. "
-        "We kindly ask you to <b>check in for the training again</b> on "
-        '<a href="https://sport.innopolis.university">sport.innopolis.university</a>.\n\n'
-        "We apologize for any inconvenience this may have caused.\n"
-        "Thank you for your understanding.\n\n"
-        "Best regards,\n"
-        "School of Sport and Healthy Lifestyle",
+        (
+            "Dear {student_name},\n\n"
+            "The training time for <i>{group_name}</i> has been moved from <i>{previous_time}</i> to <i>{new_time}</i>. "
+            "We kindly ask you to <b>check in for the training again</b> on "
+            '<a href="https://sport.innopolis.university">sport.innopolis.university</a>.\n\n'
+            "We apologize for any inconvenience this may have caused.\n"
+            "Thank you for your understanding.\n\n"
+            "Best regards,\n"
+            "School of Sport and Healthy Lifestyle"
+        ),
     ),
     "training_deleted": (
         "[IU Sport] Training Cancellation",
-        "Dear student,\n\n"
-        "Unfortunately, the <i>{group_name}</i> training session scheduled for <i>{time}</i> has been cancelled. "
-        "Please check the updated training calendar on "
-        '<a href="https://sport.innopolis.university">sport.innopolis.university</a> '
-        "for the next available session and <b>check in again</b>.\n\n"
-        "We apologize for any inconvenience this may have caused.\n"
-        "Thank you for your understanding.\n\n"
-        "Best regards,\n"
-        "School of Sport and Healthy Lifestyle",
+        (
+            "Dear student,\n\n"
+            "Unfortunately, the <i>{group_name}</i> training session scheduled for <i>{time}</i> has been cancelled. "
+            "Please check the updated training calendar on "
+            '<a href="https://sport.innopolis.university">sport.innopolis.university</a> '
+            "for the next available session and <b>check in again</b>.\n\n"
+            "We apologize for any inconvenience this may have caused.\n"
+            "Thank you for your understanding.\n\n"
+            "Best regards,\n"
+            "School of Sport and Healthy Lifestyle"
+        ),
     ),
     "training_reminder": (
         "[IU Sport] Reminder: you have an upcoming training session",

@@ -1,7 +1,8 @@
 import csv
-import datetime
+import datetime as dtm
 import io
 import math
+from typing import Annotated
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -109,7 +110,7 @@ class AttendanceStudentGradeSchema(BaseModel):
 
 class TrainingGradesSchema(BaseModel):
     group_name: str
-    start: datetime.datetime
+    start: dtm.datetime
     academic_duration: int
     grades: list[AttendanceStudentGradeSchema]
 
@@ -165,8 +166,8 @@ class AttendanceErrors:
 def suggest_student(
     user: VerifiedDep,
     training_id: int,
-    term: str = Query(..., description="Search term"),
-    group_id: int = Query(..., description="Group id of the training"),
+    term: Annotated[str, Query(description="Search term")],
+    group_id: Annotated[int, Query(description="Group id of the training")],
 ) -> list[AttendanceSuggestionSchema]:
     """
     Suggest students based on search term for attendance marking.

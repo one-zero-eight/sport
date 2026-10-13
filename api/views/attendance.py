@@ -269,7 +269,7 @@ def mark_attendance(request, **kwargs):
     if not training.start <= now <= training.start + settings.TRAINING_EDITABLE_INTERVAL:
         return Response(status=status.HTTP_400_BAD_REQUEST, data=error_detail(*AttendanceErrors.TRAINING_NOT_EDITABLE))
 
-    id_to_hours = dict([(item["student_id"], item["hours"]) for item in serializer.validated_data["students_hours"]])
+    id_to_hours = {item["student_id"]: item["hours"] for item in serializer.validated_data["students_hours"]}
 
     max_hours = training.academic_duration
     students = User.objects.filter(pk__in=id_to_hours.keys()).only("email")
@@ -304,7 +304,7 @@ def mark_attendance(request, **kwargs):
     else:
         mark_data = [(x[0].pk, x[1]) for x in hours_to_mark]
         mark_hours(training, mark_data)
-        return Response(list(map(lambda x: compose_bad_grade_report(x[0].email, x[1]), hours_to_mark)))
+        return Response([compose_bad_grade_report(x[0].email, x[1]) for x in hours_to_mark])
 
 
 @extend_schema(

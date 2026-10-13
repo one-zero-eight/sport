@@ -79,7 +79,7 @@ def add_group_for_student_status(instance: Student, sender, using, **kwargs):
     if current_groups.exists():
         instance.user.groups.remove(*current_groups)
 
-    new_group, created = Group.objects.get_or_create(
+    new_group, _created = Group.objects.get_or_create(
         name=expected_group_name, defaults={"verbose_name": f"[Student status] {instance.student_status.name}"}
     )
     content_type = ContentType.objects.get_for_model(CustomPermission)

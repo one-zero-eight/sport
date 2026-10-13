@@ -353,4 +353,4 @@ def get_score(student: Student, result: FitnessTestResult):
 
 
 def get_max_score(student: Student, result: FitnessTestResult):
-    return max(map(lambda x: x[0], get_grading_scheme(student, result).values_list("score")))
+    return max(x[0] for x in get_grading_scheme(student, result).values_list("score"))

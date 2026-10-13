@@ -7,7 +7,7 @@ from django.contrib.auth.models import Group
 @pytest.fixture
 @pytest.mark.django_db
 def student_group() -> Group:
-    group, created = Group.objects.get_or_create(
+    group, _created = Group.objects.get_or_create(
         verbose_name=settings.STUDENT_AUTH_GROUP_VERBOSE_NAME,
         defaults={
             "name": settings.STUDENT_AUTH_GROUP_NAME,
@@ -19,7 +19,7 @@ def student_group() -> Group:
 @pytest.fixture
 @pytest.mark.django_db
 def college_group() -> Group:
-    group, created = Group.objects.get_or_create(
+    group, _created = Group.objects.get_or_create(
         verbose_name=settings.COLLEGE_AUTH_GROUP_VERBOSE_NAME,
         defaults={
             "name": settings.COLLEGE_AUTH_GROUP_NAME,
@@ -31,7 +31,7 @@ def college_group() -> Group:
 @pytest.fixture
 @pytest.mark.django_db
 def trainer_group() -> Group:
-    group, created = Group.objects.get_or_create(
+    group, _created = Group.objects.get_or_create(
         verbose_name=settings.TRAINER_AUTH_GROUP_VERBOSE_NAME,
         defaults={
             "name": settings.TRAINER_AUTH_GROUP_NAME,

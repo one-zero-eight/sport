@@ -1,6 +1,6 @@
-import datetime
+import datetime as dtm
 from collections import defaultdict
-from typing import Any
+from typing import Annotated, Any
 
 from django.db.models import Q
 from fastapi import APIRouter, HTTPException, Query
@@ -50,7 +50,7 @@ class FitnessTestSessionSchema(BaseModel):
     id: int
     semester_id: int
     retake: bool
-    date: datetime.datetime
+    date: dtm.datetime
     teacher: str
 
     @field_validator("teacher", mode="before")
@@ -120,10 +120,9 @@ class SuggestionSchema(BaseModel):
 )
 def get_exercises(
     user: VerifiedDep,
-    semester_id: int | None = Query(
-        None,
-        description="Semester ID; if omitted, current semester is used if available",
-    ),
+    semester_id: Annotated[
+        int | None, Query(description="Semester ID; if omitted, current semester is used if available")
+    ] = None,
 ) -> list[FitnessTestExerciseSchema]:
     """
     Get all fitness test exercises for a specific semester.
@@ -144,10 +143,7 @@ def get_exercises(
 )
 def get_sessions(
     user: VerifiedDep,
-    semester_id: int | None = Query(
-        None,
-        description="Semester ID; if omitted, all sessions are returned",
-    ),
+    semester_id: Annotated[int | None, Query(description="Semester ID; if omitted, all sessions are returned")] = None,
 ) -> list[FitnessTestSessionSchema]:
     """
     Get all fitness test sessions for a specific semester or all.
@@ -287,13 +283,13 @@ def upload_fitness_test_results(
         logger = logging.getLogger(__name__)
         from sport.models import Student
 
-        session, created = FitnessTestSession.objects.get_or_create(
+        session, _created = FitnessTestSession.objects.get_or_create(
             id=session_id,
             defaults={
                 "semester": semester,
                 "teacher_id": user.id,
                 "retake": body.retake,
-                "date": datetime.datetime.now(),
+                "date": dtm.datetime.now(),
             },
         )
 
@@ -343,7 +339,7 @@ def upload_fitness_test_results(
 )
 def suggest_fitness_test_student(
     user: VerifiedDep,
-    term: str = Query(..., description="Search term"),
+    term: Annotated[str, Query(description="Search term")],
 ) -> list[SuggestionSchema]:
     """
     Suggest students based on a search term for fitness test.

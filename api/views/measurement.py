@@ -1,4 +1,4 @@
-import datetime
+import datetime as dtm
 
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
@@ -84,7 +84,7 @@ def post_student_measurement(request, **kwargs):
     else:
         measurement = measurement[0]
     session = MeasurementSession.objects.get_or_create(
-        student=student, approved=approved, date=datetime.datetime.today(), semester=get_ongoing_semester()
+        student=student, approved=approved, date=dtm.datetime.today(), semester=get_ongoing_semester()
     )[0]
 
     result = MeasurementResult.objects.get_or_create(measurement=measurement, session=session)

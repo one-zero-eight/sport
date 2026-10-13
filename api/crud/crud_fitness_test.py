@@ -1,4 +1,4 @@
-import datetime
+import datetime as dtm
 
 from django.db.models import Q
 
@@ -19,13 +19,13 @@ def get_exercises_crud(semester_id):
 
 
 def post_student_exercises_result_crud(semester, retake, results, session_id, teacher):
-    session, created = FitnessTestSession.objects.get_or_create(
+    session, _created = FitnessTestSession.objects.get_or_create(
         id=session_id,
         defaults={
             "semester": semester,
             "teacher_id": teacher.id,
             "retake": retake,
-            "date": datetime.datetime.now(),
+            "date": dtm.datetime.now(),
         },
     )
 
@@ -51,4 +51,4 @@ def get_score(student: Student, result: FitnessTestResult):
 
 
 def get_max_score(student: Student, result: FitnessTestResult):
-    return max(map(lambda x: x[0], get_grading_scheme(student, result).values_list("score")))
+    return max(x[0] for x in get_grading_scheme(student, result).values_list("score"))

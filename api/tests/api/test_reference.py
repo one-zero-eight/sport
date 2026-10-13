@@ -1,4 +1,4 @@
-import datetime
+import datetime as dtm
 import tempfile
 from datetime import date
 
@@ -47,8 +47,8 @@ def test_reference_upload(student_factory, semester_factory, freezer):
         f"/{settings.PREFIX}api/reference/upload",
         data={
             "image": file_sm,
-            "start": datetime.date.today(),
-            "end": datetime.date.today(),
+            "start": dtm.date.today(),
+            "end": dtm.date.today(),
             "student_comment": "hi123",
         },
         format="multipart",
@@ -58,8 +58,8 @@ def test_reference_upload(student_factory, semester_factory, freezer):
         f"/{settings.PREFIX}api/reference/upload",
         data={
             "image": file_lg,
-            "start": datetime.date.today(),
-            "end": datetime.date.today(),
+            "start": dtm.date.today(),
+            "end": dtm.date.today(),
             "student_comment": "hi123",
         },
         format="multipart",
@@ -72,8 +72,8 @@ def test_reference_upload(student_factory, semester_factory, freezer):
         f"/{settings.PREFIX}api/reference/upload",
         data={
             "image": file_lg,
-            "start": datetime.date.today(),
-            "end": datetime.date.today(),
+            "start": dtm.date.today(),
+            "end": dtm.date.today(),
             "student_comment": "hi123",
         },
         format="multipart",
@@ -85,8 +85,8 @@ def test_reference_upload(student_factory, semester_factory, freezer):
         f"/{settings.PREFIX}api/reference/upload",
         data={
             "image": file_md,
-            "start": datetime.date.today(),
-            "end": datetime.date.today(),
+            "start": dtm.date.today(),
+            "end": dtm.date.today(),
             "student_comment": "hi123",
         },
         format="multipart",
@@ -102,8 +102,8 @@ def test_reference_upload(student_factory, semester_factory, freezer):
     assert ref.hours == 0
 
     ref.hours = 2
-    ref.start = datetime.date.today()
-    ref.end = datetime.date.today()
+    ref.start = dtm.date.today()
+    ref.end = dtm.date.today()
     ref.student_comment = "hi"
     ref.save()
 
@@ -114,8 +114,8 @@ def test_reference_upload(student_factory, semester_factory, freezer):
     assert att.hours == 2
 
     ref.hours = 3
-    ref.start = datetime.date.today()
-    ref.end = datetime.date.today()
+    ref.start = dtm.date.today()
+    ref.end = dtm.date.today()
     ref.student_comment = "hi1"
     ref.save()
 
@@ -130,8 +130,8 @@ def test_reference_upload(student_factory, semester_factory, freezer):
         f"/{settings.PREFIX}api/reference/upload",
         data={
             "image": file_md,
-            "start": datetime.date.today(),
-            "end": datetime.date.today(),
+            "start": dtm.date.today(),
+            "end": dtm.date.today(),
             "student_comment": "hi123",
         },
         format="multipart",
@@ -147,8 +147,8 @@ def test_reference_upload(student_factory, semester_factory, freezer):
         f"/{settings.PREFIX}api/reference/upload",
         data={
             "image": file_md,
-            "start": datetime.date.today(),
-            "end": datetime.date.today(),
+            "start": dtm.date.today(),
+            "end": dtm.date.today(),
             "student_comment": "hi123",
         },
         format="multipart",

@@ -107,6 +107,6 @@ def get_personal_schedule(request, **kwargs):
             serializer.validated_data["end"],
         )
 
-    result_dict = dict([(training["id"], training) for training in student_trainings + trainer_trainings])
+    result_dict = {training["id"]: training for training in student_trainings + trainer_trainings}
 
     return Response(list(map(convert_personal_training, result_dict.values())))

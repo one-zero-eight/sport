@@ -1,4 +1,5 @@
-import datetime
+import datetime as dtm
+from typing import Annotated
 
 from django.conf import settings
 from django.db.models import Count, Q
@@ -31,8 +32,8 @@ router = APIRouter(
 )
 def get_personal_schedule(
     user: VerifiedDep,
-    start: datetime.datetime = Query(..., description="Start datetime"),
-    end: datetime.datetime = Query(..., description="End datetime"),
+    start: Annotated[dtm.datetime, Query(description="Start datetime")],
+    end: Annotated[dtm.datetime, Query(description="End datetime")],
 ) -> list[TrainingInfoPersonalSchema]:
     """
     Retrieve personal training schedule for the current user (student or trainer).
@@ -120,7 +121,7 @@ def get_personal_schedule(
     for ev in student_trainings:
         if ev.training.id in trainings_by_id:
             trainings_by_id[ev.training.id] = trainings_by_id[ev.training.id].model_copy(
-                update=dict(checked_in=ev.checked_in, can_check_in=ev.can_check_in)
+                update={"checked_in": ev.checked_in, "can_check_in": ev.can_check_in}
             )
         else:
             trainings_by_id[ev.training.id] = ev
@@ -137,8 +138,8 @@ def get_personal_schedule(
 def get_sport_schedule(
     user: VerifiedDep,
     sport_id: int,
-    start: datetime.datetime = Query(..., description="Start datetime"),
-    end: datetime.datetime = Query(..., description="End datetime"),
+    start: Annotated[dtm.datetime, Query(description="Start datetime")],
+    end: Annotated[dtm.datetime, Query(description="End datetime")],
 ) -> list[TrainingInfoSchema]:
     """
     Retrieve training schedule for a specific sport.

@@ -61,7 +61,7 @@ class ReferenceAdmin(DefaultFilterMixIn):
 
     def attendance_link(self, obj):
         change_url = reverse("admin:sport_attendance_change", args=(obj.attendance.pk,))
-        return mark_safe('<a href="%s">%s</a>' % (change_url, obj.attendance))
+        return mark_safe(f'<a href="{change_url}">{obj.attendance}</a>')
 
     attendance_link.short_description = "Attendance"
 

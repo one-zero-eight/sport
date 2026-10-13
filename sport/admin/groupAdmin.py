@@ -40,7 +40,7 @@ class ListTextWidget(forms.NumberInput):
         text_html = super().render(name, value, attrs=attrs)
         list_html = ""
         for e in self._list:
-            list_html += "<button type=\"button\" onclick=\"clickButton('%s', '%s');\">%s</button>" % (name, e, e)
+            list_html += f"<button type=\"button\" onclick=\"clickButton('{name}', '{e}');\">{e}</button>"
 
         return mark_safe(script + "\n" + text_html + "\n" + list_html)
 

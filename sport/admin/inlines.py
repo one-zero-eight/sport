@@ -17,7 +17,7 @@ class ViewMedicalGroupHistoryInline(admin.TabularInline):
 
     def medical_group_reference_link(self, obj: MedicalGroupHistory):
         change_url = reverse("admin:sport_medicalgroupreference_change", args=(obj.medical_group_reference.pk,))
-        return mark_safe('<a href="%s">%s</a>' % (change_url, obj.medical_group_reference))
+        return mark_safe(f'<a href="{change_url}">{obj.medical_group_reference}</a>')
 
     medical_group_reference_link.short_description = "medical group reference"
 

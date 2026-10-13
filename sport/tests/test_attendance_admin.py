@@ -90,7 +90,7 @@ def test_empty_filters(
     setup,
     user_factory,
 ):
-    training, trainer_user, student_user, _ = setup
+    training, _trainer_user, student_user, _ = setup
     admin_password = "password"
     admin_email = "admin@example.com"
     user_factory(

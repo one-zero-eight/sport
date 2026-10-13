@@ -162,7 +162,6 @@ def get_strava_activity_info(request, **kwargs):
     except IndexError:
         return Response(status=status.HTTP_400_BAD_REQUEST, data="Invalid Strava link")
     data = json.loads(json_string)
-    beautified_data = json.dumps(data, sort_keys=True, indent=2)
 
     time_string = data["activity"]["time"]
     training_type = data["activity"]["type"]
@@ -190,7 +189,7 @@ def get_strava_activity_info(request, **kwargs):
     pace = round(total_minutes / (distance_float * 10), 1)  # for Swim
 
     approved = None
-    out_dict = dict()
+    out_dict = {}
     out_dict["distance_km"] = distance_float
     k = 0.95  # 5% bonus for distanse
     if training_type == "Run":

@@ -19,6 +19,4 @@ def student_can_view_group(student: Student, group: Group) -> bool:
         return False
     if not group.allowed_medical_groups.filter(pk=student.medical_group_id).exists():
         return False
-    if group.allowed_education_level not in (-1, 2 if student.is_college else 1):
-        return False
-    return True
+    return group.allowed_education_level in (-1, 2 if student.is_college else 1)

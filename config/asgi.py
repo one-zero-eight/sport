@@ -8,7 +8,7 @@ from django.core.asgi import get_asgi_application
 django_asgi_app = get_asgi_application()
 
 # Initialize FastAPI
-from api_v3.app import app as fastapi_asgi_app
+from api_v3.app import app as fastapi_asgi_app  # noqa
 
 
 async def application(scope, receive, send):

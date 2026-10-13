@@ -1,4 +1,4 @@
-import datetime
+import datetime as dtm
 import uuid
 
 from django.conf import settings
@@ -12,7 +12,7 @@ from smartfields.processors import ImageProcessor
 from sport.utils import SubmissionType
 
 
-def today() -> datetime.date:
+def today() -> dtm.date:
     return timezone.now().date()
 
 

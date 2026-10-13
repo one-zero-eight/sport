@@ -139,7 +139,7 @@ def validate_semester(sender, instance, *args, **kwargs):
 
 @receiver(m2m_changed, sender=Semester.nullify_groups.through)
 def nullify_medical_groups(instance, action, reverse, pk_set, **kwargs):
-    students = Student.objects.filter(medical_group_id__in=pk_set).update(medical_group_id=-2)
+    Student.objects.filter(medical_group_id__in=pk_set).update(medical_group_id=-2)
 
 
 @receiver(post_save, sender=Semester)

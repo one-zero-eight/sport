@@ -1,4 +1,4 @@
-import datetime
+import datetime as dtm
 import io
 from collections import OrderedDict
 
@@ -74,7 +74,7 @@ class TrainingFormWithCSV(forms.ModelForm):
                 )
         students = Student.objects.select_related("user").filter(user__email__in=emails)
         if len(students) != len(emails):
-            missing = set(emails) - set(map(lambda student: student.user.email, students))
+            missing = set(emails) - {student.user.email for student in students}
             raise forms.ValidationError(
                 f"File contains {len(emails)} records. Only {len(students)} emails matched. "
                 f"Missing students emails are: {', '.join(missing)}"
@@ -106,12 +106,12 @@ class CreateExtraTrainingForm(TrainingFormWithCSV):
         fields = ("group", "event_name", "start_day", "end_day")
 
     def save(self, commit=True):
-        self.instance.start = datetime.datetime.combine(
-            self.cleaned_data["start_day"], datetime.time(0, 0, 0), tzinfo=timezone.localtime().tzinfo
+        self.instance.start = dtm.datetime.combine(
+            self.cleaned_data["start_day"], dtm.time(0, 0, 0), tzinfo=timezone.localtime().tzinfo
         )
-        self.instance.end = datetime.datetime.combine(
+        self.instance.end = dtm.datetime.combine(
             self.cleaned_data["start_day" if self.cleaned_data["end_day"] is None else "end_day"],
-            datetime.time(23, 59, 59),
+            dtm.time(23, 59, 59),
             tzinfo=timezone.localtime().tzinfo,
         )
         if len(self.cleaned_data["event_name"]) > 0:
@@ -293,14 +293,14 @@ class TrainingAdmin(DefaultFilterMixIn):
         if "add-extra-multi" in request.path:
             for attendance_form in formsets[0].forms:
                 attendance_form.instance.student = form.cleaned_data["student"]
-                start = datetime.datetime.combine(
-                    datetime.date.fromisoformat(attendance_form["date"].value()),
-                    datetime.time(0, 0, 0),
+                start = dtm.datetime.combine(
+                    dtm.date.fromisoformat(attendance_form["date"].value()),
+                    dtm.time(0, 0, 0),
                     tzinfo=timezone.localtime().tzinfo,
                 )
-                end = datetime.datetime.combine(
-                    datetime.date.fromisoformat(attendance_form["date"].value()),
-                    datetime.time(23, 59, 59),
+                end = dtm.datetime.combine(
+                    dtm.date.fromisoformat(attendance_form["date"].value()),
+                    dtm.time(23, 59, 59),
                     tzinfo=timezone.localtime().tzinfo,
                 )
                 training = Training.objects.create(group=form.instance.group, start=start, end=end)

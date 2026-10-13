@@ -14,9 +14,7 @@ def is_trainer(user: User) -> bool:
 
 class IsStudent(permissions.BasePermission):
     def has_permission(self, request, view):
-        if is_student(request.user):
-            return True
-        return False
+        return bool(is_student(request.user))
 
 
 class SportSelected(IsStudent):

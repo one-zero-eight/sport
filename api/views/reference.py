@@ -36,7 +36,7 @@ def reference_upload(request, **kwargs):
     serializer = ReferenceUploadSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
 
-    image = serializer.validated_data["image"]
+    _image = serializer.validated_data["image"]
 
     student = request.user  # user.pk == user.student.pk
 

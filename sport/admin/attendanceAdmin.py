@@ -130,13 +130,13 @@ class AttendanceAdmin(DefaultFilterMixIn):
 
     def cause_report_link(self, obj):
         change_url = reverse("admin:sport_selfsportreport_change", args=(obj.cause_report.pk,))
-        return mark_safe('<a href="%s">%s</a>' % (change_url, obj.cause_report))
+        return mark_safe(f'<a href="{change_url}">{obj.cause_report}</a>')
 
     cause_report_link.short_description = "Self sport report"
 
     def cause_reference_link(self, obj):
         change_url = reverse("admin:sport_reference_change", args=(obj.cause_reference.pk,))
-        return mark_safe('<a href="%s">%s</a>' % (change_url, obj.cause_reference))
+        return mark_safe(f'<a href="{change_url}">{obj.cause_reference}</a>')
 
     cause_reference_link.short_description = "Medical leave reference"
 

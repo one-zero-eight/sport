@@ -1,4 +1,4 @@
-import datetime
+import datetime as dtm
 
 from django.db.models import Q
 from django.forms.utils import to_current_timezone
@@ -12,8 +12,8 @@ def sport_complex_view(request, **kwargs):
     if not (request.user.is_authenticated and (request.user.is_staff or request.user.email == SPORT_COMPLEX_EMAIL)):
         return redirect("/admin/login/?next=/sport-complex/")
 
-    now = datetime.datetime.now(tz=datetime.UTC)
-    today_end = datetime.datetime(now.year, now.month, now.day, 23, 59, 59, tzinfo=datetime.UTC)
+    now = dtm.datetime.now(tz=dtm.UTC)
+    today_end = dtm.datetime(now.year, now.month, now.day, 23, 59, 59, tzinfo=dtm.UTC)
 
     today_trainings = (
         Training.objects.filter(
