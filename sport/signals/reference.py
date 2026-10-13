@@ -15,7 +15,7 @@ def update_hours_for_reference(sender, instance: Reference, created, **kwargs):
     group = Group.objects.get(semester=instance.semester, name=settings.MEDICAL_LEAVE_GROUP_NAME)
 
     if not hasattr(instance, "attendance"):
-        instance.attendance = create_attendance_record(
+        instance.attendance = create_attendance_record(  # ty: ignore[invalid-assignment]
             group=group,
             upload_date=instance.uploaded.date(),
             student=instance.student,

@@ -174,7 +174,10 @@ class GroupAdmin(DefaultFilterMixIn):
     # filter_horizontal = ('trainers',)
 
     def teachers(self, obj):
-        return format_html(";<br>".join([t.user.first_name + " " + t.user.last_name for t in obj.trainers.all()]))
+        return format_html(
+            "{}",
+            ";<br>".join([t.user.first_name + " " + t.user.last_name for t in obj.trainers.all()]),
+        )
 
     def free_places(self, obj):
         return obj.capacity - obj.enroll_count
@@ -182,7 +185,7 @@ class GroupAdmin(DefaultFilterMixIn):
     def accredit(self, request, queryset):
         queryset.update(accredited=True)
 
-    actions = [accredit]
+    actions = [accredit]  # ty: ignore[invalid-assignment]
 
     # Dirty hack, filter autocomplete groups in "add extra form"
     def get_queryset(self, request):

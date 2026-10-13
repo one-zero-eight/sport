@@ -3,14 +3,13 @@ import unittest
 
 import pytest
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.test import APIClient
 
+from accounts.models import User
 from api.views.attendance import AttendanceErrors
 from sport.models import Attendance, Trainer, Training
 
-User = get_user_model()
 assert_members = unittest.TestCase().assertCountEqual
 before_training = dtm.datetime(2020, 1, 15, 17, 0, 0, tzinfo=dtm.UTC)
 training_start = dtm.datetime(2020, 1, 15, 18, 0, 0, tzinfo=dtm.UTC)

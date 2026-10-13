@@ -5,7 +5,6 @@ import math
 from typing import Annotated
 
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.db import connection
 from django.db.models import F, IntegerField, OuterRef, Q
 from django.db.models.expressions import ExpressionWrapper, Subquery
@@ -16,6 +15,7 @@ from fastapi.responses import Response
 from pydantic import BaseModel
 from starlette import status
 
+from accounts.models import User
 from api_v3.dependencies import VerifiedDep
 from api_v3.permissions import is_admin, is_trainer_of_group
 from api_v3.utils.search import search_students
@@ -89,8 +89,6 @@ router = APIRouter(
         403: {"description": "Unauthorized"},
     },
 )
-
-User = get_user_model()
 
 
 class AttendanceSuggestionSchema(BaseModel):
@@ -369,8 +367,7 @@ def mark_training_attendance(
         elif hours_put > max_hours:
             overflow_mark.append(BadGradeReportGradeSchema(email=student.email, hours=hours_put))
         elif (
-            str(Student.objects.filter(user=get_user_model().objects.filter(email=student.email)[0])[0].student_status)
-            != "Normal"
+            str(Student.objects.filter(user=User.objects.filter(email=student.email)[0])[0].student_status) != "Normal"
         ):
             continue
         else:

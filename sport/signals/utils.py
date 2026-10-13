@@ -2,20 +2,20 @@ import datetime as dtm
 
 from django.utils import timezone
 
-from sport.models import Attendance, Training
+from sport.models import Attendance, Group, Student, Training
 
 
 def create_attendance_record(
-    group,
+    group: Group,
     upload_date,
-    student,
+    student: Student,
     hours,
     start=None,
     end=None,
     training_name=None,
     cause_report=None,
     cause_reference=None,
-):
+) -> Attendance:
     tz = timezone.localtime().tzinfo
     if start is None:
         start = dtm.datetime.combine(upload_date, dtm.time(0, 0, 0), tzinfo=tz)

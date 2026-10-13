@@ -43,6 +43,8 @@ class TrainingFormWithCSV(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
+        if cleaned_data is None:
+            return cleaned_data
         attendances = []
         cleaned_data["attendances"] = attendances
         file = cleaned_data.get("xlsx", None)
@@ -308,8 +310,8 @@ class TrainingAdmin(DefaultFilterMixIn):
                 )
                 training = Training.objects.create(group=form.instance.group, start=start, end=end)
                 attendance_form.instance.training = training
-                training.save(False)
-                attendance_form.instance.save(False)
+                training.save()
+                attendance_form.instance.save()
             return None
         super().save_related(request, form, formsets, change)
         training = form.instance

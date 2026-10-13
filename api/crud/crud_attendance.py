@@ -1,6 +1,6 @@
 from collections.abc import Iterable
 from math import floor
-from typing import TypedDict
+from typing import TypedDict, cast
 
 from django.db import connection
 from django.db.models import BooleanField, CharField, F, IntegerField
@@ -172,9 +172,12 @@ class SemesterHours(TypedDict):
     debt: int
 
 
-def get_student_hours(student_id, **kwargs) -> TypedDict(
-    "StudentHours", {"last_semesters_hours": list[SemesterHours], "ongoing_semester": SemesterHours}
-):
+class StudentHours(TypedDict):
+    last_semesters_hours: list[SemesterHours]
+    ongoing_semester: SemesterHours
+
+
+def get_student_hours(student_id, **kwargs) -> StudentHours:
     student = Student.objects.get(user_id=student_id)
     sem_info_cur = {
         "id_sem": 0,
@@ -243,7 +246,10 @@ def get_student_hours(student_id, **kwargs) -> TypedDict(
                 "hours_sem_max": 0.0,
                 "debt": 0.0,
             }
-    return {"last_semesters_hours": last_sem_info_arr, "ongoing_semester": sem_info_cur}
+    return cast(
+        StudentHours,
+        {"last_semesters_hours": last_sem_info_arr, "ongoing_semester": sem_info_cur},
+    )
 
 
 def get_negative_hours(student_id, hours_info=None, **kwargs):

@@ -30,8 +30,8 @@ class MeasurementSession(admin.ModelAdmin):
 
     list_display = ("student", "date", "semester", "approved")
 
-    def get_form(self, request, obj=None, **kwargs):
-        form = super().get_form(request, obj, **kwargs)
+    def get_form(self, request, obj=None, change=False, **kwargs):
+        form = super().get_form(request, obj, change=change, **kwargs)
         form.base_fields["approved"].initial = True
         return form
 

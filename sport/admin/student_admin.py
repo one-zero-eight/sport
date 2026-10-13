@@ -296,7 +296,7 @@ class StudentAdmin(HijackUserAdminMixin, ImportExportActionModelAdmin, DefaultFi
             pass
         else:
             if obj.medical_group.name == "Medical checkup not passed":
-                self.inlines = (ViewAttendanceInline,)
+                self.inlines = (ViewAttendanceInline,)  # ty: ignore[invalid-attribute-access]
         return super().change_view(request, object_id, form_url, extra_context)
 
     def get_queryset(self, request):
@@ -340,7 +340,7 @@ class StudentAdmin(HijackUserAdminMixin, ImportExportActionModelAdmin, DefaultFi
         queryset.filter(student_status_id=0, course__gte=4).update(course=None, student_status_id=3)
         queryset.filter(student_status_id=0, course__lte=3).update(course=F("course") + 1)
 
-    actions = [ExportActionMixin.export_admin_action, delete_sport, increase_course]
+    actions = [ExportActionMixin.export_admin_action, delete_sport, increase_course]  # ty: ignore[invalid-assignment]
 
     list_select_related = (
         "user",

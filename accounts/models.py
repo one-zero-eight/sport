@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -5,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from sport.models import Student, Trainer
 
 
-class UserManager(BaseUserManager):
+class UserManager(BaseUserManager["User"]):
     """Define a model manager for User model with no username field."""
 
     use_in_migrations = True
@@ -47,7 +49,7 @@ class User(AbstractUser):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
-    objects = UserManager()
+    objects: ClassVar[UserManager] = UserManager()
 
     class Meta:
         db_table = "auth_user"

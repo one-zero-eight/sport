@@ -41,17 +41,17 @@ def trainer_group() -> Group:
 
 
 def create_user_in_groups(
-    predefined_groups: tuple[Group] = (),
+    predefined_groups: tuple[Group, ...] = (),
 ):
     def create_app_user(
         email: str,
         password: str | None = None,
         first_name: str | None = "first name",
         last_name: str | None = "last name",
-        is_staff: str = False,
-        is_superuser: str = False,
-        is_active: str = True,
-        groups: tuple[Group] = (),
+        is_staff: bool = False,
+        is_superuser: bool = False,
+        is_active: bool = True,
+        groups: tuple[Group, ...] = (),
     ):
         user = get_user_model().objects.create_user(
             password=password,

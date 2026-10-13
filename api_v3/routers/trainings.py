@@ -13,7 +13,7 @@ from api.crud.crud_training import can_check_in
 from api_v3.dependencies import VerifiedDep
 from api_v3.permissions import is_admin, is_student, is_trainer
 from api_v3.routers.info import TrainingLocationSchema
-from sport.models import CheckoutHistory, Student, Training, TrainingCheckIn
+from sport.models import CheckoutHistory, Training, TrainingCheckIn
 
 router = APIRouter(
     tags=["Trainings"],
@@ -146,7 +146,12 @@ def training_checkin(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Training with id={training_id} not found",
         )
-    student: Student = user.student_or_none
+    student = user.student_or_none
+    if student is None:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only students can check in to trainings",
+        )
 
     already_checked_in = TrainingCheckIn.objects.filter(student=student, training=training).exists()
 

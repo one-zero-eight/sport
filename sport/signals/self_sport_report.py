@@ -18,7 +18,7 @@ def update_hours_for_self_sport(sender, instance: SelfSportReport, created, **kw
         training_custom_name = f"[Self] {instance.training_type.name}"
 
     if not hasattr(instance, "attendance"):
-        instance.attendance = create_attendance_record(
+        instance.attendance = create_attendance_record(  # ty: ignore[invalid-assignment]
             group=group,
             upload_date=instance.uploaded.date(),
             student=instance.student,

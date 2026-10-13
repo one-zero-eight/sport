@@ -65,7 +65,8 @@ class YourModelForm(forms.ModelForm):
 
     def save(self, commit=True):
         duration = self.cleaned_data.get("duration", None)
-        self.instance.end = (dtm.datetime.combine(timezone.localdate(), self.instance.start) + duration).time()
+        if duration is not None:
+            self.instance.end = (dtm.datetime.combine(timezone.localdate(), self.instance.start) + duration).time()
         return super().save(commit=commit)
 
     class Meta:

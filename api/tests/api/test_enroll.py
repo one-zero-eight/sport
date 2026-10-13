@@ -2,14 +2,12 @@ import datetime as dtm
 
 import pytest
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.test import APIClient
 
+from accounts.models import User
 from api.views.enroll import EnrollErrors
 from sport.models import Enroll, Group, MedicalGroups, Sport
-
-User = get_user_model()
 
 start = dtm.date(2020, 1, 1)
 end = dtm.date(2020, 2, 20)

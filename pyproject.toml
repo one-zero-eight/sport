@@ -91,3 +91,17 @@ banned-from = ["datetime", "time"]
 [tool.ruff.lint.flake8-import-conventions.aliases]
 datetime = "dtm"
 time = "tm"
+
+[tool.django-stubs]
+django_settings_module = "config.settings"
+
+[tool.ty.src]
+exclude = ["**/migrations/**"]
+
+[tool.ty.rules]
+# ty has no django-stubs mypy plugin (FK `_id`, reverse managers, dynamic model attrs)
+unresolved-attribute = "ignore"
+# DRF ModelSerializer nested Meta
+invalid-attribute-override = "ignore"
+# DRF @permission_classes / drf-spectacular vs stub types
+invalid-argument-type = "ignore"

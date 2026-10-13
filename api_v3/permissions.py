@@ -3,7 +3,8 @@ from sport.models import Group
 
 
 def is_student(user: User) -> bool:
-    return user.student_or_none and user.student_or_none.student_status.name == "Normal"
+    student = user.student_or_none
+    return student is not None and student.student_status.name == "Normal"
 
 
 def is_trainer(user: User) -> bool:

@@ -1,6 +1,7 @@
 import datetime as dtm
 import json
 import logging
+from typing import cast
 
 import jwt
 import requests
@@ -11,9 +12,9 @@ from jwt.algorithms import RSAAlgorithm
 from rest_framework import exceptions
 from rest_framework.authentication import BaseAuthentication, get_authorization_header
 
-from accounts.models import User as _User_type
+from accounts.models import User
 
-User: type[_User_type] = get_user_model()
+User = cast(type[User], get_user_model())
 logger = logging.getLogger(__name__)
 
 

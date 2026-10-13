@@ -12,7 +12,7 @@ class SuggestionQueryFTSerializer(serializers.Serializer):
 
 class SuggestionSerializer(serializers.Serializer):
     value = serializers.CharField()
-    label = serializers.CharField()
+    label = serializers.CharField()  # ty: ignore[invalid-assignment]
 
 
 class StudentInfoSerializer(serializers.Serializer):

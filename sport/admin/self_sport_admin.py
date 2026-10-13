@@ -135,7 +135,7 @@ class SelfSportAdmin(DefaultFilterMixIn):
     reference_image.short_description = "Reference"
     reference_image.allow_tags = True
 
-    ordering = (F("approval").asc(nulls_first=True), "uploaded")
+    ordering = (F("approval").asc(nulls_first=True), "uploaded")  # ty: ignore[invalid-assignment]
 
     def parsed_data_json(self, obj: SelfSportReport):
         return json.dumps(obj.parsed_data, indent=4)

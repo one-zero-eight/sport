@@ -56,7 +56,7 @@ class ScheduleAdmin(DefaultFilterMixIn):
         Make some-fields immutable once set
         """
         if obj is not None:
-            return self.readonly_fields + ("group",)
+            return tuple(self.readonly_fields or ()) + ("group",)
         return self.readonly_fields
 
     class Media:

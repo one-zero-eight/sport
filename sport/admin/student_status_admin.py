@@ -15,5 +15,5 @@ class StudentStatusAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         return False
 
-    def has_delete_permission(self, request: HttpRequest, obj: Model | None = ...) -> bool:
+    def has_delete_permission(self, request: HttpRequest, obj: Model | None = None) -> bool:
         return False

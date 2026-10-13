@@ -66,7 +66,7 @@ class ReferenceAdmin(DefaultFilterMixIn):
 
     autocomplete_fields = ("student",)
 
-    ordering = (F("approval").asc(nulls_first=True), "uploaded")
+    ordering = (F("approval").asc(nulls_first=True), "uploaded")  # ty: ignore[invalid-assignment]
 
     def reference_image(self, obj):
         return format_html('<a href="{}"><img style="width: 50%" src="{}" /></a>', obj.image.url, obj.image.url)
