@@ -1,5 +1,5 @@
+import datetime as dtm
 from collections.abc import Iterator
-from datetime import date, datetime, timedelta
 
 from django.conf import settings
 from django.db.models.signals import post_save, pre_delete, pre_save
@@ -11,27 +11,27 @@ from sport.models import CheckoutHistory, Schedule, Training
 from sport.utils import notify_students
 
 
-def get_today() -> date:
+def get_today() -> dtm.date:
     return timezone.now().date()
 
 
-def get_current_monday() -> date:
+def get_current_monday() -> dtm.date:
     today = get_today()
-    return today - timedelta(days=today.weekday())
+    return today - dtm.timedelta(days=today.weekday())
 
 
-def week_generator(start: date, end: date) -> Iterator[date]:
+def week_generator(start: dtm.date, end: dtm.date) -> Iterator[dtm.date]:
     """
     Generate monday's date for all weeks between start and date including first and last week
 
     :param start: start generating on week start belongs to
     :param end: stop generating on week end belongs to
     """
-    start -= timedelta(days=start.weekday())
-    end -= timedelta(days=end.weekday())
+    start -= dtm.timedelta(days=start.weekday())
+    end -= dtm.timedelta(days=end.weekday())
     while start <= end:
         yield start
-        start += timedelta(weeks=1)
+        start += dtm.timedelta(weeks=1)
 
 
 @receiver(pre_delete, sender=Schedule)
@@ -90,14 +90,14 @@ def create_trainings_current_semester(instance: Schedule, created, **kwargs):
     semester = instance.group.semester
     today = get_today()
     server_timezone = timezone.localtime().tzinfo
-    server_time = datetime.now(server_timezone)
+    server_time = dtm.datetime.now(tz=server_timezone)
     trainings = []
     for week_start in week_generator(max(get_current_monday(), semester.start), semester.end):
-        training_date = week_start + timedelta(days=instance.weekday)
+        training_date = week_start + dtm.timedelta(days=instance.weekday)
         if today <= training_date <= semester.end:
-            training_start = datetime.combine(date=training_date, time=instance.start, tzinfo=server_timezone)
+            training_start = dtm.datetime.combine(date=training_date, time=instance.start, tzinfo=server_timezone)
             if server_time < training_start:
-                training_end = datetime.combine(date=training_date, time=instance.end, tzinfo=server_timezone)
+                training_end = dtm.datetime.combine(date=training_date, time=instance.end, tzinfo=server_timezone)
                 trainings.append(
                     Training(
                         group=instance.group,

@@ -1,5 +1,5 @@
+import datetime as dtm
 import unittest
-from datetime import date
 
 import pytest
 from django.forms.models import model_to_dict
@@ -7,7 +7,7 @@ from django.forms.models import model_to_dict
 from api.crud import get_sports, get_student_groups, get_trainer_groups
 from sport.models import MedicalGroups
 
-assertMembers = unittest.TestCase().assertCountEqual
+assert_members = unittest.TestCase().assertCountEqual
 
 
 @pytest.mark.django_db
@@ -20,7 +20,7 @@ def test_sport(
 ):
     student_factory("A@foo.bar")
     sport = sport_factory(name="Sport")
-    s1 = semester_factory(name="S19", start=date(2020, 1, 1), end=date(2020, 1, 3))
+    s1 = semester_factory(name="S19", start=dtm.date(2020, 1, 1), end=dtm.date(2020, 1, 3))
     group_factory(name="C1", sport=sport, semester=s1, capacity=20)
     group_factory(name="C2", sport=sport, semester=s1, capacity=20)
 
@@ -46,11 +46,11 @@ def test_sports_in_new_empty_semester(
 ):
     student_factory("A@foo.bar")
     sport = sport_factory(name="Sport")
-    s1 = semester_factory(name="S1", start=date(2020, 1, 1), end=date(2020, 1, 3))
+    s1 = semester_factory(name="S1", start=dtm.date(2020, 1, 1), end=dtm.date(2020, 1, 3))
     group_factory(name="C1", sport=sport, semester=s1, capacity=20)
     group_factory(name="C2", sport=sport, semester=s1, capacity=20)
 
-    semester_factory(name="S2", start=date(2020, 1, 4), end=date(2020, 1, 7))
+    semester_factory(name="S2", start=dtm.date(2020, 1, 4), end=dtm.date(2020, 1, 7))
 
     sport_list = get_sports()
     assert len(list(sport_list)) == 0
@@ -66,12 +66,12 @@ def test_sports_in_new_filled_semester(
 ):
     student_factory("A@foo.bar")
     sport = sport_factory(name="Sport")
-    s1 = semester_factory(name="S1", start=date(2020, 1, 1), end=date(2020, 1, 3))
+    s1 = semester_factory(name="S1", start=dtm.date(2020, 1, 1), end=dtm.date(2020, 1, 3))
     group_factory(name="C1", sport=sport, semester=s1, capacity=20)
     group_factory(name="C2", sport=sport, semester=s1, capacity=20)
 
     sport1 = sport_factory(name="Sport1")
-    s2 = semester_factory(name="S2", start=date(2020, 1, 4), end=date(2020, 1, 7))
+    s2 = semester_factory(name="S2", start=dtm.date(2020, 1, 4), end=dtm.date(2020, 1, 7))
     group_factory(name="C1", sport=sport1, semester=s2, capacity=20)
 
     sport_list = get_sports()
@@ -98,7 +98,7 @@ def test_sport_no_appropriate_group_in_sport(
     student.medical_group_id = MedicalGroups.NO_CHECKUP
 
     sport = sport_factory(name="Sport")
-    s1 = semester_factory(name="S19", start=date(2020, 1, 1), end=date(2020, 1, 3))
+    s1 = semester_factory(name="S19", start=dtm.date(2020, 1, 1), end=dtm.date(2020, 1, 3))
     group_factory(name="C1", sport=sport, semester=s1, capacity=20)
     group_factory(name="C2", sport=sport, semester=s1, capacity=20)
 
@@ -114,8 +114,8 @@ def test_get_student_trainer_groups(
     student = student_factory("A@foo.bar").student
     trainer = trainer_factory("B@foo.bar").trainer
     sport = sport_factory(name="Sport")
-    s1 = semester_factory(name="S19", start=date(2020, 1, 1), end=date(2020, 1, 3))
-    s2 = semester_factory(name="S20", start=date(2020, 1, 4), end=date(2020, 1, 24))
+    s1 = semester_factory(name="S19", start=dtm.date(2020, 1, 1), end=dtm.date(2020, 1, 3))
+    s2 = semester_factory(name="S20", start=dtm.date(2020, 1, 4), end=dtm.date(2020, 1, 24))
     g1 = group_factory(name="G1", sport=sport, semester=s1, capacity=20, is_club=False, trainer=trainer)
     c1 = group_factory(name="C1", sport=sport, semester=s1, capacity=20, is_club=True)
     g2 = group_factory(name="G2", sport=sport, semester=s2, capacity=20, is_club=False, trainer=trainer)
@@ -142,7 +142,7 @@ def test_get_student_trainer_groups(
     trainer_groups = get_trainer_groups(trainer)
 
     # FIXME: DEPRECATED!!!!!!!!!!!!
-    assertMembers(
+    assert_members(
         student_groups,
         [
             {

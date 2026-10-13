@@ -33,7 +33,7 @@ class FitnessTestResultSerializer(serializers.ModelSerializer[FitnessTestResult]
         fields = ("student", "value")
 
 
-@extend_schema_field(int | str)  # NOQA: UnionType is supported
+@extend_schema_field(int | str)
 class FitnessTestValueSerializer(serializers.Field):
     pass
 

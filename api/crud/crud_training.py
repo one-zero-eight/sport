@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+import datetime as dtm
 
 from django.db import connection
 from django.db.models import Prefetch, Q
@@ -49,7 +49,7 @@ def get_group_info(group_id: int, student: Student):
         return info
 
 
-_week_delta = timedelta(days=7)
+_week_delta = dtm.timedelta(days=7)
 
 
 def can_check_in(student: Student, training: Training, student_checkins=None, time_now=None):
@@ -106,7 +106,7 @@ def can_check_in(student: Student, training: Training, student_checkins=None, ti
     return student.medical_group in allowed_medical_groups and training.group.allowed_gender in (student.gender, -1)
 
 
-def get_trainings_for_student(student: Student, start: datetime, end: datetime):
+def get_trainings_for_student(student: Student, start: dtm.datetime, end: dtm.datetime):
     # Assume current_semester() is a function that retrieves the current semester object.
     # Prefetch groups and allowed medical groups.
     group_prefetch = Prefetch(
@@ -172,7 +172,7 @@ def get_trainings_for_student(student: Student, start: datetime, end: datetime):
     return trainings_data
 
 
-def get_trainings_for_trainer(trainer: Trainer, start: datetime, end: datetime):
+def get_trainings_for_trainer(trainer: Trainer, start: dtm.datetime, end: dtm.datetime):
     """
     Retrieves existing trainings in the given range for given student
     @param trainer - searched trainer

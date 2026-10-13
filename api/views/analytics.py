@@ -1,5 +1,6 @@
 import datetime as dtm
 
+from django.utils import timezone
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import status
@@ -24,7 +25,7 @@ from sport.models import Attendance
 @permission_classes([IsStaff | IsSuperUser])
 def attendance_analytics(request, **kwargs):
     sport_id, medical_group_id = request.GET.get("sport_id"), request.GET.get("medical_group_id")
-    time_period = dtm.datetime.now() - dtm.timedelta(days=30)
+    time_period = timezone.now() - dtm.timedelta(days=30)
     query = Attendance.objects.filter(training__start__gt=time_period)
     if sport_id:
         query = query.filter(training__group__sport__id=sport_id)

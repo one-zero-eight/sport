@@ -1,4 +1,4 @@
-from datetime import date
+import datetime as dtm
 
 import pytest
 from django.conf import settings
@@ -11,8 +11,8 @@ from sport.models import Enroll, Group, MedicalGroups, Sport
 
 User = get_user_model()
 
-start = date(2020, 1, 1)
-end = date(2020, 2, 20)
+start = dtm.date(2020, 1, 1)
+end = dtm.date(2020, 2, 20)
 
 
 @pytest.fixture

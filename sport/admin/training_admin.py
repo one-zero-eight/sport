@@ -16,9 +16,9 @@ from rangefilter.filters import DateRangeFilter
 from api.crud import get_ongoing_semester, mark_hours
 from sport.models import Attendance, Group, Student, Training
 
-from .inlines import AddAttendanceInline, HackAttendanceInline, ViewAttendanceInline, ViewTrainingCheckInInline
-from .site import site
-from .utils import (
+from .admin_inlines import AddAttendanceInline, HackAttendanceInline, ViewAttendanceInline, ViewTrainingCheckInInline
+from .admin_site import site
+from .admin_utils import (
     DateTimeWidget,
     DefaultFilterMixIn,
     cache_dependent_filter,
@@ -67,8 +67,11 @@ class TrainingFormWithCSV(forms.ModelForm):
             emails.append(email)
             try:
                 hours[email] = round(float(student_hours), 2)
-                assert 0 <= hours[email] < 1000  # TODO: hardcoded constant
-            except (AssertionError, ValueError, TypeError):
+            except (ValueError, TypeError):
+                raise forms.ValidationError(
+                    f'Got invalid hours value "{student_hours}" for email {email}, expected value in range [0,999.99]'
+                )
+            if not 0 <= hours[email] < 1000:  # TODO: hardcoded constant
                 raise forms.ValidationError(
                     f'Got invalid hours value "{student_hours}" for email {email}, expected value in range [0,999.99]'
                 )
@@ -268,10 +271,10 @@ class TrainingAdmin(DefaultFilterMixIn):
             return None
         return super().construct_change_message(request, form, formsets, add)
 
-    def log_addition(self, request, object, message):
+    def log_addition(self, request, obj, message):
         if "add-extra-multi" in request.path:
             return None
-        return super().log_addition(request, object, message)
+        return super().log_addition(request, obj, message)
 
     def response_add(self, request, obj, post_url_continue=None):
         if "add-extra-multi" in request.path:

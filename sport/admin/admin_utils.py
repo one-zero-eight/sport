@@ -6,6 +6,7 @@ from django.contrib import admin
 from django.contrib.admin.widgets import AdminSplitDateTime, AdminTimeWidget
 from django.db.models.expressions import F
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from api.crud import get_ongoing_semester
@@ -21,7 +22,7 @@ class DurationWidget(forms.TimeInput):
             "admin/js/admin/DateTimeShortcuts.js",
         ]
 
-    def __init__(self, attrs=None, format=None):
+    def __init__(self, attrs=None, format=None):  # noqa: A002
         attrs = {
             "class": "vDurationField",
             "size": "8",
@@ -33,7 +34,7 @@ class DurationWidget(forms.TimeInput):
 
 
 class TimeWidget(AdminTimeWidget):
-    def __init__(self, attrs=None, format=None):
+    def __init__(self, attrs=None, format=None):  # noqa: A002
         attrs = {"data-mask": "99:99:99", **(attrs or {})}
         super().__init__(attrs=attrs, format=format)
 
@@ -55,15 +56,16 @@ class YourModelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.instance.pk is not None:
-            self.fields["duration"].initial = dtm.datetime.combine(
-                dtm.date.today(), self.instance.end
-            ) - dtm.datetime.combine(dtm.date.today(), self.instance.start)
+            today = timezone.localdate()
+            self.fields["duration"].initial = dtm.datetime.combine(today, self.instance.end) - dtm.datetime.combine(
+                today, self.instance.start
+            )
         else:
             self.fields["duration"].initial = dtm.timedelta(hours=1, minutes=30)
 
     def save(self, commit=True):
         duration = self.cleaned_data.get("duration", None)
-        self.instance.end = (dtm.datetime.combine(dtm.date.today(), self.instance.start) + duration).time()
+        self.instance.end = (dtm.datetime.combine(timezone.localdate(), self.instance.start) + duration).time()
         return super().save(commit=commit)
 
     class Meta:
@@ -111,7 +113,7 @@ class DefaultFilterMixIn(admin.ModelAdmin):
                             filters.append(default_filter)
                     if filters:
                         return HttpResponseRedirect("{}?{}".format(url, "&".join(filters)))
-            except:
+            except (KeyError, IndexError, AttributeError):
                 pass
         return super().changelist_view(request, *args, **kwargs)
 
@@ -159,7 +161,7 @@ def cache_filter(cls, clear_list: list[str]):
     def add_value_to_cache(request, param, value):
         try:
             request.cache_filter[param] = value
-        except:
+        except AttributeError:
             request.cache_filter = {param: value}
 
     class CacheAwareFilter(cls):

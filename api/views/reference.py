@@ -40,21 +40,18 @@ def reference_upload(request, **kwargs):
 
     student = request.user  # user.pk == user.student.pk
 
-    try:
-        with transaction.atomic():
-            ref = serializer.save(
-                semester=get_ongoing_semester(),
-                student_id=student.pk,
-                hours=(serializer.validated_data["end"] - serializer.validated_data["start"]).days
-                // 7
-                * get_ongoing_semester().number_hours_one_week_ill,
-            )
-            count = Reference.objects.filter(
-                student_id=student.pk, uploaded__date=make_naive(ref.uploaded).date()
-            ).count()
-            assert count == 1
-    except AssertionError:
-        return Response(
-            status=status.HTTP_400_BAD_REQUEST, data=error_detail(*ReferenceErrors.TOO_MUCH_UPLOADS_PER_DAY)
+    with transaction.atomic():
+        ref = serializer.save(
+            semester=get_ongoing_semester(),
+            student_id=student.pk,
+            hours=(serializer.validated_data["end"] - serializer.validated_data["start"]).days
+            // 7
+            * get_ongoing_semester().number_hours_one_week_ill,
         )
+        count = Reference.objects.filter(student_id=student.pk, uploaded__date=make_naive(ref.uploaded).date()).count()
+        if count != 1:
+            return Response(
+                status=status.HTTP_400_BAD_REQUEST, data=error_detail(*ReferenceErrors.TOO_MUCH_UPLOADS_PER_DAY)
+            )
+
     return Response({})

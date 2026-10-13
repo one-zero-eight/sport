@@ -1,5 +1,5 @@
+import datetime as dtm
 from collections.abc import Iterable
-from datetime import UTC, date, datetime
 
 import pytest
 from django.contrib.admin.helpers import ACTION_CHECKBOX_NAME
@@ -12,9 +12,9 @@ from sport.models import Attendance, Semester, Training
 
 User = get_user_model()
 
-before_training = datetime(2020, 1, 15, 17, 0, 0, tzinfo=UTC)
-training_start = datetime(2020, 1, 15, 18, 0, 0, tzinfo=UTC)
-training_end = datetime(2020, 1, 15, 20, 0, 0, tzinfo=UTC)
+before_training = dtm.datetime(2020, 1, 15, 17, 0, 0, tzinfo=dtm.UTC)
+training_start = dtm.datetime(2020, 1, 15, 18, 0, 0, tzinfo=dtm.UTC)
+training_end = dtm.datetime(2020, 1, 15, 20, 0, 0, tzinfo=dtm.UTC)
 
 change_url = reverse("admin:sport_attendance_changelist")
 semester_filter_slug = "training__group__semester__id__exact={semester_id}"
@@ -26,7 +26,7 @@ def get_semester_filter(semester: Semester) -> dict:
     # return semester_filter_slug.format(semester_id=semester.pk)
 
 
-def get_period_filter(start: date | None = None, end: date | None = None) -> str:
+def get_period_filter(start: dtm.date | None = None, end: dtm.date | None = None) -> str:
     return period_filter_slug.format(
         start=str(start) if start else "",
         end=str(end) if end else "",
@@ -42,8 +42,8 @@ def setup(
     trainer_factory,
     student_factory,
 ) -> tuple[Training, User, User, Semester]:
-    semester_start = date(2020, 1, 1)
-    semester_end = date(2020, 2, 20)
+    semester_start = dtm.date(2020, 1, 1)
+    semester_end = dtm.date(2020, 2, 20)
     sem = semester_factory(
         "S1",
         semester_start,

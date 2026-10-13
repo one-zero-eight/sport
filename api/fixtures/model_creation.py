@@ -1,4 +1,4 @@
-from datetime import date, datetime, time
+import datetime as dtm
 
 import pytest
 
@@ -22,8 +22,8 @@ from sport.models import (
 def semester_factory():
     def create_semester(
         name: str,
-        start: date,
-        end: date,
+        start: dtm.date,
+        end: dtm.date,
     ) -> Semester:
         obj, _ = Semester.objects.get_or_create(
             name=name,
@@ -104,8 +104,8 @@ def schedule_factory():
     def create_schedule(
         group: Group,
         weekday: Schedule.Weekday,
-        start: time,
-        end: time,
+        start: dtm.time,
+        end: dtm.time,
         training_class: TrainingClass | None = None,
     ) -> Schedule:
         obj, _ = Schedule.objects.get_or_create(
@@ -139,8 +139,8 @@ def training_class_factory():
 def training_factory():
     def create_training(
         group: Group,
-        start: datetime,
-        end: datetime,
+        start: dtm.datetime,
+        end: dtm.datetime,
         schedule: Schedule | None = None,
         training_class: TrainingClass | None = None,
     ) -> Training:

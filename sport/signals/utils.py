@@ -1,4 +1,4 @@
-from datetime import datetime, time
+import datetime as dtm
 
 from django.utils import timezone
 
@@ -18,9 +18,9 @@ def create_attendance_record(
 ):
     tz = timezone.localtime().tzinfo
     if start is None:
-        start = datetime.combine(upload_date, time(0, 0, 0), tzinfo=tz)
+        start = dtm.datetime.combine(upload_date, dtm.time(0, 0, 0), tzinfo=tz)
     if end is None:
-        end = datetime.combine(upload_date, time(23, 59, 59), tzinfo=tz)
+        end = dtm.datetime.combine(upload_date, dtm.time(23, 59, 59), tzinfo=tz)
     training = Training.objects.create(
         group=group,
         start=start,

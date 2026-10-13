@@ -1,5 +1,5 @@
+import datetime as dtm
 import unittest
-from datetime import date
 
 import pytest
 from django.utils import timezone
@@ -7,9 +7,9 @@ from django.utils import timezone
 from api.crud import get_brief_hours, get_detailed_hours, mark_hours
 from sport.models import Attendance
 
-dummy_date = date(2020, 1, 1)
+dummy_date = dtm.date(2020, 1, 1)
 
-assertMembers = unittest.TestCase().assertCountEqual
+assert_members = unittest.TestCase().assertCountEqual
 
 
 @pytest.mark.django_db
@@ -40,8 +40,8 @@ def test_hours_statistics(
     student.enrollment_year = 2000
     student.save()
     sport = sport_factory(name="Sport")
-    s1 = semester_factory(name="S19", start=date(2020, 1, 1), end=date(2020, 2, 1))
-    s2 = semester_factory(name="S20", start=date(2020, 3, 1), end=date(2020, 4, 1))
+    s1 = semester_factory(name="S19", start=dtm.date(2020, 1, 1), end=dtm.date(2020, 2, 1))
+    s2 = semester_factory(name="S20", start=dtm.date(2020, 3, 1), end=dtm.date(2020, 4, 1))
     g11 = group_factory(name="G11", sport=sport, semester=s1, capacity=20)
     g12 = group_factory(name="G12", sport=sport, semester=s1, capacity=20)
     g21 = group_factory(name="G21", sport=sport, semester=s2, capacity=20)
@@ -55,7 +55,7 @@ def test_hours_statistics(
         attendance_factory(training=t, student=other_student, hours=1)
     brief = get_brief_hours(student)
 
-    assertMembers(
+    assert_members(
         brief,
         [
             {
@@ -76,14 +76,14 @@ def test_hours_statistics(
     )
     stat1 = get_detailed_hours(student, s1)
     stat2 = get_detailed_hours(student, s2)
-    assertMembers(
+    assert_members(
         stat1,
         [
             {"group": g12.name, "custom_name": None, "timestamp": trainings[1].start, "hours": 2},
             {"group": g11.name, "custom_name": None, "timestamp": trainings[0].start, "hours": 1},
         ],
     )
-    assertMembers(
+    assert_members(
         stat2,
         [
             {"group": g22.name, "custom_name": None, "timestamp": trainings[3].start, "hours": 4},

@@ -27,7 +27,7 @@ class NegativeIntConverter:
         return int(value)
 
     def to_url(self, value):
-        return "%d" % value
+        return f"{value:d}"
 
 
 register_converter(NegativeIntConverter, "negint")

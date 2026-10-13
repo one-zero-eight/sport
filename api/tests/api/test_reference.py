@@ -1,9 +1,9 @@
 import datetime as dtm
 import tempfile
-from datetime import date
 
 import pytest
 from django.conf import settings
+from django.utils import timezone
 from PIL import Image
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -13,7 +13,7 @@ from sport.models import Attendance, Reference, Training
 
 
 @pytest.mark.django_db
-@pytest.mark.freeze_time(date(2020, 1, 2))
+@pytest.mark.freeze_time(dtm.date(2020, 1, 2))
 def test_reference_upload(student_factory, semester_factory, freezer):
     email = "user@foo.bar"
     password = "pass"
@@ -23,8 +23,8 @@ def test_reference_upload(student_factory, semester_factory, freezer):
     )
     semester = semester_factory(
         name="S20",
-        start=date(2020, 1, 1),
-        end=date(2020, 1, 15),
+        start=dtm.date(2020, 1, 1),
+        end=dtm.date(2020, 1, 15),
     )
     client = APIClient()
     client.login(
@@ -34,9 +34,10 @@ def test_reference_upload(student_factory, semester_factory, freezer):
     image_sm = Image.new("RGB", (600, 300))
     image_md = Image.new("RGB", (600, 600))
     image_lg = Image.new("RGB", (600, 5500))
-    file_sm = tempfile.NamedTemporaryFile(suffix=".jpg")
-    file_md = tempfile.NamedTemporaryFile(suffix=".jpg")
-    file_lg = tempfile.NamedTemporaryFile(suffix=".jpg")
+    # Kept open for multiple multipart posts; closed when the test ends.
+    file_sm = tempfile.NamedTemporaryFile(suffix=".jpg")  # noqa: SIM115
+    file_md = tempfile.NamedTemporaryFile(suffix=".jpg")  # noqa: SIM115
+    file_lg = tempfile.NamedTemporaryFile(suffix=".jpg")  # noqa: SIM115
     image_sm.save(file_sm)
     image_md.save(file_md)
     image_lg.save(file_lg)
@@ -47,8 +48,8 @@ def test_reference_upload(student_factory, semester_factory, freezer):
         f"/{settings.PREFIX}api/reference/upload",
         data={
             "image": file_sm,
-            "start": dtm.date.today(),
-            "end": dtm.date.today(),
+            "start": timezone.localdate(),
+            "end": timezone.localdate(),
             "student_comment": "hi123",
         },
         format="multipart",
@@ -58,8 +59,8 @@ def test_reference_upload(student_factory, semester_factory, freezer):
         f"/{settings.PREFIX}api/reference/upload",
         data={
             "image": file_lg,
-            "start": dtm.date.today(),
-            "end": dtm.date.today(),
+            "start": timezone.localdate(),
+            "end": timezone.localdate(),
             "student_comment": "hi123",
         },
         format="multipart",
@@ -72,8 +73,8 @@ def test_reference_upload(student_factory, semester_factory, freezer):
         f"/{settings.PREFIX}api/reference/upload",
         data={
             "image": file_lg,
-            "start": dtm.date.today(),
-            "end": dtm.date.today(),
+            "start": timezone.localdate(),
+            "end": timezone.localdate(),
             "student_comment": "hi123",
         },
         format="multipart",
@@ -85,8 +86,8 @@ def test_reference_upload(student_factory, semester_factory, freezer):
         f"/{settings.PREFIX}api/reference/upload",
         data={
             "image": file_md,
-            "start": dtm.date.today(),
-            "end": dtm.date.today(),
+            "start": timezone.localdate(),
+            "end": timezone.localdate(),
             "student_comment": "hi123",
         },
         format="multipart",
@@ -102,8 +103,8 @@ def test_reference_upload(student_factory, semester_factory, freezer):
     assert ref.hours == 0
 
     ref.hours = 2
-    ref.start = dtm.date.today()
-    ref.end = dtm.date.today()
+    ref.start = timezone.localdate()
+    ref.end = timezone.localdate()
     ref.student_comment = "hi"
     ref.save()
 
@@ -114,8 +115,8 @@ def test_reference_upload(student_factory, semester_factory, freezer):
     assert att.hours == 2
 
     ref.hours = 3
-    ref.start = dtm.date.today()
-    ref.end = dtm.date.today()
+    ref.start = timezone.localdate()
+    ref.end = timezone.localdate()
     ref.student_comment = "hi1"
     ref.save()
 
@@ -130,8 +131,8 @@ def test_reference_upload(student_factory, semester_factory, freezer):
         f"/{settings.PREFIX}api/reference/upload",
         data={
             "image": file_md,
-            "start": dtm.date.today(),
-            "end": dtm.date.today(),
+            "start": timezone.localdate(),
+            "end": timezone.localdate(),
             "student_comment": "hi123",
         },
         format="multipart",
@@ -140,15 +141,15 @@ def test_reference_upload(student_factory, semester_factory, freezer):
     assert response.data["code"] == ReferenceErrors.TOO_MUCH_UPLOADS_PER_DAY[0]
 
     # should succeed on next day
-    freezer.move_to(date(2020, 1, 3))
+    freezer.move_to(dtm.date(2020, 1, 3))
 
     file_md.seek(0)
     response = client.post(
         f"/{settings.PREFIX}api/reference/upload",
         data={
             "image": file_md,
-            "start": dtm.date.today(),
-            "end": dtm.date.today(),
+            "start": timezone.localdate(),
+            "end": timezone.localdate(),
             "student_comment": "hi123",
         },
         format="multipart",

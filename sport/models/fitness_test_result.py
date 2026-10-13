@@ -20,6 +20,9 @@ class FitnessTestResult(models.Model):
 
     value = models.IntegerField(null=True, blank=True)
 
+    def __str__(self):
+        return f"{self.student} — {self.exercise}: {self.value}"
+
     # TODO: think about constarints
     # class Meta:
     #     constraints = [

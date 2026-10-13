@@ -28,6 +28,9 @@ class MedicalGroupReference(models.Model):
     uploaded = models.DateTimeField(auto_now_add=True, null=False)
     student_comment = models.TextField(max_length=1024, null=True, blank=True, verbose_name="Student's comment")
 
+    class Meta:
+        db_table = "medical_group_reference"
+
     def __str__(self):
         return f"{self.student} {self.uploaded.strftime('%Y-%m-%d %H:%M:%S')} for {self.semester}"
 
@@ -38,9 +41,6 @@ class MedicalGroupReference(models.Model):
                 for image in MedicalGroupReferenceImage.objects.filter(reference_id=self.pk)
             ]
         )
-
-    class Meta:
-        db_table = "medical_group_reference"
 
 
 class MedicalGroupReferenceImage(models.Model):
@@ -55,10 +55,10 @@ class MedicalGroupReferenceImage(models.Model):
         upload_to=get_reference_path,
     )
 
-    def __str__(self) -> str:
-        return f"{self.reference} image {self.pk}"
-
     class Meta:
         db_table = "medical_group_reference_image"
         verbose_name = "medical group reference image"
         verbose_name_plural = "medical group reference images"
+
+    def __str__(self) -> str:
+        return f"{self.reference} image {self.pk}"

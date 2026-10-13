@@ -6,10 +6,10 @@ import pytest
 from django.test import RequestFactory
 from django.urls import reverse
 
-from sport.admin.attendanceAdmin import AttendanceAdmin
-from sport.admin.referenceAdmin import ReferenceAdmin
-from sport.admin.site import site
-from sport.admin.trainingAdmin import TrainingAdmin
+from sport.admin.admin_site import site
+from sport.admin.attendance_admin import AttendanceAdmin
+from sport.admin.reference_admin import ReferenceAdmin
+from sport.admin.training_admin import TrainingAdmin
 from sport.models import Attendance, Reference, Training
 
 
@@ -52,7 +52,7 @@ def test_semester_filter_does_not_accumulate_between_requests(
             HTTP_REFERER="http://testserver/admin/sport/semester/add/",
         )
         with patch(
-            "sport.admin.utils.get_ongoing_semester",
+            "sport.admin.admin_utils.py.get_ongoing_semester",
             return_value=SimpleNamespace(pk=semester_id),
         ):
             return model_admin.changelist_view(request)

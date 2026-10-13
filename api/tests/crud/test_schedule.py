@@ -1,24 +1,24 @@
+import datetime as dtm
 import unittest
-from datetime import date, time
 
 import pytest
 
 from api.crud import enroll_student, get_sport_schedule
 from sport.models import MedicalGroups, Schedule, Training
 
-assertMembers = unittest.TestCase().assertCountEqual
+assert_members = unittest.TestCase().assertCountEqual
 
 
 @pytest.mark.django_db
-@pytest.mark.freeze_time("2020-01-20 10:03")
+@pytest.mark.freeze_dtm.time("2020-01-20 10:03")
 def test_training_creation_on_schedule(
     semester_factory,
     sport_factory,
     group_factory,
     schedule_factory,
 ):
-    start = date(2020, 1, 20)
-    end = date(2020, 1, 27)
+    start = dtm.date(2020, 1, 20)
+    end = dtm.date(2020, 1, 27)
     sem = semester_factory(
         name="S20",
         start=start,
@@ -37,8 +37,8 @@ def test_training_creation_on_schedule(
         semester=sem,
     )
 
-    schedule_start = time(14, 0, 0)
-    schedule_end = time(18, 30, 0)
+    schedule_start = dtm.time(14, 0, 0)
+    schedule_end = dtm.time(18, 30, 0)
     schedule = schedule_factory(
         group=group,
         weekday=Schedule.Weekday.MONDAY,
@@ -48,8 +48,8 @@ def test_training_creation_on_schedule(
 
     assert Training.objects.filter(schedule=schedule).count() == 2
     training = Training.objects.first()
-    assert training.start.time() == time(11, 0, 0)  # in UTC, -3 hours from Europe/Moscow
-    assert training.end.time() == time(15, 30, 0)  # in UTC, -3 hours from Europe/Moscow
+    assert training.start.time() == dtm.time(11, 0, 0)  # in UTC, -3 hours from Europe/Moscow
+    assert training.end.dtm.time() == dtm.time(15, 30, 0)  # in UTC, -3 hours from Europe/Moscow
 
 
 @pytest.mark.django_db
@@ -62,8 +62,8 @@ def test_get_sport_schedule(
     schedule_factory,
 ):
     student = student_factory("A@foo.bar").student
-    start = date(2020, 1, 20)
-    end = date(2020, 1, 27)
+    start = dtm.date(2020, 1, 20)
+    end = dtm.date(2020, 1, 27)
     sem = semester_factory(
         name="S20",
         start=start,
@@ -100,8 +100,8 @@ def test_get_sport_schedule(
         ],
     )
 
-    schedule_start = time(14, 0, 0)
-    schedule_end = time(18, 30, 0)
+    schedule_start = dtm.time(14, 0, 0)
+    schedule_end = dtm.time(18, 30, 0)
     training_class = training_class_factory("football field")
     schedule11 = schedule_factory(
         group=group1,
@@ -134,7 +134,7 @@ def test_get_sport_schedule(
     assert get_sport_schedule(sport.pk, student) == []
     student.medical_group_id = MedicalGroups.SPECIAL1
     student.save()
-    assertMembers(
+    assert_members(
         get_sport_schedule(sport.pk, student),
         [
             {
@@ -165,7 +165,7 @@ def test_get_sport_schedule(
     student.medical_group_id = MedicalGroups.GENERAL
     student.save()
     enroll_student(group2, student)
-    assertMembers(
+    assert_members(
         get_sport_schedule(sport.pk, student),
         [
             {

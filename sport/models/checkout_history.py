@@ -14,6 +14,9 @@ class CheckoutHistory(models.Model):
     checkout_date = models.DateTimeField(auto_now_add=True)
     checkout_reason = models.CharField(max_length=50, choices=Reason.choices)
 
+    def __str__(self):
+        return f"{self.student} checkout from {self.training} ({self.checkout_reason})"
+
     @classmethod
     def from_checkin(cls, checkin, reason):
         return cls.objects.create(
@@ -35,6 +38,3 @@ class CheckoutHistory(models.Model):
             for c in checkins
         ]
         return cls.objects.bulk_create(records)
-
-    def __str__(self):
-        return f"{self.student} checkout from {self.training} ({self.checkout_reason})"

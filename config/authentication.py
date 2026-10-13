@@ -1,6 +1,6 @@
+import datetime as dtm
 import json
 import logging
-from datetime import datetime, timedelta
 
 import jwt
 import requests
@@ -14,6 +14,7 @@ from rest_framework.authentication import BaseAuthentication, get_authorization_
 from accounts.models import User as _User_type
 
 User: type[_User_type] = get_user_model()
+logger = logging.getLogger(__name__)
 
 
 class InNoHassleAuthentication(BaseAuthentication):
@@ -73,7 +74,7 @@ class InNoHassleAuthentication(BaseAuthentication):
 
 class InNoHassleAccounts:
     keys: list[RSAPublicKey] = []
-    keys_timestamp: datetime = datetime.min
+    keys_timestamp: dtm.datetime = dtm.datetime.min.replace(tzinfo=dtm.UTC)
 
     @classmethod
     def decode_jwt(cls, token: str):
@@ -119,12 +120,12 @@ class InNoHassleAccounts:
         Check if the keys need to be refreshed and load them if necessary.
         """
 
-        refresh_time = datetime.now() - timedelta(hours=innohassle_settings["KEYS_RELOAD_INTERVAL"])
+        refresh_time = dtm.datetime.now(tz=dtm.UTC) - dtm.timedelta(hours=innohassle_settings["KEYS_RELOAD_INTERVAL"])
         if cls.keys_timestamp < refresh_time:
             # Load the keys and update the timestamp
             success = cls._load_keys()
             if success:
-                cls.keys_timestamp = datetime.now()
+                cls.keys_timestamp = dtm.datetime.now(tz=dtm.UTC)
 
     @classmethod
     def _load_keys(cls):
@@ -132,11 +133,11 @@ class InNoHassleAccounts:
 
         # Fetch the JWKS
         try:
-            response = requests.get(jwks_uri)
+            response = requests.get(jwks_uri, timeout=30)
             response.raise_for_status()
             result = response.json()
-        except requests.RequestException as e:
-            logging.error("Cannot fetch InNoHassle Accounts JWKS: %s", e, exc_info=True)
+        except requests.RequestException:
+            logger.exception("Cannot fetch InNoHassle Accounts JWKS")
             return False
 
         # Load the keys

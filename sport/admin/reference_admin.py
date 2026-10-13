@@ -4,12 +4,11 @@ from django.contrib import admin
 from django.db.models import F
 from django.urls import reverse
 from django.utils.html import format_html
-from django.utils.safestring import mark_safe
 
-from sport.admin.utils import DefaultFilterMixIn, custom_order_filter
+from sport.admin.admin_utils import DefaultFilterMixIn, custom_order_filter
 from sport.models import Reference
 
-from .site import site
+from .admin_site import site
 
 
 class StudentTextFilter(AutocompleteFilter):
@@ -19,7 +18,7 @@ class StudentTextFilter(AutocompleteFilter):
 
 class ReferenceAcceptRejectForm(forms.ModelForm):
     def clean_comment(self):
-        if self.cleaned_data["hours"] == 0 and self.cleaned_data["comment"] == "":
+        if self.cleaned_data["hours"] == 0 and not self.cleaned_data["comment"]:
             raise forms.ValidationError("Please, specify reject reason in the comment field")
         return self.cleaned_data["comment"]
 
@@ -61,7 +60,7 @@ class ReferenceAdmin(DefaultFilterMixIn):
 
     def attendance_link(self, obj):
         change_url = reverse("admin:sport_attendance_change", args=(obj.attendance.pk,))
-        return mark_safe(f'<a href="{change_url}">{obj.attendance}</a>')
+        return format_html('<a href="{}">{}</a>', change_url, obj.attendance)
 
     attendance_link.short_description = "Attendance"
 

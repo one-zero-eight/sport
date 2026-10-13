@@ -12,11 +12,11 @@ class SelfSportType(models.Model):
 
     is_active = models.BooleanField(default=True)
 
+    class Meta:
+        db_table = "self_sport_group"
+
     def __repr__(self):
         return self.name
 
     def __str__(self):
         return self.__repr__()
-
-    class Meta:
-        db_table = "self_sport_group"

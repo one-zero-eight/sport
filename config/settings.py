@@ -10,8 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
+import datetime as dtm
 import os
-from datetime import timedelta
 
 import django_stubs_ext
 
@@ -76,7 +76,7 @@ OTHER_SPORT_NAME = "Other"
 # Groups that should not be duplicated when copying all sport groups from previous semester
 NOT_COPYABLE_GROUPS = [SELF_TRAINING_GROUP_NAME, EXTRA_EVENTS_GROUP_NAME, MEDICAL_LEAVE_GROUP_NAME]
 
-TRAINING_EDITABLE_INTERVAL = timedelta(days=3)
+TRAINING_EDITABLE_INTERVAL = dtm.timedelta(days=3)
 
 BACHELOR_STUDY_PERIOD_YEARS = 4
 BACHELOR_GROUPS_PREFIX = "B"
@@ -86,7 +86,7 @@ STUDENT_MAXIMUM_GROUP_COUNT = 5
 
 SCHEMA = os.getenv("SCHEMA", "http")
 HOSTNAME = os.getenv("HOSTNAME", "localhost")
-PORT = os.getenv("PORT", 80)
+PORT = os.getenv("PORT", "80")
 
 BASE_URL = compose_base_url(SCHEMA, HOSTNAME, PORT)
 

@@ -24,12 +24,11 @@ def attendance_query(apps, schema_editor):
 
 
 def calc_before(apps, schema_editor):
-    global current_hours
+    global current_hours  # noqa: PLW0603
     current_hours = list(attendance_query(apps, schema_editor))
 
 
 def calc_after(apps, schema_editor):
-    global current_hours
     Group = apps.get_model("sport", "Group")
     Training = apps.get_model("sport", "Training")
     Semester = apps.get_model("sport", "Semester")
@@ -39,7 +38,7 @@ def calc_after(apps, schema_editor):
     for i in range(len(new_hours)):
         diff = math.ceil(current_hours[i]["sum_hours"] - new_hours[i]["sum_hours"])
         if diff > 0:
-            group, created = Group.objects.get_or_create(
+            group, _group_created = Group.objects.get_or_create(
                 semester_id=current_hours[i]["semester"], name="Integer hours ceil"
             )
             training, _created = Training.objects.get_or_create(

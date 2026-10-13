@@ -76,6 +76,16 @@ class SelfSportReport(models.Model):
             )
         ]
 
+    def __str__(self):
+        return f"{self.student} {self.uploaded.strftime('%Y-%m-%d %H:%M:%S')} for {self.semester}"
+
+    def save(self, *args, **kwargs):
+        # update flag and approval only when object is created via API
+        if not kwargs.get("force_insert"):
+            self.hours = max(self.hours, 0)
+            self.approval = self.hours > 0
+        return super().save(*args, **kwargs)
+
     def get_submission_url(self) -> tuple[SubmissionType, str]:
         if self.link is not None:
             submission_type = SubmissionType.LINK
@@ -86,13 +96,3 @@ class SelfSportReport(models.Model):
         else:
             raise ValueError("Invalid object was provided")
         return submission_type, submission
-
-    def save(self, *args, **kwargs):
-        # update flag and approval only when object is created via API
-        if not kwargs.get("force_insert"):
-            self.hours = max(self.hours, 0)
-            self.approval = self.hours > 0
-        return super().save(*args, **kwargs)
-
-    def __str__(self):
-        return f"{self.student} {self.uploaded.strftime('%Y-%m-%d %H:%M:%S')} for {self.semester}"

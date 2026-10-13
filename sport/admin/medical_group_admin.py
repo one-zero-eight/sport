@@ -2,13 +2,13 @@ from django.contrib import admin
 from django.db.models import Model
 from django.http import HttpRequest
 
-from sport.models import StudentStatus
+from sport.models import MedicalGroup
 
-from .site import site
+from .admin_site import site
 
 
-@admin.register(StudentStatus, site=site)
-class StudentStatusAdmin(admin.ModelAdmin):
+@admin.register(MedicalGroup, site=site)
+class MedicalGroupAdmin(admin.ModelAdmin):
     list_display = ("name", "description")
     fields = ("name", "description")
 

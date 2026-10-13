@@ -19,4 +19,4 @@ class CalendarSerializer(serializers.Serializer):
     title = serializers.CharField()
     start = serializers.DateTimeField()
     end = serializers.DateTimeField()
-    extendedProps = ScheduleExtendedPropsSerializer()
+    extendedProps = ScheduleExtendedPropsSerializer()  # noqa: N815

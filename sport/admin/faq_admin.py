@@ -3,7 +3,7 @@ from django.utils.html import format_html
 
 from sport.models import FAQCategory, FAQElement
 
-from .site import site
+from .admin_site import site
 
 
 @admin.register(FAQElement, site=site)
@@ -21,5 +21,5 @@ class FAQAdmin(admin.ModelAdmin):
 
 
 @admin.register(FAQCategory, site=site)
-class FAQAdmin(admin.ModelAdmin):
+class FAQCategoryAdmin(admin.ModelAdmin):
     list_display = ("name",)

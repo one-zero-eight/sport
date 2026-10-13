@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from sport.models import TrainingClass
 
-from .site import site
+from .admin_site import site
 
 
 @admin.register(TrainingClass, site=site)

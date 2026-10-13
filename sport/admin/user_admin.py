@@ -4,7 +4,7 @@ from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.utils.translation import gettext_lazy as _
 from hijack.contrib.admin import HijackUserAdminMixin
 
-from .site import site
+from .admin_site import site
 
 User = get_user_model()
 

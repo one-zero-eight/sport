@@ -3,11 +3,11 @@ from django.contrib import admin
 from django.db.models import Model
 from django.http import HttpRequest
 from django.urls import reverse
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 
 from sport.models import MedicalGroupHistory
 
-from .site import site
+from .admin_site import site
 
 
 class StudentTextFilter(AutocompleteFilter):
@@ -26,13 +26,13 @@ class MedicalGroupHistoryAdmin(admin.ModelAdmin):
 
     def student_link(self, obj: MedicalGroupHistory):
         change_url = reverse("admin:sport_student_change", args=(obj.student.pk,))
-        return mark_safe(f'<a href="{change_url}">{obj.student}</a>')
+        return format_html('<a href="{}">{}</a>', change_url, obj.student)
 
     student_link.short_description = "student"
 
     def medical_group_reference_link(self, obj: MedicalGroupHistory):
         change_url = reverse("admin:sport_medicalgroupreference_change", args=(obj.medical_group_reference.pk,))
-        return mark_safe(f'<a href="{change_url}">{obj.medical_group_reference}</a>')
+        return format_html('<a href="{}">{}</a>', change_url, obj.medical_group_reference)
 
     medical_group_reference_link.short_description = "medical group reference"
 

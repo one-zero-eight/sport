@@ -1,5 +1,5 @@
+import datetime as dtm
 import unittest
-from datetime import date
 
 import pytest
 from django.conf import settings
@@ -9,10 +9,10 @@ from rest_framework.test import APIClient
 
 from sport.models import Attendance, Group, SelfSportReport, SelfSportType
 
-frozen_time = date(2020, 1, 2)
-semester_start = date(2020, 1, 1)
-semester_end = date(2020, 1, 15)
-assertMembers = unittest.TestCase().assertEqual
+frozen_time = dtm.date(2020, 1, 2)
+semester_start = dtm.date(2020, 1, 1)
+semester_end = dtm.date(2020, 1, 15)
+assert_members = unittest.TestCase().assertEqual
 
 
 @pytest.fixture

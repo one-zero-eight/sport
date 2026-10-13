@@ -9,13 +9,12 @@ from django.db.models import Case, F, IntegerField, OuterRef, Sum, When
 from django.db.models.functions import Coalesce
 from django.urls import reverse
 from django.utils.html import format_html
-from django.utils.safestring import mark_safe
 
 from api.crud import get_ongoing_semester
 from sport.models import Attendance, SelfSportReport
 
-from .site import site
-from .utils import DefaultFilterMixIn, custom_order_filter
+from .admin_site import site
+from .admin_utils import DefaultFilterMixIn, custom_order_filter
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +33,7 @@ student__course.short_description = "course"
 
 class ReferenceAcceptRejectForm(forms.ModelForm):
     def clean_comment(self):
-        if self.cleaned_data["hours"] == 0 and self.cleaned_data["comment"] == "":
+        if self.cleaned_data["hours"] == 0 and not self.cleaned_data["comment"]:
             raise forms.ValidationError("Please, specify reject reason in the comment field")
         return self.cleaned_data["comment"]
 
@@ -92,7 +91,7 @@ class SelfSportAdmin(DefaultFilterMixIn):
 
     def attendance_link(self, obj):
         change_url = reverse("admin:sport_attendance_change", args=(obj.attendance.pk,))
-        return mark_safe(f'<a href="{change_url}">{obj.attendance}</a>')
+        return format_html('<a href="{}">{}</a>', change_url, obj.attendance)
 
     attendance_link.short_description = "Attendance"
 

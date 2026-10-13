@@ -1,5 +1,5 @@
+import datetime as dtm
 import unittest
-from datetime import UTC, date, datetime, timedelta
 
 import pytest
 from django.conf import settings
@@ -11,12 +11,12 @@ from api.views.attendance import AttendanceErrors
 from sport.models import Attendance, Trainer, Training
 
 User = get_user_model()
-assertMembers = unittest.TestCase().assertCountEqual
-before_training = datetime(2020, 1, 15, 17, 0, 0, tzinfo=UTC)
-training_start = datetime(2020, 1, 15, 18, 0, 0, tzinfo=UTC)
-during_training = datetime(2020, 1, 15, 19, 0, 0, tzinfo=UTC)
-training_end = datetime(2020, 1, 15, 20, 0, 0, tzinfo=UTC)
-long_after_training = training_start + settings.TRAINING_EDITABLE_INTERVAL + timedelta(hours=5)
+assert_members = unittest.TestCase().assertCountEqual
+before_training = dtm.datetime(2020, 1, 15, 17, 0, 0, tzinfo=dtm.UTC)
+training_start = dtm.datetime(2020, 1, 15, 18, 0, 0, tzinfo=dtm.UTC)
+during_training = dtm.datetime(2020, 1, 15, 19, 0, 0, tzinfo=dtm.UTC)
+training_end = dtm.datetime(2020, 1, 15, 20, 0, 0, tzinfo=dtm.UTC)
+long_after_training = training_start + settings.TRAINING_EDITABLE_INTERVAL + dtm.timedelta(hours=5)
 
 assert before_training < training_start < during_training < training_end < long_after_training
 
@@ -31,8 +31,8 @@ def setup(
     student_factory,
     enroll_factory,
 ) -> tuple[Training, Trainer, User]:
-    semester_start = date(2020, 1, 1)
-    semester_end = date(2020, 2, 20)
+    semester_start = dtm.date(2020, 1, 1)
+    semester_end = dtm.date(2020, 2, 20)
     sem = semester_factory(
         "S1",
         semester_start,
@@ -181,7 +181,7 @@ def test_attendance_dates_trainer_report(setup, student_factory, enroll_factory,
     response = client.get(f"/{settings.PREFIX}api/attendance/{training.group.pk}/report")
 
     assert response.status_code == status.HTTP_200_OK
-    assertMembers(
+    assert_members(
         response.data["last_attended_dates"],
         [
             {

@@ -2,9 +2,9 @@ from django.contrib import admin
 
 from sport.models import Schedule
 
-from .inlines import ViewTrainingInline
-from .site import site
-from .utils import DefaultFilterMixIn, YourModelForm, cache_dependent_filter, cache_filter, custom_order_filter
+from .admin_inlines import ViewTrainingInline
+from .admin_site import site
+from .admin_utils import DefaultFilterMixIn, YourModelForm, cache_dependent_filter, cache_filter, custom_order_filter
 
 
 @admin.register(Schedule, site=site)

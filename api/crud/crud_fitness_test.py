@@ -1,6 +1,5 @@
-import datetime as dtm
-
 from django.db.models import Q
+from django.utils import timezone
 
 from sport.models import (
     FitnessTestExercise,
@@ -25,7 +24,7 @@ def post_student_exercises_result_crud(semester, retake, results, session_id, te
             "semester": semester,
             "teacher_id": teacher.id,
             "retake": retake,
-            "date": dtm.datetime.now(),
+            "date": timezone.now(),
         },
     )
 

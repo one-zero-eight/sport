@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import date
+import datetime as dtm
 from enum import IntEnum
 from typing import TYPE_CHECKING
 
@@ -26,28 +26,28 @@ def format_submission_html(submission_type: SubmissionType, submission_url: str)
     elif submission_type == SubmissionType.IMAGE:
         return format_html(
             '<a href="{}{}">image</a>',
-            mark_safe(settings.BASE_URL),
+            mark_safe(settings.BASE_URL),  # noqa: S308
             submission_url,
         )
     else:
         raise ValueError(f"Got unknown submission type: {submission_type}")
 
 
-def get_study_year_from_date(in_date: date) -> int:
-    new_semester_start = date.today().replace(month=8, day=20)
+def get_study_year_from_date(in_date: dtm.date) -> int:
+    new_semester_start = timezone.localdate().replace(month=8, day=20)
     delta_year = -1 if in_date < new_semester_start else 0
     return in_date.year + delta_year
 
 
 def get_current_study_year() -> int:
-    return get_study_year_from_date(date.today())
+    return get_study_year_from_date(timezone.localdate())
 
 
 def set_session_notification(request, msg: str, msg_type: str):
     request.session["notify"] = (msg_type, msg)
 
 
-def today() -> date:
+def today() -> dtm.date:
     return timezone.now().date()
 
 

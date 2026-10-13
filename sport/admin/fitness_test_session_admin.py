@@ -3,7 +3,7 @@ from django.contrib import admin
 from api.crud import get_ongoing_semester
 from sport.models import FitnessTestResult, FitnessTestSession
 
-from .site import site
+from .admin_site import site
 
 
 class FitnessTestResultInline(admin.TabularInline):

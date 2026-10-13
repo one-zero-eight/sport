@@ -8,10 +8,12 @@ from sport.models import Group, Training
 class SumSubquery(Subquery):
     output_field = None
 
-    def __init__(self, queryset, sum_by, output_field=IntegerField(), **extra):
+    def __init__(self, queryset, sum_by, output_field=None, **extra):
+        if output_field is None:
+            output_field = IntegerField()
         super().__init__(queryset, output_field, **extra)
         self.output_field = output_field
-        self.template = f"(SELECT sum({sum_by}) FROM (%(subquery)s) _sum)"
+        self.template = f"(SELECT sum({sum_by}) FROM (%(subquery)s) _sum)"  # noqa: S608
 
 
 def dictfetchall(cursor):

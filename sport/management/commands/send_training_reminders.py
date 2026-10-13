@@ -1,5 +1,5 @@
+import datetime as dtm
 import urllib.parse
-from datetime import datetime, time, timedelta
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -24,13 +24,15 @@ class Command(BaseCommand):
         local_tz = timezone.get_current_timezone()
 
         if 6 <= now.hour < 14:
-            window_start = timezone.make_aware(datetime.combine(today, time(14, 0)), local_tz)
-            window_end = timezone.make_aware(datetime.combine(today + timedelta(days=1), time(0, 0)), local_tz)
+            window_start = timezone.make_aware(dtm.datetime.combine(today, dtm.time(14, 0)), local_tz)
+            window_end = timezone.make_aware(
+                dtm.datetime.combine(today + dtm.timedelta(days=1), dtm.time(0, 0)), local_tz
+            )
             self.stdout.write("Morning run: reminding about evening trainings today")
         elif 18 <= now.hour < 24:
-            tomorrow = today + timedelta(days=1)
-            window_start = timezone.make_aware(datetime.combine(tomorrow, time(0, 0)), local_tz)
-            window_end = timezone.make_aware(datetime.combine(tomorrow, time(14, 0)), local_tz)
+            tomorrow = today + dtm.timedelta(days=1)
+            window_start = timezone.make_aware(dtm.datetime.combine(tomorrow, dtm.time(0, 0)), local_tz)
+            window_end = timezone.make_aware(dtm.datetime.combine(tomorrow, dtm.time(14, 0)), local_tz)
             self.stdout.write("Evening run: reminding about morning trainings tomorrow")
         else:
             self.stdout.write("Outside reminder windows (06-14 and 18-24), nothing to do.")

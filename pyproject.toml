@@ -78,11 +78,12 @@ lint.extend-ignore = [
     "PLW0717", # too-many-statements-in-try-clause — broad try/except at route boundaries is intentional
     "E501", # line-too-long (handled by formatter)
     "PLW1514", # unspecified-encoding in open(...) function
+    "RUF012", # mutable-class-default — Django Meta / admin / exception headers use list defaults
 ]
 lint.unfixable = ["F401"] # unused-import — report only, do not remove on fix
 target-version = "py312"
 [tool.ruff.lint.per-file-ignores]
-"**/tests/**" = ["S101"] # assert is standard in pytest
+"**/tests/**" = ["S101", "S105", "S106"] # assert/passwords are standard in pytest
 [tool.ruff.lint.flake8-builtins]
 ignorelist = ["id"]
 [tool.ruff.lint.flake8-import-conventions]

@@ -1,5 +1,4 @@
-import datetime as dtm
-
+from django.utils import timezone
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -84,7 +83,7 @@ def post_student_measurement(request, **kwargs):
     else:
         measurement = measurement[0]
     session = MeasurementSession.objects.get_or_create(
-        student=student, approved=approved, date=dtm.datetime.today(), semester=get_ongoing_semester()
+        student=student, approved=approved, date=timezone.now(), semester=get_ongoing_semester()
     )[0]
 
     result = MeasurementResult.objects.get_or_create(measurement=measurement, session=session)

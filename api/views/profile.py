@@ -51,7 +51,7 @@ def get_student_info(request, **kwargs):
 )
 @api_view(["POST"])
 @permission_classes([IsStudent])
-def toggle_QR_presence(request, **kwargs):
+def toggle_QR_presence(request, **kwargs):  # noqa: N802
     """
     Toggles has_QR status
     """

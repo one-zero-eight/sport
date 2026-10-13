@@ -1,4 +1,4 @@
-from datetime import date, datetime
+import datetime as dtm
 from tempfile import NamedTemporaryFile
 
 from admin_auto_filters.filters import AutocompleteFilter
@@ -8,15 +8,16 @@ from django.db.models import OuterRef, Subquery, Sum
 from django.db.models.functions import Coalesce
 from django.http import HttpResponse
 from django.urls import reverse
-from django.utils.safestring import mark_safe
+from django.utils import timezone
+from django.utils.html import format_html
 from openpyxl import Workbook
 from rangefilter.filters import DateRangeFilter
 
-from sport.admin.utils import DefaultFilterMixIn, cache_dependent_filter, cache_filter, custom_order_filter
+from sport.admin.admin_utils import DefaultFilterMixIn, cache_dependent_filter, cache_filter, custom_order_filter
 from sport.models import Attendance, Semester, Student
 from sport.utils import get_study_year_from_date
 
-from .site import site
+from .admin_site import site
 
 
 class StudentTextFilter(AutocompleteFilter):
@@ -33,22 +34,22 @@ def export_attendance_as_xlsx(modeladmin, request, queryset):
     date_start_str = request.GET.get("training__start__range__gte", None)
     date_end_str = request.GET.get("training__start__range__lte", None)
 
-    start = date.min
-    end = date.max
+    start = dtm.date.min
+    end = dtm.date.max
     if semester_id is not None:
         semester = Semester.objects.get(id=semester_id)
         start = max(start, semester.start)
         end = min(end, semester.end)
 
     if date_start_str:
-        start_date = datetime.strptime(date_start_str, settings.DATE_FORMAT).date()
+        start_date = dtm.datetime.strptime(date_start_str, settings.DATE_FORMAT).replace(tzinfo=dtm.UTC).date()
         start = max(start, start_date)
 
     if date_end_str:
-        end_date = datetime.strptime(date_end_str, settings.DATE_FORMAT).date()
+        end_date = dtm.datetime.strptime(date_end_str, settings.DATE_FORMAT).replace(tzinfo=dtm.UTC).date()
         end = min(end, end_date)
 
-    if start == date.min:
+    if start == dtm.date.min:
         modeladmin.message_user(
             request,
             "Please filter by semester or specify training start range",
@@ -56,7 +57,7 @@ def export_attendance_as_xlsx(modeladmin, request, queryset):
         )
         return
 
-    end = min(end, date.today())
+    end = min(end, timezone.localdate())
     export_period = f"{start} - {end}"
     start_study_year = get_study_year_from_date(start)
     end_study_year = get_study_year_from_date(end)
@@ -130,13 +131,13 @@ class AttendanceAdmin(DefaultFilterMixIn):
 
     def cause_report_link(self, obj):
         change_url = reverse("admin:sport_selfsportreport_change", args=(obj.cause_report.pk,))
-        return mark_safe(f'<a href="{change_url}">{obj.cause_report}</a>')
+        return format_html('<a href="{}">{}</a>', change_url, obj.cause_report)
 
     cause_report_link.short_description = "Self sport report"
 
     def cause_reference_link(self, obj):
         change_url = reverse("admin:sport_reference_change", args=(obj.cause_reference.pk,))
-        return mark_safe(f'<a href="{change_url}">{obj.cause_reference}</a>')
+        return format_html('<a href="{}">{}</a>', change_url, obj.cause_reference)
 
     cause_reference_link.short_description = "Medical leave reference"
 

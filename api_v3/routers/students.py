@@ -1,5 +1,5 @@
+import datetime as dtm
 from collections import defaultdict
-from datetime import date, datetime
 
 from django.db.models import F, Q
 from fastapi import APIRouter, HTTPException
@@ -36,7 +36,7 @@ class TrainingHistoryRowSchema(BaseModel):
     group_id: int
     group: str
     custom_name: str | None
-    timestamp: datetime
+    timestamp: dtm.datetime
     hours: int
     approved: bool
 
@@ -101,8 +101,8 @@ def build_fitness_test_session_result(
 class SemesterHistorySchema(BaseModel):
     semester_id: int
     semester_name: str
-    semester_start: date
-    semester_end: date
+    semester_start: dtm.date
+    semester_end: dtm.date
     required_hours: int
     total_hours: int
     trainings: list[TrainingHistorySchema]
@@ -144,8 +144,8 @@ def get_student_specific_semester_history(
 
     from sport.models import Attendance, Reference, SelfSportReport
 
-    VTrue = Value(True, output_field=BooleanField())
-    VFalse = Value(False, output_field=BooleanField())
+    v_true = Value(True, output_field=BooleanField())
+    v_false = Value(False, output_field=BooleanField())
     att = (
         Attendance.objects.filter(training__group__semester=semester, student=student)
         .annotate(
@@ -157,7 +157,7 @@ def get_student_specific_semester_history(
                 When(cause_reference__isnull=False, then=F("cause_reference__uploaded")),
                 default=F("training__start"),
             ),
-            approved=Case(When(hours__gt=0, then=VTrue), default=VFalse),
+            approved=Case(When(hours__gt=0, then=v_true), default=v_false),
         )
         .values("group_id", "group", "custom_name", "timestamp", "hours", "approved")
     )

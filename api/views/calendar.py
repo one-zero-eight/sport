@@ -1,4 +1,4 @@
-from datetime import time
+import datetime as dtm
 
 from django.conf import settings
 from django.utils import timezone
@@ -39,7 +39,7 @@ def convert_personal_training(t) -> dict:
         "title": t["group_name"],
         "start": start_time,
         "end": end_time,
-        "allDay": start_time.time() == time(0, 0, 0) and end_time.time() == time(23, 59, 59),
+        "allDay": start_time.time() == dtm.time(0, 0, 0) and end_time.time() == dtm.time(23, 59, 59),
         "extendedProps": {
             "id": t["id"],
             "can_edit": start_time <= timezone.localtime() <= start_time + settings.TRAINING_EDITABLE_INTERVAL,

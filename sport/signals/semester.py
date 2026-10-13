@@ -133,7 +133,7 @@ def validate_semester(sender, instance, *args, **kwargs):
                     Debt.objects.get_or_create(
                         student_id=s.pk, semester=None, debt=get_ongoing_semester().hours - s.complex_hours
                     )
-        except:
+        except (IndexError, AttributeError, TypeError, ValueError):
             pass
 
 

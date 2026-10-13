@@ -2,7 +2,7 @@ import datetime as dtm
 from typing import Annotated, Any
 
 from django.core.files.base import ContentFile
-from django.db import transaction
+from django.db import DatabaseError, transaction
 from django.utils.timezone import make_naive
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from pydantic import BaseModel, Field
@@ -76,28 +76,26 @@ def reference_upload(
 
     semester = get_current_semester()
 
-    try:
-        with transaction.atomic():
-            ref = Reference(
-                start=start,
-                end=end,
-                student_comment=student_comment or "",
-                semester=semester,
-                student_id=user.pk,
-                hours=((end - start).days // 7 * semester.number_hours_one_week_ill),
-            )
-            ref.image.save(image.filename, ContentFile(image.file.read()), save=True)
-
-            count = Reference.objects.filter(
-                student_id=user.pk,
-                uploaded__date=make_naive(ref.uploaded).date(),
-            ).count()
-            assert count == 1
-    except AssertionError:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=ReferenceErrors.TOO_MUCH_UPLOADS_PER_DAY[1],
+    with transaction.atomic():
+        ref = Reference(
+            start=start,
+            end=end,
+            student_comment=student_comment or "",
+            semester=semester,
+            student_id=user.pk,
+            hours=((end - start).days // 7 * semester.number_hours_one_week_ill),
         )
+        ref.image.save(image.filename, ContentFile(image.file.read()), save=True)
+
+        count = Reference.objects.filter(
+            student_id=user.pk,
+            uploaded__date=make_naive(ref.uploaded).date(),
+        ).count()
+        if count != 1:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=ReferenceErrors.TOO_MUCH_UPLOADS_PER_DAY[1],
+            )
 
     return ReferenceUploadResponseSchema.model_validate(ref, from_attributes=True)
 
@@ -161,7 +159,7 @@ def medical_group_upload(
                 objs.append(ref_img)
             MedicalGroupReferenceImage.objects.bulk_create(objs)
 
-    except Exception as e:
+    except (OSError, ValueError, TypeError, DatabaseError) as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e),

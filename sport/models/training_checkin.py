@@ -9,8 +9,8 @@ class TrainingCheckIn(models.Model):
         "Attendance", null=True, blank=True, on_delete=models.SET_NULL, related_name="checkin"
     )
 
-    def __str__(self):
-        return f"{self.student} at {self.training}"
-
     class Meta:
         constraints = [models.UniqueConstraint(fields=["student", "training"], name="student_training_checkin")]
+
+    def __str__(self):
+        return f"{self.student} at {self.training}"

@@ -3,8 +3,8 @@ from django.forms import CheckboxSelectMultiple, ModelChoiceField, ModelForm
 
 from sport.models import Semester
 
-from .site import site
-from .utils import copy_sport_groups_and_schedule_from_semester
+from .admin_site import site
+from .admin_utils import copy_sport_groups_and_schedule_from_semester
 
 
 class SemesterAdminForm(ModelForm):

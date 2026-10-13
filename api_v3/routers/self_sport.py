@@ -7,6 +7,7 @@ from urllib.parse import urlparse
 import requests
 from bs4 import BeautifulSoup
 from django.conf import settings
+from django.utils import timezone
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import AliasPath, AnyUrl, BaseModel, Field, field_validator
 from starlette import status
@@ -131,7 +132,7 @@ def parse_self_sport_strava(
             detail="Invalid link",
         )
 
-    resp = requests.get(str(link))
+    resp = requests.get(str(link), timeout=30)
     if resp.status_code == 429:
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
@@ -169,7 +170,7 @@ def parse_self_sport_strava(
     elif len(time_string) == 7:
         time_string = "0" + time_string
 
-    parsed_time = dtm.datetime.strptime(time_string, "%H:%M:%S")
+    parsed_time = dtm.datetime.strptime(time_string, "%H:%M:%S").replace(tzinfo=dtm.UTC)
     final_time = dtm.time(
         parsed_time.hour,
         parsed_time.minute + (1 if parsed_time.second else 0),
@@ -281,10 +282,10 @@ def create_self_sport_report(
             detail="Only students can submit self-sport reports",
         )
 
-    current_time = dtm.datetime.now()
+    current_time = timezone.now()
     semester = get_current_semester()
-    semester_start = dtm.datetime.combine(semester.start, dtm.datetime.min.time())
-    semester_end = dtm.datetime.combine(semester.end, dtm.datetime.max.time())
+    semester_start = timezone.make_aware(dtm.datetime.combine(semester.start, dtm.time.min))
+    semester_end = timezone.make_aware(dtm.datetime.combine(semester.end, dtm.time.max))
     if not (semester_start <= current_time <= semester_end):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -462,7 +463,7 @@ def is_valid_strava_url(url: str) -> bool:
     """Check that the URL points to a trusted Strava domain."""
     try:
         parsed = urlparse(url)
-    except Exception:
+    except ValueError:
         return False
 
     hostname = (parsed.hostname or "").lower()

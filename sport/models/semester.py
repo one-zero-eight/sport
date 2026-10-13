@@ -1,4 +1,4 @@
-from datetime import timedelta
+import datetime as dtm
 
 from django.db import models
 from django.db.models import F, Q
@@ -12,7 +12,7 @@ from .student import Student
 
 
 def now_offset(offset=0):
-    return timezone.now() + timedelta(seconds=offset)
+    return timezone.now() + dtm.timedelta(seconds=offset)
 
 
 def academic_leave_students():

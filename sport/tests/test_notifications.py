@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+import datetime as dtm
 from types import SimpleNamespace
 
 from django.core import mail
@@ -55,7 +55,7 @@ def test_removed_training_uses_bulk_notification(monkeypatch):
         checkins=SimpleNamespace(all=lambda: checkins),
         checked_in_students=students,
         group=SimpleNamespace(to_frontend_name=lambda: "Football"),
-        start=datetime(2026, 9, 9, 15, tzinfo=UTC),
+        start=dtm.datetime(2026, 9, 9, 15, tzinfo=dtm.UTC),
     )
     history_calls = []
     notification_calls = []

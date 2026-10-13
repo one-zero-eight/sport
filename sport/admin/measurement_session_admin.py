@@ -4,7 +4,7 @@ from django.forms import BaseInlineFormSet
 from api.crud import get_ongoing_semester
 from sport.models import Measurement, MeasurementResult, MeasurementSession
 
-from .site import site
+from .admin_site import site
 
 
 class MeasurementResultInlineFormSet(BaseInlineFormSet):

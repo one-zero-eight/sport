@@ -28,7 +28,7 @@ class Student(models.Model):
 
     gender = models.IntegerField(choices=Gender.choices, default=-1)
 
-    has_QR = models.BooleanField(
+    has_QR = models.BooleanField(  # noqa: N815
         default=False,
     )
 
@@ -60,9 +60,24 @@ class Student(models.Model):
 
     comment = HTMLField(null=True, blank=True, default="")
 
+    class Meta:
+        db_table = "student"
+        verbose_name_plural = "students"
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.__original_medical_group_id = self.medical_group_id
+
+    def __str__(self):
+        return f"{self.user.first_name} {self.user.last_name} ({self.user.email})"
+
+    def save(self, *args, **kwargs):
+        if self.telegram is not None and self.telegram[0] != "@":
+            self.telegram = "@" + self.telegram
+        if self.medical_group_id != self.__original_medical_group_id:
+            MedicalGroupHistory.objects.create(student=self, medical_group_id=self.medical_group_id)
+
+        super().save(*args, **kwargs)
 
     def notify(self, subject, message, **kwargs):
         msg = message.format(**kwargs)
@@ -74,23 +89,8 @@ class Student(models.Model):
             html_message=msg.replace("\n", "<br>"),
         )
 
-    def save(self, *args, **kwargs):
-        if self.telegram is not None and self.telegram[0] != "@":
-            self.telegram = "@" + self.telegram
-        if self.medical_group_id != self.__original_medical_group_id:
-            MedicalGroupHistory.objects.create(student=self, medical_group_id=self.medical_group_id)
-
-        super().save(*args, **kwargs)
-
-    class Meta:
-        db_table = "student"
-        verbose_name_plural = "students"
-
     def full_name(self):
         return f"{self.user.first_name} {self.user.last_name}"
-
-    def __str__(self):
-        return f"{self.user.first_name} {self.user.last_name} ({self.user.email})"
 
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)

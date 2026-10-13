@@ -1,9 +1,9 @@
 from django.contrib import admin
 
-from sport.admin.utils import user__email
+from sport.admin.admin_utils import user__email
 from sport.models import Trainer
 
-from .site import site
+from .admin_site import site
 
 
 @admin.register(Trainer, site=site)

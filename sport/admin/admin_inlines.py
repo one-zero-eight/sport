@@ -4,7 +4,7 @@ from django.contrib.admin.widgets import AdminDateWidget
 from django.http import HttpRequest
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 
 from sport.models import Attendance, Enroll, Group, MedicalGroupHistory, Training, TrainingCheckIn
 
@@ -17,7 +17,7 @@ class ViewMedicalGroupHistoryInline(admin.TabularInline):
 
     def medical_group_reference_link(self, obj: MedicalGroupHistory):
         change_url = reverse("admin:sport_medicalgroupreference_change", args=(obj.medical_group_reference.pk,))
-        return mark_safe(f'<a href="{change_url}">{obj.medical_group_reference}</a>')
+        return format_html('<a href="{}">{}</a>', change_url, obj.medical_group_reference)
 
     medical_group_reference_link.short_description = "medical group reference"
 

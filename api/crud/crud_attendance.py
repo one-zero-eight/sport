@@ -3,7 +3,7 @@ from math import floor
 from typing import TypedDict
 
 from django.db import connection
-from django.db.models import BooleanField, Case, CharField, F, IntegerField, OuterRef, Value, When
+from django.db.models import BooleanField, CharField, F, IntegerField
 from django.db.models.expressions import Case, ExpressionWrapper, OuterRef, Value, When
 from django.db.models.functions import Coalesce, Concat
 
@@ -147,15 +147,15 @@ def mark_hours(training: Training, student_hours: Iterable[tuple[int, float]]):
         )
         if len(args_add_str) > 0:
             cursor.execute(
-                f"INSERT INTO attendance (student_id, training_id, hours) VALUES {args_add_str} "
+                f"INSERT INTO attendance (student_id, training_id, hours) VALUES {args_add_str} "  # noqa: S608
                 f"ON CONFLICT ON CONSTRAINT unique_attendance "
                 f"DO UPDATE set hours=excluded.hours"
             )
         if len(args_del_str) > 0:
-            cursor.execute(f"DELETE FROM attendance WHERE  (student_id, training_id) IN ({args_del_str})")
+            cursor.execute(f"DELETE FROM attendance WHERE  (student_id, training_id) IN ({args_del_str})")  # noqa: S608
 
 
-def toggle_has_QR(student: Student):
+def toggle_has_QR(student: Student):  # noqa: N802
     """
     Toggles student's QR presence
     """
@@ -251,7 +251,7 @@ def get_negative_hours(student_id, hours_info=None, **kwargs):
     sem_now = student_hours["ongoing_semester"]
     try:
         debt = Debt.objects.get(student=student_id, semester=get_ongoing_semester()).debt
-    except:
+    except Debt.DoesNotExist:
         debt = 0
     res = sem_now["hours_self_debt"] + sem_now["hours_not_self"] + sem_now["hours_self_not_debt"] - debt
 
@@ -291,12 +291,12 @@ def better_than(student_id):
     if student_hours <= 0:
         return 0
 
-    all = qs.filter(
+    total_students = qs.filter(
         complex_hours__gt=0,
     ).count()
-    if all == 1:
+    if total_students == 1:
         return 100
 
     worse = qs.filter(complex_hours__gt=0, complex_hours__lt=student_hours).count()
 
-    return round(worse / (all - 1) * 100, 1)
+    return round(worse / (total_students - 1) * 100, 1)

@@ -17,7 +17,7 @@ bearer_scheme = HTTPBearer(
 
 
 async def verify_user(
-    bearer: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
+    bearer: Annotated[HTTPAuthorizationCredentials | None, Depends(bearer_scheme)],
 ) -> User:
     token = bearer and bearer.credentials
     if not token:

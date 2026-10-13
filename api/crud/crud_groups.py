@@ -6,7 +6,7 @@ from api.crud.utils import dictfetchall
 from sport.models import Enroll, Group, Sport, Student, Trainer
 
 
-def get_sports(all=False, student: Student | None = None):
+def get_sports(include_special=False, student: Student | None = None):
     """
     Retrieves existing sport types
     @param all - If true, returns also special sport types
@@ -21,7 +21,7 @@ def get_sports(all=False, student: Student | None = None):
 
     # w/o distinct returns a lot of duplicated
     sports = Sport.objects.filter(id__in=groups.values_list("sport")).distinct()
-    if not all:
+    if not include_special:
         sports = sports.filter(special=False, visible=True)
 
     sports_list = []

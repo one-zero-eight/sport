@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 
 class HasQRSerializer(serializers.Serializer):
-    has_QR = serializers.BooleanField()
+    has_QR = serializers.BooleanField()  # noqa: N815
 
 
 class GenderSerializer(serializers.Serializer):

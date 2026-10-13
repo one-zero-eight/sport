@@ -5,16 +5,15 @@ from django.db import ProgrammingError
 from django.db.models.expressions import RawSQL
 from django.forms import CheckboxSelectMultiple, ModelForm
 from django.utils import timezone
-from django.utils.html import format_html
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext_lazy as _
 
 from api.crud import get_ongoing_semester
 from sport.models import Group, Semester
 
-from .inlines import TrainingInline
-from .site import site
-from .utils import DefaultFilterMixIn, ScheduleInline, custom_titled_filter
+from .admin_inlines import TrainingInline
+from .admin_site import site
+from .admin_utils import DefaultFilterMixIn, ScheduleInline, custom_titled_filter
 
 
 def get_next_semester():
@@ -34,15 +33,20 @@ class ListTextWidget(forms.NumberInput):
         self._list = data_list
 
     def render(self, name, value, attrs=None, renderer=None):
-        script = (
-            "<script>const clickButton = (name, value) => {document.getElementsByName(name)[0].value = value;}</script>"
-        )
         text_html = super().render(name, value, attrs=attrs)
-        list_html = ""
-        for e in self._list:
-            list_html += f"<button type=\"button\" onclick=\"clickButton('{name}', '{e}');\">{e}</button>"
-
-        return mark_safe(script + "\n" + text_html + "\n" + list_html)
+        # data_list is a fixed tuple of ints (see Meta.widgets); name is a form field name.
+        list_html = format_html_join(
+            "\n",
+            '<button type="button" onclick="clickButton(\'{}\', {});">{}</button>',
+            ((name, e, e) for e in self._list),
+        )
+        # Keep JS in the format string so it is not HTML-escaped as an argument.
+        return format_html(
+            "<script>const clickButton = (name, value) =>"
+            "{{document.getElementsByName(name)[0].value = value;}}</script>\n{}\n{}",
+            text_html,
+            list_html,
+        )
 
 
 class TrainerTextFilter(AutocompleteFilter):

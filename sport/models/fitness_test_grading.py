@@ -19,3 +19,6 @@ class FitnessTestGrading(models.Model):
 
     start_range = models.IntegerField()
     end_range = models.IntegerField()
+
+    def __str__(self):
+        return f"{self.exercise} [{self.start_range}, {self.end_range}) → {self.score}"

@@ -3,6 +3,7 @@ from collections import defaultdict
 from typing import Annotated, Any
 
 from django.db.models import Q
+from django.utils import timezone
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field, field_validator
 from starlette import status
@@ -289,7 +290,7 @@ def upload_fitness_test_results(
                 "semester": semester,
                 "teacher_id": user.id,
                 "retake": body.retake,
-                "date": dtm.datetime.now(),
+                "date": timezone.now(),
             },
         )
 

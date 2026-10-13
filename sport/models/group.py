@@ -64,8 +64,8 @@ class Group(models.Model):
             models.Index(fields=("name",)),
         ]
 
-    def to_frontend_name(self):
-        return f"{str_or_empty(self.sport)}{' - ' if self.sport and self.name else ''}{str_or_empty(self.name)}"
-
     def __str__(self):
         return f"[{self.semester}] {str_or_empty(self.sport)}{' - ' if self.sport and self.name else ''}{str_or_empty(self.name)}"
+
+    def to_frontend_name(self):
+        return f"{str_or_empty(self.sport)}{' - ' if self.sport and self.name else ''}{str_or_empty(self.name)}"

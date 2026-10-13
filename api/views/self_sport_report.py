@@ -1,11 +1,12 @@
+import datetime as dtm
 import json
 import re
-from datetime import datetime, time
 from urllib.parse import urlparse
 
 import requests
 from bs4 import BeautifulSoup
 from django.conf import settings
+from django.utils import timezone
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.decorators import (
@@ -62,9 +63,9 @@ def get_self_sport_types(request, **kwargs):
 @permission_classes([IsStudent])
 @parser_classes([MultiPartParser])
 def self_sport_upload(request, **kwargs):
-    current_time = datetime.now()
-    semester_start = datetime.combine(get_ongoing_semester().start, datetime.min.time())
-    semester_end = datetime.combine(get_ongoing_semester().end, datetime.max.time())
+    current_time = timezone.now()
+    semester_start = timezone.make_aware(dtm.datetime.combine(get_ongoing_semester().start, dtm.time.min))
+    semester_end = timezone.make_aware(dtm.datetime.combine(get_ongoing_semester().end, dtm.time.max))
     if not semester_start <= current_time <= semester_end:
         return Response(status=status.HTTP_403_FORBIDDEN, data=error_detail(*SelfSportErrors.NO_CURRENT_SEMESTER))
 
@@ -125,7 +126,7 @@ def is_valid_strava_url(url: str) -> bool:
     """Check that the URL points to a trusted Strava domain."""
     try:
         parsed = urlparse(url)
-    except Exception:
+    except ValueError:
         return False
 
     hostname = (parsed.hostname or "").lower()
@@ -148,12 +149,12 @@ def get_strava_activity_info(request, **kwargs):
     url = request.GET["link"]
     if not is_valid_strava_url(url):
         return Response(status=status.HTTP_400_BAD_REQUEST, data="Invalid link")
-    resp = requests.get(url)
+    resp = requests.get(url, timeout=30)
     if resp.status_code == 429:
         return Response(status=status.HTTP_429_TOO_MANY_REQUESTS, data="Too many requests try later")
     elif resp.status_code != 200:
         return Response(status=status.HTTP_400_BAD_REQUEST, data="Something went wrong")
-    txt = requests.get(url).text
+    txt = resp.text
     soup = BeautifulSoup(txt, "html.parser")
     try:
         json_string = soup.html.body.find_all("div", attrs={"data-react-class": "ActivityPublic"})[0].get(
@@ -177,12 +178,12 @@ def get_strava_activity_info(request, **kwargs):
         time_string = "0" + time_string
     format_string = "%H:%M:%S"
 
-    parsed_time = datetime.strptime(time_string, format_string)
+    parsed_time = dtm.datetime.strptime(time_string, format_string).replace(tzinfo=dtm.UTC)
     if parsed_time.second != 0:
         if parsed_time.minute == 59:
-            final_time = time(parsed_time.hour + 1, 0, 0)
+            final_time = dtm.time(parsed_time.hour + 1, 0, 0)
         else:
-            final_time = time(parsed_time.hour, parsed_time.minute + 1, 0)
+            final_time = dtm.time(parsed_time.hour, parsed_time.minute + 1, 0)
     total_minutes = final_time.hour * 45 + final_time.minute
 
     speed = round(distance_float / (total_minutes / 60), 1)  # for Run, Ride, Walk

@@ -12,3 +12,6 @@ class MedicalGroupHistory(models.Model):
     class Meta:
         db_table = "medical_group_history"
         verbose_name_plural = "medical groups history"
+
+    def __str__(self):
+        return f"{self.student} → {self.medical_group} @ {self.changed}"

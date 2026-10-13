@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from sport.models import Measurement
 
-from .site import site
+from .admin_site import site
 
 
 @admin.register(Measurement, site=site)

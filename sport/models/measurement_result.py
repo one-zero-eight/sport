@@ -10,3 +10,6 @@ class MeasurementResult(models.Model):
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=["session", "measurement"], name="session_measurement")]
+
+    def __str__(self):
+        return f"{self.session} — {self.measurement}: {self.value}"

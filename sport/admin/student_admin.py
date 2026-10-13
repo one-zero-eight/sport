@@ -3,8 +3,7 @@ from django.contrib.auth import get_user_model
 from django.db.models import F, ForeignKey, IntegerField
 from django.db.models.expressions import ExpressionWrapper, OuterRef
 from django.db.models.functions import Coalesce
-from django.utils.html import format_html
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html, format_html_join
 from hijack.contrib.admin import HijackUserAdminMixin
 from import_export import fields, resources
 from import_export.admin import ExportActionMixin, ImportExportActionModelAdmin
@@ -24,9 +23,9 @@ from sport.models import (
 )
 from sport.signals import get_or_create_student_group
 
-from .inlines import AddAttendanceInline, ViewAttendanceInline, ViewMedicalGroupHistoryInline
-from .site import site
-from .utils import DefaultFilterMixIn, user__role
+from .admin_inlines import AddAttendanceInline, ViewAttendanceInline, ViewMedicalGroupHistoryInline
+from .admin_site import site
+from .admin_utils import DefaultFilterMixIn, user__role
 
 
 class FitnessTestExcerciseInline(admin.TabularInline):
@@ -191,7 +190,10 @@ class StudentResource(resources.ModelResource):
             ]
             # Add a column with the error message
             import_result.diff.append(
-                mark_safe(f"""Errors:<ul>{"".join([f"<li>{err.error}</li>" for err in import_result.errors])}</ul>""")
+                format_html(
+                    "Errors:<ul>{}</ul>",
+                    format_html_join("", "<li>{}</li>", ((err.error,) for err in import_result.errors)),
+                )
             )
             # clear errors and mark the record to skip
             import_result.errors = []

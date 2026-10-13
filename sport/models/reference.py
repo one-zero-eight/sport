@@ -59,8 +59,8 @@ class Reference(models.Model):
         db_table = "reference"
         verbose_name_plural = "medical references"
 
-    def get_submission_url(self) -> tuple[SubmissionType, str]:
-        return SubmissionType.IMAGE, self.image.url
+    def __str__(self):
+        return f"{self.student} {self.uploaded.date()} for {self.semester}"
 
     def save(self, *args, **kwargs):
         # update flag and approval only when object is created via API
@@ -69,5 +69,5 @@ class Reference(models.Model):
             self.approval = self.hours > 0
         return super().save(*args, **kwargs)
 
-    def __str__(self):
-        return f"{self.student} {self.uploaded.date()} for {self.semester}"
+    def get_submission_url(self) -> tuple[SubmissionType, str]:
+        return SubmissionType.IMAGE, self.image.url

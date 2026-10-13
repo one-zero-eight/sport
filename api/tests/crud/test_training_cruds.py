@@ -2,7 +2,7 @@ import unittest
 
 testcase = unittest.TestCase()
 testcase.maxDiff = None
-assertMembers = testcase.assertCountEqual
+assert_members = testcase.assertCountEqual
 
 
 # @pytest.mark.django_db

@@ -4,13 +4,15 @@ from django.db.models.functions import Concat
 from sport.models import Group, Student
 
 
-def get_email_name_like_students(pattern: str, limit: int = 5, requirement=~Q(pk=None)):
+def get_email_name_like_students(pattern: str, limit: int = 5, requirement=None):
     """
     Retrieve at most <limit students> which emails start with <email_pattern>
     @param pattern - beginning of student email/name
     @param limit - how many student will be retrieved maximum
     @return list of students that are
     """
+    if requirement is None:
+        requirement = ~Q(pk=None)
 
     query = (
         Student.objects.annotate(

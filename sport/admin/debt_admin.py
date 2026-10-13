@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html, format_html_join
 from import_export import fields, resources
 from import_export.admin import ImportExportActionModelAdmin
 from import_export.results import RowResult
@@ -8,8 +8,8 @@ from import_export.widgets import ForeignKeyWidget
 from sport.models.debt import Debt
 
 from ..models import Semester, Student
-from .site import site
-from .utils import DefaultFilterMixIn
+from .admin_site import site
+from .admin_utils import DefaultFilterMixIn
 
 
 class DebtResource(resources.ModelResource):
@@ -25,7 +25,10 @@ class DebtResource(resources.ModelResource):
             import_result.diff = [row[val] for val in row]
             # Add a column with the error message
             import_result.diff.append(
-                mark_safe(f"""Errors:<ul>{"".join([f"<li>{err.error}</li>" for err in import_result.errors])}</ul>""")
+                format_html(
+                    "Errors:<ul>{}</ul>",
+                    format_html_join("", "<li>{}</li>", ((err.error,) for err in import_result.errors)),
+                )
             )
             # clear errors and mark the record to skip
             import_result.errors = []

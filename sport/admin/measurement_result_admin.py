@@ -2,18 +2,18 @@ from django.contrib import admin
 
 from sport.models import MeasurementResult
 
-from .site import site
+from .admin_site import site
 
 
 @admin.register(MeasurementResult, site=site)
 class MeasurementResult(admin.ModelAdmin):
     list_display = ("student", "date", "semester", "measurement", "value")
 
-    def semester(self, object):
-        return object.session.semester
+    def semester(self, obj):
+        return obj.session.semester
 
-    def date(self, object):
-        return object.session.date
+    def date(self, obj):
+        return obj.session.date
 
-    def student(self, object):
-        return object.session.student
+    def student(self, obj):
+        return obj.session.student

@@ -31,10 +31,12 @@ def _dictfetchall(cursor) -> list[dict]:
 class SumSubquery(Subquery):
     output_field = None
 
-    def __init__(self, queryset, sum_by, output_field=IntegerField(), **extra):
+    def __init__(self, queryset, sum_by, output_field=None, **extra):
+        if output_field is None:
+            output_field = IntegerField()
         super().__init__(queryset, output_field, **extra)
         self.output_field = output_field
-        self.template = f"(SELECT sum({sum_by}) FROM (%(subquery)s) _sum)"
+        self.template = f"(SELECT sum({sum_by}) FROM (%(subquery)s) _sum)"  # noqa: S608
 
 
 def _get_students_grades(training_id: int) -> list[dict]:
@@ -399,12 +401,12 @@ def mark_training_attendance(
         if args_add:
             args_add_str = b",".join(cursor.mogrify("(%s, %s, %s)", x) for x in args_add)
             cursor.execute(
-                f"INSERT INTO attendance (student_id, training_id, hours) VALUES {args_add_str.decode()} "
+                f"INSERT INTO attendance (student_id, training_id, hours) VALUES {args_add_str.decode()} "  # noqa: S608
                 "ON CONFLICT ON CONSTRAINT unique_attendance DO UPDATE SET hours=excluded.hours"
             )
         if args_del:
             args_del_str = b",".join(cursor.mogrify("(%s, %s)", x) for x in args_del)
-            cursor.execute(f"DELETE FROM attendance WHERE (student_id, training_id) IN ({args_del_str.decode()})")
+            cursor.execute(f"DELETE FROM attendance WHERE (student_id, training_id) IN ({args_del_str.decode()})")  # noqa: S608
 
     ok_payload = [
         BadGradeReportGradeSchema(
