@@ -97,11 +97,15 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("SECRET_KEY")
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = getenv_boolean("DEBUG")
+
+# SECURITY WARNING: keep the secret key used in production secret!
+_SECRET_KEY_DEFAULT = "dev-only-insecure-key"  # noqa: S105
+SECRET_KEY = os.getenv("SECRET_KEY", _SECRET_KEY_DEFAULT)
+if not DEBUG and SECRET_KEY == _SECRET_KEY_DEFAULT:
+    raise ValueError("SECRET_KEY environment variable is required when DEBUG is False")
+
 PROJECT_ROOT = "/app/"
 ALLOWED_HOSTS = [HOSTNAME, "app"]
 
@@ -318,10 +322,11 @@ CORS_ALLOWED_ORIGIN_REGEXES = [
 DATABASES = {
     "default": {
         "ENGINE": "django_prometheus.db.backends.postgresql",
-        "NAME": os.getenv("POSTGRES_DB"),
-        "USER": os.getenv("POSTGRES_USER"),
-        "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
-        "HOST": os.getenv("POSTGRES_SERVER"),
+        "NAME": os.getenv("POSTGRES_DB", "sport_database"),
+        "USER": os.getenv("POSTGRES_USER", "postgres"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD", "postgres"),
+        # `db` inside compose network; `localhost` for host-side manage.py
+        "HOST": os.getenv("POSTGRES_SERVER", "localhost"),
         "PORT": "",  # default 5432 will be set
         "OPTIONS": {
             "pool": {

@@ -34,9 +34,14 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    env_file: .env
+    # Defaults from .env.example; optional .env overrides (SSO secrets, etc.)
+    env_file:
+      - path: .env.example
+        required: true
+      - path: .env
+        required: false
     environment:
-      DEBUG: 'true'
+      DEBUG: "true"
 
   cron:
     build: .
@@ -49,9 +54,13 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    env_file: .env
+    env_file:
+      - path: .env.example
+        required: true
+      - path: .env
+        required: false
     environment:
-      TZ: 'Europe/Moscow'
+      TZ: "Europe/Moscow"
 
   db:
     # See more: https://hub.docker.com/_/postgres
@@ -61,9 +70,13 @@ services:
       - "5432:5432"
     volumes:
       - "db-data:/var/lib/postgresql/data"
-    env_file: .env
+    env_file:
+      - path: .env.example
+        required: true
+      - path: .env
+        required: false
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 10s
       retries: 5
       start_period: 30s

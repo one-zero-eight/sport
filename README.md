@@ -14,15 +14,17 @@ The platform for conducting, tracking and checking students' sports activity at 
    ```bash
    uv sync
    ```
-3. Copy environment variables: `cp .env.example .env` (leave default values in development)
-4. Start services: `docker compose up --build`
-5. Make migrations and create superuser:
+3. Start services:
+   ```bash
+   docker compose up --build
+   ```
+4. Make migrations and create superuser:
    - Enter shell: `docker compose exec -it app bash`
    - Autocreate migration files: `python3 manage.py makemigrations`
    - Apply migrations to db: `python3 manage.py migrate`
      > If there are problems with migrations applying, try to run the same migrate command with `--fake` option.
    - Create a new superuser: `python3 manage.py createsuperuser`
-6. View Admin panel at http://localhost/admin and Swagger at http://localhost/api/swagger
+5. View Admin panel at http://localhost/admin and Swagger at http://localhost/api/v3/docs
 
 > [!NOTE]
 > Server supports auto-reload on code change in debug mode
