@@ -1,11 +1,7 @@
-from django.db import connection
-from django.db.models import F
-from django.db.models import Q
-from django.db.models import Value
+from django.db.models import F, Q, Value
 from django.db.models.functions import Concat
 
-from api.crud.utils import dictfetchall
-from sport.models import Student, Group
+from sport.models import Group, Student
 
 
 def get_email_name_like_students(pattern: str, limit: int = 5, requirement=~Q(pk=None)):
@@ -16,37 +12,33 @@ def get_email_name_like_students(pattern: str, limit: int = 5, requirement=~Q(pk
     @return list of students that are
     """
 
-    query = Student.objects.annotate(
-        id=F('user__id'),
-        first_name=F('user__first_name'),
-        last_name=F('user__last_name'),
-        email=F('user__email'),
-        full_name=Concat('user__first_name', Value(' '), 'user__last_name')
-    ).filter(
-        requirement & (
-            Q(email__icontains=pattern) |
-            Q(full_name__icontains=pattern) |
-            Q(last_name__icontains=pattern)
+    query = (
+        Student.objects.annotate(
+            id=F("user__id"),
+            first_name=F("user__first_name"),
+            last_name=F("user__last_name"),
+            email=F("user__email"),
+            full_name=Concat("user__first_name", Value(" "), "user__last_name"),
         )
-    ).values(
-        'id',
-        'first_name',
-        'last_name',
-        'email',
-        'full_name',
-        'medical_group__name',
-        'gender',
-        'is_college'
-    )[:limit]
+        .filter(
+            requirement
+            & (Q(email__icontains=pattern) | Q(full_name__icontains=pattern) | Q(last_name__icontains=pattern))
+        )
+        .values("id", "first_name", "last_name", "email", "full_name", "medical_group__name", "gender", "is_college")[
+            :limit
+        ]
+    )
     return list(query)
 
 
 def get_email_name_like_students_filtered_by_group(pattern: str, limit: int = 5, group=None):
     group = Group.objects.get(id=group)
     # Don't suggest the student that is in 'Banned students' list
-    not_banned_condition = ~Q(user_id__in=group.banned_students.values_list('user_id', flat=True))
+    not_banned_condition = ~Q(user_id__in=group.banned_students.values_list("user_id", flat=True))
     # The student must either be in 'Allowed students' list, or have acceptable medical group
-    allowed_condition = Q(user_id__in=group.allowed_students.values_list('user_id', flat=True)) | Q(medical_group__in=group.allowed_medical_groups.all())
+    allowed_condition = Q(user_id__in=group.allowed_students.values_list("user_id", flat=True)) | Q(
+        medical_group__in=group.allowed_medical_groups.all()
+    )
     # Check college/students
     if group.allowed_education_level == 1:
         allowed_condition &= Q(is_college=False)

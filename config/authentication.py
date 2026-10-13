@@ -1,16 +1,15 @@
 import json
 import logging
 from datetime import datetime, timedelta
-from typing import List
 
-import requests
 import jwt
-from jwt.algorithms import RSAAlgorithm
+import requests
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from jwt.algorithms import RSAAlgorithm
 from rest_framework import exceptions
-from rest_framework.authentication import get_authorization_header, BaseAuthentication
+from rest_framework.authentication import BaseAuthentication, get_authorization_header
 
 from accounts.models import User as _User_type
 
@@ -30,18 +29,18 @@ class InNoHassleAuthentication(BaseAuthentication):
         auth = get_authorization_header(request).split()
 
         # Check Bearer
-        if not auth or auth[0].lower() != "bearer".encode():
+        if not auth or auth[0].lower() != b"bearer":
             return None
 
         if len(auth) == 1:
-            raise exceptions.AuthenticationFailed('Invalid token header. No credentials provided.')
+            raise exceptions.AuthenticationFailed("Invalid token header. No credentials provided.")
         elif len(auth) > 2:
-            raise exceptions.AuthenticationFailed('Invalid token header. Token string contains spaces.')
+            raise exceptions.AuthenticationFailed("Invalid token header. Token string contains spaces.")
 
         try:
             token = auth[1].decode()
         except UnicodeError:
-            raise exceptions.AuthenticationFailed('Invalid token header. Token string contains invalid characters.')
+            raise exceptions.AuthenticationFailed("Invalid token header. Token string contains invalid characters.")
 
         return self.authenticate_credentials(token)
 
@@ -56,11 +55,9 @@ class InNoHassleAuthentication(BaseAuthentication):
             return None
 
         try:
-            user = User.objects.get(**{
-                User.USERNAME_FIELD: claims[innohassle_settings['USERNAME_CLAIM']]
-            })
+            user = User.objects.get(**{User.USERNAME_FIELD: claims[innohassle_settings["USERNAME_CLAIM"]]})
         except User.DoesNotExist:
-            raise exceptions.AuthenticationFailed('Invalid token')
+            raise exceptions.AuthenticationFailed("Invalid token")
 
         return user, token
 
@@ -75,7 +72,7 @@ class InNoHassleAuthentication(BaseAuthentication):
 
 
 class InNoHassleAccounts:
-    keys: List[RSAPublicKey] = []
+    keys: list[RSAPublicKey] = []
     keys_timestamp: datetime = datetime.min
 
     @classmethod
@@ -93,25 +90,25 @@ class InNoHassleAccounts:
                 return jwt.decode(
                     token,
                     key=key,
-                    algorithms=['RS256', 'RS384', 'RS512'],
-                    audience=innohassle_settings['AUDIENCE'],
+                    algorithms=["RS256", "RS384", "RS512"],
+                    audience=innohassle_settings["AUDIENCE"],
                     # Explicitly define options to protect
                     # against changes in the library
                     verify=True,
                     options={
-                        'verify_signature': True,
-                        'verify_exp': True,
-                        'verify_nbf': True,
-                        'verify_iat': True,
-                        'verify_aud': True,
-                        'verify_iss': False,
-                        'require_exp': False,
-                        'require_iat': False,
-                        'require_nbf': False,
+                        "verify_signature": True,
+                        "verify_exp": True,
+                        "verify_nbf": True,
+                        "verify_iat": True,
+                        "verify_aud": True,
+                        "verify_iss": False,
+                        "require_exp": False,
+                        "require_iat": False,
+                        "require_nbf": False,
                     },
                 )
             except jwt.ExpiredSignatureError:
-                raise exceptions.AuthenticationFailed('Token expired')
+                raise exceptions.AuthenticationFailed("Token expired")
             except jwt.PyJWTError:
                 continue
         return None

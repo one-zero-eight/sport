@@ -1,4 +1,5 @@
 from django.contrib import admin
+
 from sport.models import FitnessTestResult
 
 from .site import site
@@ -13,15 +14,13 @@ class FitnessTestResultAdmin(admin.ModelAdmin):
         "student__telegram",
     )
 
-    autocomplete_fields = (
-        "student",
-    )
+    autocomplete_fields = ("student",)
 
     list_display = (
-        'student',
-        'session',
-        'exercise',
-        'value',
+        "student",
+        "session",
+        "exercise",
+        "value",
     )
 
     def has_add_permission(self, request, obj=None):

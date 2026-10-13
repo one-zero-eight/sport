@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sport', '0002_auto_20200404_1723'),
+        ("sport", "0002_auto_20200404_1723"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='sport',
-            name='special',
-            field=models.BooleanField(default=False, verbose_name='Special or Club only sport'),
+            model_name="sport",
+            name="special",
+            field=models.BooleanField(default=False, verbose_name="Special or Club only sport"),
         ),
     ]

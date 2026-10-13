@@ -4,18 +4,17 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sport', '0009_auto_20200418_1259'),
+        ("sport", "0009_auto_20200418_1259"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='enroll',
-            name='is_primary',
+            model_name="enroll",
+            name="is_primary",
             field=models.BooleanField(default=True),
         ),
         migrations.DeleteModel(
-            name='GroupRequest',
+            name="GroupRequest",
         ),
     ]

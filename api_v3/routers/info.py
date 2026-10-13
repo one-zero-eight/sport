@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from starlette import status
 
 from api_v3.dependencies import VerifiedDep
-from sport.models import TrainingClass, MedicalGroup, FAQElement, StudentStatus
+from sport.models import FAQElement, MedicalGroup, StudentStatus, TrainingClass
 
 router = APIRouter(
     tags=["Info"],
@@ -32,9 +32,7 @@ def list_training_locations(_user: VerifiedDep) -> list[TrainingLocationSchema]:
     Retrieve list of all training classes.
     """
     classes = list(TrainingClass.objects.all())
-    return [
-        TrainingLocationSchema.model_validate(c, from_attributes=True) for c in classes
-    ]
+    return [TrainingLocationSchema.model_validate(c, from_attributes=True) for c in classes]
 
 
 class MedicalGroupSchema(BaseModel):
@@ -54,10 +52,7 @@ def list_medical_groups(_user: VerifiedDep) -> list[MedicalGroupSchema]:
     Retrieve list of all medical groups.
     """
     medical_groups = MedicalGroup.objects.all()
-    return [
-        MedicalGroupSchema.model_validate(mg, from_attributes=True)
-        for mg in medical_groups
-    ]
+    return [MedicalGroupSchema.model_validate(mg, from_attributes=True) for mg in medical_groups]
 
 
 type FAQResponse = dict[str, dict[str, str]]
@@ -68,11 +63,7 @@ type FAQResponse = dict[str, dict[str, str]]
     responses={
         200: {
             "description": "FAQ grouped by category",
-            "content": {
-                "application/json": {
-                    "example": {"General": {"What is this?": "This is an FAQ."}}
-                }
-            },
+            "content": {"application/json": {"example": {"General": {"What is this?": "This is an FAQ."}}}},
         },
     },
 )
@@ -100,7 +91,6 @@ def get_faq(_user: VerifiedDep) -> FAQResponse:
     return result
 
 
-
 class StudentStatusSchema(BaseModel):
     id: int
     name: str
@@ -124,6 +114,4 @@ def get_student_statuses(_user: VerifiedDep) -> list[StudentStatusSchema]:
             status_code=status.HTTP_404_NOT_FOUND,
             detail="No student statuses found",
         )
-    return [
-        StudentStatusSchema.model_validate(s, from_attributes=True) for s in statuses
-    ]
+    return [StudentStatusSchema.model_validate(s, from_attributes=True) for s in statuses]

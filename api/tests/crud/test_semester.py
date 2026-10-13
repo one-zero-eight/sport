@@ -1,5 +1,6 @@
-import pytest
 from datetime import date
+
+import pytest
 
 from api.crud import get_ongoing_semester
 

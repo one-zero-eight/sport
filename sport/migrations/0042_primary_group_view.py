@@ -5,7 +5,7 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('sport', '0041_remove_is_primary_enroll_field'),
+        ("sport", "0041_remove_is_primary_enroll_field"),
     ]
 
     operations = [
@@ -25,8 +25,8 @@ begin
                g.id                             as group_id,
                count(a.id)                      as attendance_count,
                row_number() over (
-                partition by a.student_id 
-                order by count(a.id) desc 
+                partition by a.student_id
+                order by count(a.id) desc
                 )                               as rk
         from "group" g
                  join training t on g.id = t.group_id
@@ -49,6 +49,6 @@ end
 $$
     language plpgsql;
 """,
-            reverse_sql="drop function if exists "
-                        "get_primary_groups_in_semester;")
+            reverse_sql="drop function if exists get_primary_groups_in_semester;",
+        )
     ]

@@ -1,4 +1,4 @@
-from django.db import transaction, IntegrityError, ProgrammingError
+from django.db import IntegrityError, ProgrammingError, transaction
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
@@ -6,30 +6,29 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
 from api.crud import (
+    enroll_student,
+    get_ongoing_semester,
     unenroll_student,
-    enroll_student, get_ongoing_semester,
 )
 from api.permissions import IsStudent, IsTrainer, SportSelected
 from api.serializers import (
-    EnrollSerializer,
-    error_detail,
     EmptySerializer,
+    EnrollSerializer,
+    ErrorSerializer,
     NotFoundSerializer,
-    ErrorSerializer, UnenrollStudentSerializer,
+    UnenrollStudentSerializer,
+    error_detail,
 )
 from api.views.attendance import is_training_group
-from sport.models import Group, Student, Enroll
+from sport.models import Enroll, Group, Student
 
 
 class EnrollErrors:
     GROUP_IS_FULL = (2, "Group you chosen is full")
     TOO_MUCH_GROUPS = (3, "You have enrolled to too much groups")
-    DOUBLE_ENROLL = (4, "You can't enroll to a group "
-                        "you have already enrolled to"
-                     )
+    DOUBLE_ENROLL = (4, "You can't enroll to a group you have already enrolled to")
     INCONSISTENT_UNENROLL = (5, "You are not enrolled to the group")
-    MEDICAL_DISALLOWANCE = (6, "You can't enroll to the group "
-                               "due to your medical group")
+    MEDICAL_DISALLOWANCE = (6, "You can't enroll to the group due to your medical group")
     NOT_ENROLLED = (7, "Requested student is not enrolled into this group")
     SPORT_ERROR = (8, "Requested group doesn't belong to requested student's sport")
     SEMESTER_ERROR = (9, "Requested group does't belong to current semester")
@@ -60,39 +59,19 @@ def enroll(request, **kwargs):
     """
     serializer = EnrollSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    group = get_object_or_404(
-        Group,
-        pk=serializer.validated_data["group_id"]
-    )
+    group = get_object_or_404(Group, pk=serializer.validated_data["group_id"])
     student = request.user.student
     if student.sport != group.sport:
-        return Response(
-            status=status.HTTP_400_BAD_REQUEST,
-            data=error_detail(*EnrollErrors.SPORT_ERROR)
-        )
+        return Response(status=status.HTTP_400_BAD_REQUEST, data=error_detail(*EnrollErrors.SPORT_ERROR))
     if Enroll.objects.filter(group=group, student=student).exists():
-        return Response(
-            status=status.HTTP_400_BAD_REQUEST,
-            data=error_detail(
-                *EnrollErrors.DOUBLE_ENROLL
-            )
-        )
+        return Response(status=status.HTTP_400_BAD_REQUEST, data=error_detail(*EnrollErrors.DOUBLE_ENROLL))
     if Group.objects.filter(semester=get_ongoing_semester(), enrolls__student=student).exists():
-        return Response(
-            status=status.HTTP_400_BAD_REQUEST,
-            data=error_detail(*EnrollErrors.TOO_MUCH_GROUPS)
-        )
+        return Response(status=status.HTTP_400_BAD_REQUEST, data=error_detail(*EnrollErrors.TOO_MUCH_GROUPS))
     if group.semester.id is not get_ongoing_semester().id:
-        return Response(
-            status=status.HTTP_400_BAD_REQUEST,
-            data=error_detail(*EnrollErrors.SEMESTER_ERROR)
-        )
+        return Response(status=status.HTTP_400_BAD_REQUEST, data=error_detail(*EnrollErrors.SEMESTER_ERROR))
 
     if not group.allowed_medical_groups.filter(id=student.medical_group.id).exists():
-        return Response(
-            status=status.HTTP_400_BAD_REQUEST,
-            data=error_detail(*EnrollErrors.MEDICAL_DISALLOWANCE)
-        )
+        return Response(status=status.HTTP_400_BAD_REQUEST, data=error_detail(*EnrollErrors.MEDICAL_DISALLOWANCE))
 
     # if group.allowed_qr not in [-1, int(student.has_QR)]:
     #     return Response(
@@ -103,27 +82,12 @@ def enroll(request, **kwargs):
     try:
         enroll_student(group, student)
     except IntegrityError:
-        return Response(
-            status=status.HTTP_400_BAD_REQUEST,
-            data=error_detail(
-                *EnrollErrors.DOUBLE_ENROLL
-            )
-        )
+        return Response(status=status.HTTP_400_BAD_REQUEST, data=error_detail(*EnrollErrors.DOUBLE_ENROLL))
     except ProgrammingError as e:
         if "too much groups" in str(e):
-            return Response(
-                status=status.HTTP_400_BAD_REQUEST,
-                data=error_detail(
-                    *EnrollErrors.TOO_MUCH_GROUPS
-                )
-            )
+            return Response(status=status.HTTP_400_BAD_REQUEST, data=error_detail(*EnrollErrors.TOO_MUCH_GROUPS))
         else:
-            return Response(
-                status=status.HTTP_400_BAD_REQUEST,
-                data=error_detail(
-                    *EnrollErrors.GROUP_IS_FULL
-                )
-            )
+            return Response(status=status.HTTP_400_BAD_REQUEST, data=error_detail(*EnrollErrors.GROUP_IS_FULL))
     return Response({})
 
 
@@ -149,19 +113,11 @@ def unenroll(request, **kwargs):
     serializer = EnrollSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
 
-    group = get_object_or_404(
-        Group,
-        pk=serializer.validated_data["group_id"]
-    )
+    group = get_object_or_404(Group, pk=serializer.validated_data["group_id"])
     student = request.user.student
     removed_count = unenroll_student(group, student)
     if removed_count == 0:
-        return Response(
-            status=status.HTTP_400_BAD_REQUEST,
-            data=error_detail(
-                *EnrollErrors.INCONSISTENT_UNENROLL
-            )
-        )
+        return Response(status=status.HTTP_400_BAD_REQUEST, data=error_detail(*EnrollErrors.INCONSISTENT_UNENROLL))
     return Response({})
 
 
@@ -187,24 +143,13 @@ def unenroll_by_trainer(request, **kwargs):
     serializer = UnenrollStudentSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
 
-    group = get_object_or_404(
-        Group,
-        pk=serializer.validated_data["group_id"]
-    )
+    group = get_object_or_404(Group, pk=serializer.validated_data["group_id"])
 
     is_training_group(group, request.user)
 
-    student = get_object_or_404(
-        Student,
-        pk=serializer.validated_data["student_id"]
-    )
+    student = get_object_or_404(Student, pk=serializer.validated_data["student_id"])
 
     removed_count = unenroll_student(group, student)
     if removed_count == 0:
-        return Response(
-            status=status.HTTP_400_BAD_REQUEST,
-            data=error_detail(
-                *EnrollErrors.NOT_ENROLLED
-            )
-        )
+        return Response(status=status.HTTP_400_BAD_REQUEST, data=error_detail(*EnrollErrors.NOT_ENROLLED))
     return Response({})

@@ -28,10 +28,9 @@ if SENTRY_DSN is not None:
     sentry_sdk.init(
         dsn=SENTRY_DSN,
         integrations=[DjangoIntegration()],
-
         # If you wish to associate users to errors (assuming you are using
         # django.contrib.auth) you may enable sending PII data.
-        send_default_pii=True
+        send_default_pii=True,
     )
 
 
@@ -76,9 +75,7 @@ OTHER_SPORT_NAME = "Other"
 # Groups that should not be duplicated when copying all sport groups from previous semester
 NOT_COPYABLE_GROUPS = [SELF_TRAINING_GROUP_NAME, EXTRA_EVENTS_GROUP_NAME, MEDICAL_LEAVE_GROUP_NAME]
 
-TRAINING_EDITABLE_INTERVAL = timedelta(
-    days=3
-)
+TRAINING_EDITABLE_INTERVAL = timedelta(days=3)
 
 BACHELOR_STUDY_PERIOD_YEARS = 4
 BACHELOR_GROUPS_PREFIX = "B"
@@ -105,96 +102,96 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = getenv_boolean("DEBUG")
 PROJECT_ROOT = "/app/"
-ALLOWED_HOSTS = [HOSTNAME, 'app']
+ALLOWED_HOSTS = [HOSTNAME, "app"]
 
 if DEBUG:
-    ALLOWED_HOSTS.append('localhost')
+    ALLOWED_HOSTS.append("localhost")
 
-if os.getenv('SCHEMA') == 'https':
+if os.getenv("SCHEMA") == "https":
     # make django think it is using https
     # WARNING: make sure, only trusted connections are possible
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # Application definition
 INSTALLED_APPS = [
     "corsheaders",
-    'django.contrib.auth',
-    'accounts',
-    'revproxy',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django.contrib.sites',
-    'django_sendfile',
-    'smartfields',
-    'import_export',
-    'rangefilter',
-    'image_optimizer',
-    'django_auth_adfs',
-    'admin_auto_filters',
-    'rest_framework',
-    'django_prometheus',
-    'sport.apps.SportConfig',
-    'config.apps.SportAdminConfig',
-    'api',
-    'media',
-    'hijack',
-    'hijack.contrib.admin',
-    'tinymce',
-    'drf_spectacular',
-    'drf_spectacular_sidecar',
+    "django.contrib.auth",
+    "accounts",
+    "revproxy",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "django.contrib.sites",
+    "django_sendfile",
+    "smartfields",
+    "import_export",
+    "rangefilter",
+    "image_optimizer",
+    "django_auth_adfs",
+    "admin_auto_filters",
+    "rest_framework",
+    "django_prometheus",
+    "sport.apps.SportConfig",
+    "config.apps.SportAdminConfig",
+    "api",
+    "media",
+    "hijack",
+    "hijack.contrib.admin",
+    "tinymce",
+    "drf_spectacular",
+    "drf_spectacular_sidecar",
 ]
 
 MIDDLEWARE = [
-    'django_prometheus.middleware.PrometheusBeforeMiddleware',
+    "django_prometheus.middleware.PrometheusBeforeMiddleware",
     "corsheaders.middleware.CorsMiddleware",
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django_prometheus.middleware.PrometheusAfterMiddleware',
-    'hijack.middleware.HijackUserMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django_prometheus.middleware.PrometheusAfterMiddleware",
+    "hijack.middleware.HijackUserMiddleware",
 ]
 
-ROOT_URLCONF = 'config.urls'
+ROOT_URLCONF = "config.urls"
 
 SITE_ID = 1
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [
             os.path.join(PROJECT_ROOT, "templates/"),
         ],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-                'config.context_processors.metrika',
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+                "config.context_processors.metrika",
             ],
         },
     },
 ]
 
 CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-        'LOCATION': 'cache_table',
+    "default": {
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "cache_table",
     }
 }
 
-ASGI_APPLICATION = 'config.asgi.application'
+ASGI_APPLICATION = "config.asgi.application"
 
 
-AUTH_USER_MODEL = 'accounts.User'
+AUTH_USER_MODEL = "accounts.User"
 
 YANDEX_METRIKA = os.getenv("YANDEX_METRIKA", None)
 
@@ -207,12 +204,12 @@ OAUTH_TOKEN_URL = os.getenv("oauth_tokenURL", "?")
 OAUTH_END_SESSION_URL = os.getenv("oauth_end_session_endpoint", "?")
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'config.authentication.InNoHassleAuthentication',
-        'django_auth_adfs.rest_framework.AdfsAccessTokenAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "config.authentication.InNoHassleAuthentication",
+        "django_auth_adfs.rest_framework.AdfsAccessTokenAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
     ),
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 # OpenAPI settings
@@ -220,8 +217,8 @@ REST_FRAMEWORK = {
 
 SPECTACULAR_SETTINGS = {
     # Metadata
-    'TITLE': 'Sport',
-    'DESCRIPTION': """
+    "TITLE": "Sport",
+    "DESCRIPTION": """
 ### About this project
 
 This is the API for Sport platform at Innopolis University.
@@ -232,52 +229,46 @@ Useful links:
 - [Sport source code](https://github.com/one-zero-eight/sport)
 - [Sport Website](https://sport.innopolis.university/)
 """,
-    'VERSION': 'v1',
-    'CONTACT': {
+    "VERSION": "v1",
+    "CONTACT": {
         "name": "one-zero-eight (Telegram)",
         "url": "https://t.me/one_zero_eight",
     },
-    'LICENSE': {
+    "LICENSE": {
         "name": "MIT License",
         "identifier": "MIT",
     },
-
     # List of available servers to select. The selection won't work because of CORS
-    'SERVERS': [
-        {'url': "/api", 'description': 'Current'},
-        {'url': "https://sport.innopolis.university/api", 'description': 'Production'},
-        {'url': "https://stage.sport.innopolis.university/api", 'description': 'Staging'},
+    "SERVERS": [
+        {"url": "/api", "description": "Current"},
+        {"url": "https://sport.innopolis.university/api", "description": "Production"},
+        {"url": "https://stage.sport.innopolis.university/api", "description": "Staging"},
     ],
-
     # API url prefix config
-    'SCHEMA_PATH_PREFIX': "/api",
-    'SCHEMA_PATH_PREFIX_TRIM': True,
-
+    "SCHEMA_PATH_PREFIX": "/api",
+    "SCHEMA_PATH_PREFIX_TRIM": True,
     # Schema generation settings
-    'OAS_VERSION': '3.1.0',  # Use OpenAPI 3.1
-    'COMPONENT_SPLIT_REQUEST': True,
-    'COMPONENT_SPLIT_PATCH': True,
-    'SERVE_INCLUDE_SCHEMA': False,
-
+    "OAS_VERSION": "3.1.0",  # Use OpenAPI 3.1
+    "COMPONENT_SPLIT_REQUEST": True,
+    "COMPONENT_SPLIT_PATCH": True,
+    "SERVE_INCLUDE_SCHEMA": False,
     # Use self-hosted swagger resources
-    'SWAGGER_UI_DIST': 'SIDECAR',
-    'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
-    'REDOC_DIST': 'SIDECAR',
-
+    "SWAGGER_UI_DIST": "SIDECAR",
+    "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
+    "REDOC_DIST": "SIDECAR",
     # Swagger UI settings
-    'SWAGGER_UI_SETTINGS': {
+    "SWAGGER_UI_SETTINGS": {
         "tryItOutEnabled": True,
         "persistAuthorization": True,
         "filter": True,
     },
-
-    'AUTHENTICATION_WHITELIST': ["config.authentication.InNoHassleAuthentication"],
+    "AUTHENTICATION_WHITELIST": ["config.authentication.InNoHassleAuthentication"],
 }
 
 AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend',
-    'django_auth_adfs.backend.AdfsAuthCodeBackend',
-    'django_auth_adfs.backend.AdfsAccessTokenBackend',
+    "django.contrib.auth.backends.ModelBackend",
+    "django_auth_adfs.backend.AdfsAuthCodeBackend",
+    "django_auth_adfs.backend.AdfsAccessTokenBackend",
 )
 
 AUTH_ADFS = {
@@ -312,7 +303,7 @@ LOGIN_REDIRECT_URL = "profile"
 # https://github.com/adamchainz/django-cors-headers
 
 CORS_URLS_REGEX = r"^/api/.*$"  # Add CORS Middleware only for API requests
-CORS_ALLOWED_ORIGIN_REGEXES=[
+CORS_ALLOWED_ORIGIN_REGEXES = [
     # Allow requests from InNoHassle frontends
     r"^https://innohassle\.ru$",
     r"^https://\w+\.innohassle\.ru$",
@@ -324,9 +315,9 @@ CORS_ALLOWED_ORIGIN_REGEXES=[
 
 
 DATABASES = {
-    'default': {
-        "ENGINE": 'django_prometheus.db.backends.postgresql',
-        'NAME': os.getenv("POSTGRES_DB"),
+    "default": {
+        "ENGINE": "django_prometheus.db.backends.postgresql",
+        "NAME": os.getenv("POSTGRES_DB"),
         "USER": os.getenv("POSTGRES_USER"),
         "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
         "HOST": os.getenv("POSTGRES_SERVER"),
@@ -348,25 +339,25 @@ PROMETHEUS_EXPORT_MIGRATIONS = False
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = 'Europe/Moscow'
+TIME_ZONE = "Europe/Moscow"
 
 USE_I18N = True
 
@@ -377,12 +368,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_ROOT = '/static/'
+STATIC_ROOT = "/static/"
 
 if DEBUG:
-    STATIC_URL = f'/{PREFIX}static/'
+    STATIC_URL = f"/{PREFIX}static/"
 else:
-    STATIC_URL = '/static/'
+    STATIC_URL = "/static/"
 
 STORAGES = {
     "default": {
@@ -394,8 +385,8 @@ STORAGES = {
     },
 }
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = '/uploaded_media'
+MEDIA_URL = "/media/"
+MEDIA_ROOT = "/uploaded_media"
 
 # Sendfile settings
 SENDFILE_BACKEND = "django_sendfile.backends.nginx"
@@ -406,7 +397,7 @@ MEDICAL_REFERENCE_FOLDER = "medical_references"
 SELF_SPORT_FOLDER = "self_sport_reports"
 MEDICAL_GROUP_REFERENCE_FOLDER = "medical_group_references"
 
-OPTIMIZED_IMAGE_METHOD = 'pillow'
+OPTIMIZED_IMAGE_METHOD = "pillow"
 
 MAX_IMAGE_SIZE = 10_000_000  # 10MB
 MIN_IMAGE_DIMENSION = 400
@@ -419,70 +410,68 @@ EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", None)
 EMAIL_USE_TLS = True
 
 EMAIL_TEMPLATES = {
-    'medical_leave_success': (
-        '[IU Sport] Reference Accepted',
-        'Your reference from {date} was accepted.\n'
-        'You received {hours} hour(-s) for it.\n\n'
-        'Your submission:\n{submission}'
+    "medical_leave_success": (
+        "[IU Sport] Reference Accepted",
+        "Your reference from {date} was accepted.\n"
+        "You received {hours} hour(-s) for it.\n\n"
+        "Your submission:\n{submission}",
     ),
-    'medical_leave_reject': (
-        '[IU Sport] Reference Rejected',
-        'Your reference from {date} was rejected.\n'
-        'Comment: {comment}\n\n'
-        'Your submission:\n{submission}'
+    "medical_leave_reject": (
+        "[IU Sport] Reference Rejected",
+        "Your reference from {date} was rejected.\nComment: {comment}\n\nYour submission:\n{submission}",
     ),
-    'medical_group_success': (
-        '[IU Sport] Medical Group Reference Processed',
-        'Your medical group reference for semester {semester} was processed.\n'
+    "medical_group_success": (
+        "[IU Sport] Medical Group Reference Processed",
+        "Your medical group reference for semester {semester} was processed.\n"
         'You were assigned a medical group "{medical_group}".\n\n'
-        'Your submission:\n{submission}'
+        "Your submission:\n{submission}",
     ),
-    'medical_group_reject': (
-        '[IU Sport] Medical Group Reference Rejected',
-        'Your medical group reference for semester {semester} was rejected.\n'
-        'Please, submit a new reference or contact the course support.\n'
-        'Comment: {comment}\n\n'
-        'Your submission:\n{submission}'
+    "medical_group_reject": (
+        "[IU Sport] Medical Group Reference Rejected",
+        "Your medical group reference for semester {semester} was rejected.\n"
+        "Please, submit a new reference or contact the course support.\n"
+        "Comment: {comment}\n\n"
+        "Your submission:\n{submission}",
     ),
-    'self_sport_success': (
-        '[IU Sport] Self-training Proof Accepted',
-        'Your self-training proof for {training_type} '
-        'from {date} was accepted.\n'
-        'You received {hours} hour(-s) for it.\n\n'
-        'Your submission:\n{submission}'
+    "self_sport_success": (
+        "[IU Sport] Self-training Proof Accepted",
+        "Your self-training proof for {training_type} "
+        "from {date} was accepted.\n"
+        "You received {hours} hour(-s) for it.\n\n"
+        "Your submission:\n{submission}",
     ),
-    'self_sport_reject': (
-        '[IU Sport] Self-training Report Rejected',
-        'Your self-training proof for {training_type} '
-        ' from {date} was rejected.\n'
-        'Comment: {comment}\n\n'
-        'Your submission:\n{submission}'
+    "self_sport_reject": (
+        "[IU Sport] Self-training Report Rejected",
+        "Your self-training proof for {training_type} "
+        " from {date} was rejected.\n"
+        "Comment: {comment}\n\n"
+        "Your submission:\n{submission}",
     ),
-    'training_changed': (
-        '[IU Sport] Training Schedule Change',
-        'Dear {student_name},\n\n'
-        'The training time for <i>{group_name}</i> has been moved from <i>{previous_time}</i> to <i>{new_time}</i>. '
-        'We kindly ask you to <b>check in for the training again</b> on '
+    "training_changed": (
+        "[IU Sport] Training Schedule Change",
+        "Dear {student_name},\n\n"
+        "The training time for <i>{group_name}</i> has been moved from <i>{previous_time}</i> to <i>{new_time}</i>. "
+        "We kindly ask you to <b>check in for the training again</b> on "
         '<a href="https://sport.innopolis.university">sport.innopolis.university</a>.\n\n'
-        'We apologize for any inconvenience this may have caused.\n'
-        'Thank you for your understanding.\n\n'
-        'Best regards,\n'
-        'School of Sport and Healthy Lifestyle'
+        "We apologize for any inconvenience this may have caused.\n"
+        "Thank you for your understanding.\n\n"
+        "Best regards,\n"
+        "School of Sport and Healthy Lifestyle",
     ),
-    'training_deleted': (
-        '[IU Sport] Training Cancellation',
-        'Dear student,\n\n'
-        'Unfortunately, the <i>{group_name}</i> training session scheduled for <i>{time}</i> has been cancelled. '
-        'Please check the updated training calendar on '
+    "training_deleted": (
+        "[IU Sport] Training Cancellation",
+        "Dear student,\n\n"
+        "Unfortunately, the <i>{group_name}</i> training session scheduled for <i>{time}</i> has been cancelled. "
+        "Please check the updated training calendar on "
         '<a href="https://sport.innopolis.university">sport.innopolis.university</a> '
-        'for the next available session and <b>check in again</b>.\n\n'
-        'We apologize for any inconvenience this may have caused.\n'
-        'Thank you for your understanding.\n\n'
-        'Best regards,\n'
-        'School of Sport and Healthy Lifestyle'
+        "for the next available session and <b>check in again</b>.\n\n"
+        "We apologize for any inconvenience this may have caused.\n"
+        "Thank you for your understanding.\n\n"
+        "Best regards,\n"
+        "School of Sport and Healthy Lifestyle",
     ),
-    'training_reminder': (
-        '[IU Sport] Reminder: you have an upcoming training session',
+    "training_reminder": (
+        "[IU Sport] Reminder: you have an upcoming training session",
         """\
 Уважаемый студент,
 
@@ -529,12 +518,12 @@ including a monetary fine from the sports complex and disciplinary action from t
 
 Best regards,
 School of Sport and Healthy Lifestyle
-"""
+""",
     ),
 }
 
 if DEBUG:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", None)
 
@@ -584,4 +573,4 @@ LOGGING = {
     },
 }
 
-DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"

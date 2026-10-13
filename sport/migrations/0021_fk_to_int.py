@@ -4,30 +4,29 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sport', '0020_add_medical_group'),
+        ("sport", "0020_add_medical_group"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='attendance',
-            name='student',
+            model_name="attendance",
+            name="student",
             field=models.IntegerField(),
         ),
         migrations.AlterField(
-            model_name='enroll',
-            name='student',
+            model_name="enroll",
+            name="student",
             field=models.IntegerField(),
         ),
         migrations.AlterField(
-            model_name='group',
-            name='trainer',
+            model_name="group",
+            name="trainer",
             field=models.IntegerField(null=True),
         ),
         migrations.AlterField(
-            model_name='reference',
-            name='student',
+            model_name="reference",
+            name="student",
             field=models.IntegerField(),
         ),
     ]

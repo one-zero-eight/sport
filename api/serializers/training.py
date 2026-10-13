@@ -1,47 +1,56 @@
 from rest_framework import serializers
 
-from api.serializers.sport import NewSportSerializer
 from api.serializers.semester import SemesterSerializer
-from sport.models import Training, Group, Trainer
+from api.serializers.sport import NewSportSerializer
+from sport.models import Group, Trainer, Training
 
 
 class NewTrainerSerializer(serializers.ModelSerializer[Trainer]):
-    id = serializers.IntegerField(source='pk')
-    email = serializers.CharField(source='user.email')
-    first_name = serializers.CharField(source='user.first_name')
-    last_name = serializers.CharField(source='user.last_name')
+    id = serializers.IntegerField(source="pk")
+    email = serializers.CharField(source="user.email")
+    first_name = serializers.CharField(source="user.first_name")
+    last_name = serializers.CharField(source="user.last_name")
 
     class Meta:
         model = Trainer
-        fields = ('id', 'first_name', 'last_name', 'email')
+        fields = ("id", "first_name", "last_name", "email")
 
 
 class NewGroupSerializer(serializers.ModelSerializer[Group]):
-    name = serializers.CharField(source='to_frontend_name')
+    name = serializers.CharField(source="to_frontend_name")
     sport = NewSportSerializer()
     semester = SemesterSerializer()
-    teachers = NewTrainerSerializer(source='trainers', many=True)
+    teachers = NewTrainerSerializer(source="trainers", many=True)
     accredited = serializers.BooleanField()
     is_paid = serializers.BooleanField()
 
     class Meta:
         model = Group
-        fields = ('id', 'name', 'capacity', 'is_club', 'is_paid', 'sport',
-                  'semester', 'teachers', 'accredited', 'allowed_education_level')
+        fields = (
+            "id",
+            "name",
+            "capacity",
+            "is_club",
+            "is_paid",
+            "sport",
+            "semester",
+            "teachers",
+            "accredited",
+            "allowed_education_level",
+        )
 
 
 class NewTrainingInfoSerializer(serializers.ModelSerializer[Training]):
     group = NewGroupSerializer()
     load = serializers.SerializerMethodField()
-    place = serializers.CharField(source='training_class')
+    place = serializers.CharField(source="training_class")
 
     def get_load(self, obj: Training) -> int:
         return obj.checkins.count()
 
     class Meta:
         model = Training
-        fields = ('id', 'custom_name', 'group',
-                  'start', 'end', 'load', 'place')
+        fields = ("id", "custom_name", "group", "start", "end", "load", "place")
 
 
 class NewTrainingInfoStudentSerializer(serializers.Serializer):

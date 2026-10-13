@@ -4,14 +4,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sport', '0116_student_comment'),
+        ("sport", "0116_student_comment"),
     ]
 
     operations = [
         migrations.RemoveConstraint(
-            model_name='fitnesstestresult',
-            name='student_exercise',
+            model_name="fitnesstestresult",
+            name="student_exercise",
         ),
     ]

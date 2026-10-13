@@ -1,17 +1,23 @@
 import datetime
 
-from django import forms
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect, render
 from rest_framework.decorators import permission_classes
 
-from api.crud import get_ongoing_semester, get_student_groups, \
-    get_brief_hours, \
-    get_trainer_groups, get_negative_hours, get_student_hours, get_faq, get_sports
+from api.crud import (
+    get_brief_hours,
+    get_faq,
+    get_negative_hours,
+    get_ongoing_semester,
+    get_sports,
+    get_student_groups,
+    get_student_hours,
+    get_trainer_groups,
+)
 from api.permissions import IsStudent
 from sport.forms.medical import MedicalGroupReferenceForm
-from sport.models import Student, MedicalGroupReference, Debt, MedicalGroupReferenceImage
+from sport.models import Debt, MedicalGroupReference, MedicalGroupReferenceImage, Student
 from sport.utils import set_session_notification
 
 
@@ -19,34 +25,30 @@ from sport.utils import set_session_notification
 def profile_view(request, **kwargs):
     user = request.user
 
-    student = Student.objects.filter(pk=user.pk).select_related(
-        "medical_group"
-    ).first()  # type: Optional[Student]
+    student = Student.objects.filter(pk=user.pk).select_related("medical_group").first()
     trainer = user.trainer_or_none
 
     current_semester = get_ongoing_semester()
     sports = get_sports(student=student)
 
     context = {
-        "now": datetime.datetime.now(tz=datetime.timezone.utc),
+        "now": datetime.datetime.now(tz=datetime.UTC),
         "user": request.user,
-        "common": {
-            "semester_name": current_semester.name
-        },
-        "forms": {
-            "medical_group_reference": MedicalGroupReferenceForm()
-        },
+        "common": {"semester_name": current_semester.name},
+        "forms": {"medical_group_reference": MedicalGroupReferenceForm()},
         "sports": sports,  # TODO Check correctness
     }
 
     if "notify" in request.session:
         msg_type, msg = request.session["notify"]
-        context.update({
-            "notify": {
-                "msg": msg,
-                "type": msg_type,
+        context.update(
+            {
+                "notify": {
+                    "msg": msg,
+                    "type": msg_type,
+                }
             }
-        })
+        )
         del request.session["notify"]
 
     if student is not None:
@@ -58,49 +60,51 @@ def profile_view(request, **kwargs):
             student=student,
             semester=current_semester,
         ).exists()
-        student_debt = Debt.objects.filter(
-            student=student, semester=get_ongoing_semester())
+        student_debt = Debt.objects.filter(student=student, semester=get_ongoing_semester())
 
         has_unresolved_med_group_submission = MedicalGroupReference.objects.filter(
             student=student,
             semester=current_semester,
             resolved=None,
         ).exists()
-        ongoing_semester = get_student_hours(student.pk)['ongoing_semester']
-        context.update({
-            "student": {
-                "student_id": student.pk,
-                "sport_groups": student_groups_parsed,
-                "group_choices_left": max(
-                    0,
-                    settings.STUDENT_MAXIMUM_GROUP_COUNT - len(
-                        student_groups_parsed
-                    )
-                ),
-                "semesters": student_brief_hours_info,
-                "obj": student,
-                "has_med_group_submission": has_med_group_submission,
-                "has_unresolved_med_group_submission": has_unresolved_med_group_submission,
-                **student_data,
-                "sport": student.sport,
-                "init_debt_hours": student_debt.first().debt if student_debt.exists() else 0,
-                "debt_hours": get_negative_hours(student.pk),
-                "all_hours": ongoing_semester,
-                "earned_hours": int(ongoing_semester["hours_not_self"] + ongoing_semester["hours_self_not_debt"] + ongoing_semester["hours_self_debt"]),
-            },
-            "faq": get_faq(),
-        })
+        ongoing_semester = get_student_hours(student.pk)["ongoing_semester"]
+        context.update(
+            {
+                "student": {
+                    "student_id": student.pk,
+                    "sport_groups": student_groups_parsed,
+                    "group_choices_left": max(0, settings.STUDENT_MAXIMUM_GROUP_COUNT - len(student_groups_parsed)),
+                    "semesters": student_brief_hours_info,
+                    "obj": student,
+                    "has_med_group_submission": has_med_group_submission,
+                    "has_unresolved_med_group_submission": has_unresolved_med_group_submission,
+                    **student_data,
+                    "sport": student.sport,
+                    "init_debt_hours": student_debt.first().debt if student_debt.exists() else 0,
+                    "debt_hours": get_negative_hours(student.pk),
+                    "all_hours": ongoing_semester,
+                    "earned_hours": int(
+                        ongoing_semester["hours_not_self"]
+                        + ongoing_semester["hours_self_not_debt"]
+                        + ongoing_semester["hours_self_debt"]
+                    ),
+                },
+                "faq": get_faq(),
+            }
+        )
 
     if trainer is not None:
         training_groups = get_trainer_groups(trainer)
         trainer_data = trainer.__dict__
-        context.update({
-            "trainer": {
-                "sport_groups": training_groups,
-                "obj": trainer,
-                **trainer_data,
-            },
-        })
+        context.update(
+            {
+                "trainer": {
+                    "sport_groups": training_groups,
+                    "obj": trainer,
+                    **trainer_data,
+                },
+            }
+        )
 
     return render(request, "profile.html", context)
 
@@ -112,11 +116,11 @@ def process_med_group_form(request, *args, **kwargs):
         reference = MedicalGroupReference.objects.create(
             student_id=request.user.pk,
             semester=get_ongoing_semester(),
-            student_comment=form.cleaned_data['student_comment']
+            student_comment=form.cleaned_data["student_comment"],
         )
 
         reference_images = []
-        for image in request.FILES.getlist('references'):
+        for image in request.FILES.getlist("references"):
             reference_images.append(MedicalGroupReferenceImage(reference=reference, image=image))
         MedicalGroupReferenceImage.objects.bulk_create(reference_images)
 
@@ -125,8 +129,8 @@ def process_med_group_form(request, *args, **kwargs):
             "Medical group reference has been successfully uploaded!",
             "success",
         )
-        return redirect('profile')
+        return redirect("profile")
 
     else:
         set_session_notification(request, "Form is invalid", "error")
-    return redirect('profile')
+    return redirect("profile")

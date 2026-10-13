@@ -6,26 +6,45 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sport', '0131_group_allowed_education_level'),
+        ("sport", "0131_group_allowed_education_level"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='group',
-            name='always_allow_students',
-            field=models.ManyToManyField(blank=True, help_text='List of students that are always included in sport complex access lists on top of general checkins list. Useful for specifying main team members.', related_name='always_allow_groups', to='sport.student'),
+            model_name="group",
+            name="always_allow_students",
+            field=models.ManyToManyField(
+                blank=True,
+                help_text="List of students that are always included in sport complex access lists on top of general checkins list. Useful for specifying main team members.",
+                related_name="always_allow_groups",
+                to="sport.student",
+            ),
         ),
         migrations.AlterField(
-            model_name='attendance',
-            name='student',
-            field=models.ForeignKey(limit_choices_to=models.Q(('student_status__name', 'Normal'), models.Q(('medical_group__name', "Medical checkup wasn't passed"), _negated=True)), on_delete=django.db.models.deletion.CASCADE, to='sport.student'),
+            model_name="attendance",
+            name="student",
+            field=models.ForeignKey(
+                limit_choices_to=models.Q(
+                    ("student_status__name", "Normal"),
+                    models.Q(("medical_group__name", "Medical checkup wasn't passed"), _negated=True),
+                ),
+                on_delete=django.db.models.deletion.CASCADE,
+                to="sport.student",
+            ),
         ),
         migrations.AlterField(
-            model_name='student',
-            name='user',
-            field=models.OneToOneField(limit_choices_to=models.Q(('groups__verbose_name', 'Students'), ('groups__verbose_name', 'CollegeStudents'), _connector='OR'), on_delete=django.db.models.deletion.CASCADE, primary_key=True, serialize=False, to=settings.AUTH_USER_MODEL),
+            model_name="student",
+            name="user",
+            field=models.OneToOneField(
+                limit_choices_to=models.Q(
+                    ("groups__verbose_name", "Students"), ("groups__verbose_name", "CollegeStudents"), _connector="OR"
+                ),
+                on_delete=django.db.models.deletion.CASCADE,
+                primary_key=True,
+                serialize=False,
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

@@ -6,7 +6,7 @@ import math
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import connection
-from django.db.models import F, Q, IntegerField, OuterRef
+from django.db.models import F, IntegerField, OuterRef, Q
 from django.db.models.expressions import ExpressionWrapper, Subquery
 from django.db.models.functions import Coalesce
 from django.utils import timezone
@@ -16,10 +16,10 @@ from pydantic import BaseModel
 from starlette import status
 
 from api_v3.dependencies import VerifiedDep
+from api_v3.permissions import is_admin, is_trainer_of_group
 from api_v3.utils.search import search_students
 from api_v3.utils.semester import get_current_semester
-from api_v3.permissions import is_trainer_of_group, is_admin
-from sport.models import Training, Group, Student, Attendance, Debt
+from sport.models import Attendance, Debt, Group, Student, Training
 
 
 def _dictfetchall(cursor) -> list[dict]:
@@ -33,7 +33,7 @@ class SumSubquery(Subquery):
     def __init__(self, queryset, sum_by, output_field=IntegerField(), **extra):
         super().__init__(queryset, output_field, **extra)
         self.output_field = output_field
-        self.template = "(SELECT sum({}) FROM (%(subquery)s) _sum)".format(sum_by)
+        self.template = f"(SELECT sum({sum_by}) FROM (%(subquery)s) _sum)"
 
 
 def _get_students_grades(training_id: int) -> list[dict]:
@@ -147,8 +147,7 @@ class StudentHoursSummarySchema(BaseModel):
 class AttendanceErrors:
     TRAINING_NOT_EDITABLE = (
         2,
-        f"Training not editable before it or after "
-        f"{settings.TRAINING_EDITABLE_INTERVAL.days} days",
+        f"Training not editable before it or after {settings.TRAINING_EDITABLE_INTERVAL.days} days",
     )
     OUTBOUND_GRADES = (
         3,
@@ -187,13 +186,10 @@ def suggest_student(
         )
 
     not_banned = ~Q(user_id__in=group.banned_students.values_list("user_id", flat=True))
-    allowed = (
-        Q(user_id__in=group.allowed_students.values_list("user_id", flat=True))
-        | Q(medical_group__in=group.allowed_medical_groups.all())
+    allowed = Q(user_id__in=group.allowed_students.values_list("user_id", flat=True)) | Q(
+        medical_group__in=group.allowed_medical_groups.all()
     )
-    suggested_students = search_students(
-        term, requirement=not_banned & allowed
-    )
+    suggested_students = search_students(term, requirement=not_banned & allowed)
     return [
         AttendanceSuggestionSchema(
             id=s["id"],
@@ -253,9 +249,7 @@ def get_training_attendance_csv(
     return Response(
         content=csv_content,
         media_type="text/csv",
-        headers={
-            "Content-Disposition": f'attachment; filename="training-{training_id}.csv"'
-        },
+        headers={"Content-Disposition": f'attachment; filename="training-{training_id}.csv"'},
     )
 
 
@@ -330,9 +324,7 @@ def mark_training_attendance(
     """
     try:
         training = (
-            Training.objects.select_related("group")
-            .only("group__trainers__user", "start", "end")
-            .get(pk=training_id)
+            Training.objects.select_related("group").only("group__trainers__user", "start", "end").get(pk=training_id)
         )
     except Training.DoesNotExist:
         raise HTTPException(
@@ -347,11 +339,7 @@ def mark_training_attendance(
         )
 
     now = timezone.now()
-    if not (
-        training.start
-        <= now
-        <= training.start + settings.TRAINING_EDITABLE_INTERVAL
-    ):
+    if not (training.start <= now <= training.start + settings.TRAINING_EDITABLE_INTERVAL):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=BadGradeReportSchema(
@@ -362,9 +350,7 @@ def mark_training_attendance(
             ).model_dump(),
         )
 
-    id_to_hours = {
-        item.student_id: item.hours for item in body.students_hours
-    }
+    id_to_hours = {item.student_id: item.hours for item in body.students_hours}
 
     max_hours = training.academic_duration
     students = User.objects.filter(pk__in=id_to_hours.keys()).only("email")
@@ -380,11 +366,7 @@ def mark_training_attendance(
         elif hours_put > max_hours:
             overflow_mark.append(BadGradeReportGradeSchema(email=student.email, hours=hours_put))
         elif (
-            str(
-                Student.objects.filter(
-                    user=get_user_model().objects.filter(email=student.email)[0]
-                )[0].student_status
-            )
+            str(Student.objects.filter(user=get_user_model().objects.filter(email=student.email)[0])[0].student_status)
             != "Normal"
         ):
             continue
@@ -404,25 +386,15 @@ def mark_training_attendance(
     mark_data = [(x[0].pk, x[1]) for x in hours_to_mark]
     for student_id, student_mark in mark_data:
         if student_id <= 0 or student_mark < 0.0:
-            raise ValueError(
-                f"All students id and marks must be non-negative, got {(student_id, student_mark)}"
-            )
+            raise ValueError(f"All students id and marks must be non-negative, got {(student_id, student_mark)}")
         if math.floor(student_mark) >= 1000:
-            raise ValueError(
-                f"All students marks must floor to less than 1000, got {student_mark}"
-            )
+            raise ValueError(f"All students marks must floor to less than 1000, got {student_mark}")
 
     with connection.cursor() as cursor:
         args_add = [
-            (student_id, training.pk, student_mark)
-            for student_id, student_mark in mark_data
-            if student_mark > 0
+            (student_id, training.pk, student_mark) for student_id, student_mark in mark_data if student_mark > 0
         ]
-        args_del = [
-            (student_id, training.pk)
-            for student_id, student_mark in mark_data
-            if student_mark == 0
-        ]
+        args_del = [(student_id, training.pk) for student_id, student_mark in mark_data if student_mark == 0]
         if args_add:
             args_add_str = b",".join(cursor.mogrify("(%s, %s, %s)", x) for x in args_add)
             cursor.execute(
@@ -431,9 +403,7 @@ def mark_training_attendance(
             )
         if args_del:
             args_del_str = b",".join(cursor.mogrify("(%s, %s)", x) for x in args_del)
-            cursor.execute(
-                f"DELETE FROM attendance WHERE (student_id, training_id) IN ({args_del_str.decode()})"
-            )
+            cursor.execute(f"DELETE FROM attendance WHERE (student_id, training_id) IN ({args_del_str.decode()})")
 
     ok_payload = [
         BadGradeReportGradeSchema(
@@ -488,9 +458,7 @@ def get_student_hours_summary(
             self_sport_hours += float(attendance.hours)
 
     try:
-        debt = Debt.objects.get(
-            semester_id=current_semester.id, student_id=student_id
-        ).debt
+        debt = Debt.objects.get(semester_id=current_semester.id, student_id=student_id).debt
     except Debt.DoesNotExist:
         debt = 0.0
 
@@ -538,9 +506,7 @@ def get_better_than_info(
     qs = Student.objects.all().annotate(
         _debt=Coalesce(
             SumSubquery(
-                Debt.objects.filter(
-                    semester_id=current_semester.pk, student_id=OuterRef("pk")
-                ),
+                Debt.objects.filter(semester_id=current_semester.pk, student_id=OuterRef("pk")),
                 "debt",
             ),
             0,
@@ -574,4 +540,3 @@ def get_better_than_info(
 
     worse = qs.filter(complex_hours__gt=0, complex_hours__lt=student_hours).count()
     return BetterThanInfoSchema(better_than=round(worse / (all_count - 1) * 100, 1))
-

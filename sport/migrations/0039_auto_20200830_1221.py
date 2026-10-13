@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sport', '0038_auto_20200817_1201'),
+        ("sport", "0038_auto_20200817_1201"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='reference',
-            name='hours',
+            model_name="reference",
+            name="hours",
             field=models.DecimalField(decimal_places=2, default=0, max_digits=5),
         ),
     ]

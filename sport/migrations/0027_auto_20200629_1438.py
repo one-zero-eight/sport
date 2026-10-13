@@ -4,26 +4,25 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sport', '0026_remove_old_pk'),
+        ("sport", "0026_remove_old_pk"),
     ]
 
     operations = [
         migrations.AddIndex(
-            model_name='group',
-            index=models.Index(fields=['name'], name='group_name_9aba6c_idx'),
+            model_name="group",
+            index=models.Index(fields=["name"], name="group_name_9aba6c_idx"),
         ),
         migrations.AddIndex(
-            model_name='semester',
-            index=models.Index(fields=['start'], name='semester_start_8aa8e0_idx'),
+            model_name="semester",
+            index=models.Index(fields=["start"], name="semester_start_8aa8e0_idx"),
         ),
         migrations.AddIndex(
-            model_name='sport',
-            index=models.Index(fields=['name'], name='sport_name_ea8557_idx'),
+            model_name="sport",
+            index=models.Index(fields=["name"], name="sport_name_ea8557_idx"),
         ),
         migrations.AddIndex(
-            model_name='training',
-            index=models.Index(fields=['group', 'start'], name='training_group_i_439792_idx'),
+            model_name="training",
+            index=models.Index(fields=["group", "start"], name="training_group_i_439792_idx"),
         ),
     ]

@@ -1,19 +1,12 @@
-from typing import Optional
+from django.db.models import Count, F, Prefetch, Q
 
-from django.db import connection
-from django.db.models import F, IntegerField
-from django.db.models import Q
-from django.db.models import Count
-from django.db.models import Prefetch
-
-from api.crud.utils import dictfetchall
 from api.crud import get_ongoing_semester
-from sport.models import Student, Group, Schedule
+from sport.models import Group, Schedule, Student
 
 
 def get_sport_schedule(
-        sport_id: int,
-        student: Optional[Student] = None,
+    sport_id: int,
+    student: Student | None = None,
 ):
     """
     Retrieves existing schedules for the given sport type
@@ -30,50 +23,58 @@ def get_sport_schedule(
         qr_condition = Q(allowed_qr__in=[-1, int(student.has_QR)])
         education_level_condition = Q(allowed_education_level__in=[-1, 2 if student.is_college else 1])
 
-    prefetch_query = Schedule.objects.select_related('training_class')
+    prefetch_query = Schedule.objects.select_related("training_class")
 
-    query = Group.objects.prefetch_related(
-        'sport',
-        'enrolls',
-        Prefetch('schedule', queryset=prefetch_query),
-    ).filter(
-        (Q(sport__id=sport_id) if sport_id != -1 else Q(sport=None)) &
-        medical_group_condition &
-        # qr_condition &
-        education_level_condition &
-        Q(schedule__isnull=False) &
-        Q(semester__id=get_ongoing_semester().id)
-    ).values(
-        'id',
-        'name',
-        'capacity',
-        'is_paid',
-        'schedule__weekday',
-        'schedule__start',
-        'schedule__end',
-        'schedule__training_class__name',
-    ).annotate(
-        current_load=Count('enrolls__id'),
-        group_id=F('id'),
-        group_name=F('name'),
-        weekday=F('schedule__weekday'),
-        start=F('schedule__start'),
-        end=F('schedule__end'),
-        training_class=F('schedule__training_class__name'),
-    ).order_by(
-        'id',
-        'schedule__id',
-        'schedule__training_class__id',
-    ).values(
-        'capacity',
-        'current_load',
-        'group_id',
-        'group_name',
-        'is_paid',
-        'weekday',
-        'start',
-        'end',
-        'training_class',
+    query = (
+        Group.objects.prefetch_related(
+            "sport",
+            "enrolls",
+            Prefetch("schedule", queryset=prefetch_query),
+        )
+        .filter(
+            (Q(sport__id=sport_id) if sport_id != -1 else Q(sport=None))
+            & medical_group_condition
+            &
+            # qr_condition &
+            education_level_condition
+            & Q(schedule__isnull=False)
+            & Q(semester__id=get_ongoing_semester().id)
+        )
+        .values(
+            "id",
+            "name",
+            "capacity",
+            "is_paid",
+            "schedule__weekday",
+            "schedule__start",
+            "schedule__end",
+            "schedule__training_class__name",
+        )
+        .annotate(
+            current_load=Count("enrolls__id"),
+            group_id=F("id"),
+            group_name=F("name"),
+            weekday=F("schedule__weekday"),
+            start=F("schedule__start"),
+            end=F("schedule__end"),
+            training_class=F("schedule__training_class__name"),
+        )
+        .order_by(
+            "id",
+            "schedule__id",
+            "schedule__training_class__id",
+        )
+        .values(
+            "capacity",
+            "current_load",
+            "group_id",
+            "group_name",
+            "is_paid",
+            "weekday",
+            "start",
+            "end",
+            "training_class",
+        )
     )
 
     return list(query)

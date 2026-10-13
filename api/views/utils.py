@@ -2,14 +2,11 @@ from django.conf import settings
 
 
 class ImageErrors:
-    IMAGE_FILE_SIZE_TOO_BIG = (
-        10,
-        f"Image file size too big, expected <= {settings.MAX_IMAGE_SIZE} bytes"
-    )
+    IMAGE_FILE_SIZE_TOO_BIG = (10, f"Image file size too big, expected <= {settings.MAX_IMAGE_SIZE} bytes")
     INVALID_IMAGE_SIZE = (
         11,
         f"Invalid image width/height, expected them to be in range "
-        f"{settings.MIN_IMAGE_DIMENSION}px..{settings.MAX_IMAGE_DIMENSION}px"
+        f"{settings.MIN_IMAGE_DIMENSION}px..{settings.MAX_IMAGE_DIMENSION}px",
     )
 
 

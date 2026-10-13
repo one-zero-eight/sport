@@ -1,7 +1,7 @@
+from django.utils.html import strip_tags
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from starlette import status
-from django.utils.html import strip_tags
 
 from api_v3.dependencies import VerifiedDep
 from api_v3.utils.semester import get_current_semester
@@ -61,11 +61,14 @@ class DetailedSportSchema(BaseModel):
 
 
 def _get_group_trainers(group: Group) -> list[TrainerSchema]:
-    return [TrainerSchema(
-        id=t.user.id,
-        email=t.user.email,
-        full_name=t.user.get_full_name(),
-    ) for t in group.trainers.all()]
+    return [
+        TrainerSchema(
+            id=t.user.id,
+            email=t.user.email,
+            full_name=t.user.get_full_name(),
+        )
+        for t in group.trainers.all()
+    ]
 
 
 @router.get(
@@ -81,15 +84,19 @@ def list_sports(_user: VerifiedDep) -> list[DetailedSportSchema]:
     current_semester = get_current_semester()
     groups = Group.objects.filter(semester__pk=current_semester.pk)
 
-    sports = Sport.objects.filter(
-        id__in=groups.values_list("sport", flat=True)
-    ).filter(special=False, visible=True).distinct()
+    sports = (
+        Sport.objects.filter(id__in=groups.values_list("sport", flat=True))
+        .filter(special=False, visible=True)
+        .distinct()
+    )
 
     sports_list = []
     for sport in sports:
-        sport_groups = groups.filter(sport=sport).select_related(
-            "trainer__user", "sport"
-        ).prefetch_related("trainers__user", "schedule", "allowed_medical_groups")
+        sport_groups = (
+            groups.filter(sport=sport)
+            .select_related("trainer__user", "sport")
+            .prefetch_related("trainers__user", "schedule", "allowed_medical_groups")
+        )
 
         groups_data = []
         for group in sport_groups:
@@ -103,9 +110,7 @@ def list_sports(_user: VerifiedDep) -> list[DetailedSportSchema]:
                     is_club=group.is_club,
                     is_paid=group.is_paid,
                     trainers=_get_group_trainers(group),
-                    allowed_medical_groups=[
-                        mg.name for mg in group.allowed_medical_groups.all()
-                    ],
+                    allowed_medical_groups=[mg.name for mg in group.allowed_medical_groups.all()],
                     allowed_education_level=group.allowed_education_level,
                 )
             )

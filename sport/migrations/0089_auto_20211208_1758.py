@@ -4,16 +4,15 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sport', '0088_auto_20211206_1535'),
+        ("sport", "0088_auto_20211206_1535"),
     ]
 
     operations = [
         migrations.RunSQL(sql="ALTER TABLE custom_permission OWNER TO CURRENT_USER"),
         migrations.AlterField(
-            model_name='custompermission',
-            name='id',
-            field=models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
+            model_name="custompermission",
+            name="id",
+            field=models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID"),
         ),
     ]

@@ -4,20 +4,29 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sport', '0125_alter_group_allowed_students'),
+        ("sport", "0125_alter_group_allowed_students"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='group',
-            name='banned_students',
-            field=models.ManyToManyField(blank=True, help_text='List of students that can not attent classes', related_name='banned_groups', to='sport.student'),
+            model_name="group",
+            name="banned_students",
+            field=models.ManyToManyField(
+                blank=True,
+                help_text="List of students that can not attent classes",
+                related_name="banned_groups",
+                to="sport.student",
+            ),
         ),
         migrations.AlterField(
-            model_name='group',
-            name='allowed_students',
-            field=models.ManyToManyField(blank=True, help_text='List of students that are allowed to attend classes', related_name='allowed_groups', to='sport.student'),
+            model_name="group",
+            name="allowed_students",
+            field=models.ManyToManyField(
+                blank=True,
+                help_text="List of students that are allowed to attend classes",
+                related_name="allowed_groups",
+                to="sport.student",
+            ),
         ),
     ]

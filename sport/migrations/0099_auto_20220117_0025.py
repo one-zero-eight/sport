@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sport', '0098_group_allowed_qr'),
+        ("sport", "0098_group_allowed_qr"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='group',
-            name='allowed_qr',
-            field=models.IntegerField(choices=[(-1, 'Does not matter'), (0, 'No'), (1, 'Yes')], default=-1, verbose_name='Is a QR required?'),
+            model_name="group",
+            name="allowed_qr",
+            field=models.IntegerField(
+                choices=[(-1, "Does not matter"), (0, "No"), (1, "Yes")], default=-1, verbose_name="Is a QR required?"
+            ),
         ),
     ]

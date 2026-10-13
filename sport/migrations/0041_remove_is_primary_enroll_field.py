@@ -4,14 +4,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sport', '0040_remove_primary_enroll_logic'),
+        ("sport", "0040_remove_primary_enroll_logic"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='enroll',
-            name='is_primary',
+            model_name="enroll",
+            name="is_primary",
         ),
     ]

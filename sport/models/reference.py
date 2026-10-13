@@ -1,9 +1,8 @@
 import datetime
 import uuid
-from typing import Tuple
 
-from django.db import models
 from django.conf import settings
+from django.db import models
 from django.utils import timezone
 from PIL import Image
 from smartfields import fields
@@ -18,9 +17,8 @@ def today() -> datetime.date:
 
 
 def get_reference_path(instance, filename):
-    ext = filename.split('.')[-1]
-    return f'{settings.MEDICAL_REFERENCE_FOLDER}/{instance.semester.name}/' \
-           f'{instance.student.pk}/{uuid.uuid4()}.{ext}'
+    ext = filename.split(".")[-1]
+    return f"{settings.MEDICAL_REFERENCE_FOLDER}/{instance.semester.name}/{instance.student.pk}/{uuid.uuid4()}.{ext}"
 
 
 class PillowCompatibleImageProcessor(ImageProcessor):
@@ -31,19 +29,22 @@ class PillowCompatibleImageProcessor(ImageProcessor):
 
 class Reference(models.Model):
     student = models.ForeignKey(
-        'Student',
+        "Student",
         on_delete=models.CASCADE,
         null=False,
     )
     semester = models.ForeignKey(
-        'Semester',
+        "Semester",
         on_delete=models.CASCADE,
         null=False,
     )
-    image = fields.ImageField(dependencies=[
-        FileDependency(processor=PillowCompatibleImageProcessor(
-            format='JPEG', scale={'max_width': 2000, 'max_height': 2000}))],
-        upload_to=get_reference_path
+    image = fields.ImageField(
+        dependencies=[
+            FileDependency(
+                processor=PillowCompatibleImageProcessor(format="JPEG", scale={"max_width": 2000, "max_height": 2000})
+            )
+        ],
+        upload_to=get_reference_path,
     )
 
     start = models.DateField(null=False, default=today)
@@ -58,12 +59,12 @@ class Reference(models.Model):
         db_table = "reference"
         verbose_name_plural = "medical references"
 
-    def get_submission_url(self) -> Tuple[SubmissionType, str]:
+    def get_submission_url(self) -> tuple[SubmissionType, str]:
         return SubmissionType.IMAGE, self.image.url
 
     def save(self, *args, **kwargs):
         # update flag and approval only when object is created via API
-        if not kwargs.get('force_insert', False):
+        if not kwargs.get("force_insert"):
             self.hours = max(self.hours, 0)
             self.approval = self.hours > 0
         return super().save(*args, **kwargs)

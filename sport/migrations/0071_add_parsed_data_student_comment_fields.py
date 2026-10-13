@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sport', '0070_selfsportreport_student_comment'),
+        ("sport", "0070_selfsportreport_student_comment"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='selfsportreport',
-            name='parsed_data',
-            field=models.JSONField(blank=True, null=True, verbose_name='Data from link'),
+            model_name="selfsportreport",
+            name="parsed_data",
+            field=models.JSONField(blank=True, null=True, verbose_name="Data from link"),
         ),
         migrations.AlterField(
-            model_name='selfsportreport',
-            name='student_comment',
+            model_name="selfsportreport",
+            name="student_comment",
             field=models.TextField(blank=True, max_length=1024, null=True, verbose_name="Student's comment"),
         ),
     ]

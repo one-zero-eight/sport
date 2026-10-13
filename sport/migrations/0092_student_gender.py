@@ -4,16 +4,15 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sport', '0091_auto_20211208_1912'),
+        ("sport", "0091_auto_20211208_1912"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='student',
-            name='gender',
-            field=models.IntegerField(choices=[(-1, 'unknown'), (0, 'male'), (1, 'female')], default=-1),
+            model_name="student",
+            name="gender",
+            field=models.IntegerField(choices=[(-1, "unknown"), (0, "male"), (1, "female")], default=-1),
             preserve_default=False,
         ),
     ]

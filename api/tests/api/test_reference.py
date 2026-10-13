@@ -4,22 +4,17 @@ from datetime import date
 
 import pytest
 from django.conf import settings
+from PIL import Image
 from rest_framework import status
 from rest_framework.test import APIClient
-from PIL import Image
 
 from api.views.reference import ReferenceErrors
-from api.views.utils import ImageErrors
 from sport.models import Attendance, Reference, Training
 
 
 @pytest.mark.django_db
 @pytest.mark.freeze_time(date(2020, 1, 2))
-def test_reference_upload(
-        student_factory,
-        semester_factory,
-        freezer
-):
+def test_reference_upload(student_factory, semester_factory, freezer):
     email = "user@foo.bar"
     password = "pass"
     user = student_factory(
@@ -36,12 +31,12 @@ def test_reference_upload(
         email=email,
         password=password,
     )
-    image_sm = Image.new('RGB', (600, 300))
-    image_md = Image.new('RGB', (600, 600))
-    image_lg = Image.new('RGB', (600, 5500))
-    file_sm = tempfile.NamedTemporaryFile(suffix='.jpg')
-    file_md = tempfile.NamedTemporaryFile(suffix='.jpg')
-    file_lg = tempfile.NamedTemporaryFile(suffix='.jpg')
+    image_sm = Image.new("RGB", (600, 300))
+    image_md = Image.new("RGB", (600, 600))
+    image_lg = Image.new("RGB", (600, 5500))
+    file_sm = tempfile.NamedTemporaryFile(suffix=".jpg")
+    file_md = tempfile.NamedTemporaryFile(suffix=".jpg")
+    file_lg = tempfile.NamedTemporaryFile(suffix=".jpg")
     image_sm.save(file_sm)
     image_md.save(file_md)
     image_lg.save(file_lg)
@@ -50,14 +45,24 @@ def test_reference_upload(
     file_lg.seek(0)
     response = client.post(
         f"/{settings.PREFIX}api/reference/upload",
-        data={"image": file_sm, "start": datetime.date.today(), "end": datetime.date.today(), "student_comment": "hi123"},
-        format='multipart'
+        data={
+            "image": file_sm,
+            "start": datetime.date.today(),
+            "end": datetime.date.today(),
+            "student_comment": "hi123",
+        },
+        format="multipart",
     )
     assert response.status_code == status.HTTP_200_OK
     response = client.post(
         f"/{settings.PREFIX}api/reference/upload",
-        data={"image": file_lg, "start": datetime.date.today(), "end": datetime.date.today(), "student_comment": "hi123"},
-        format='multipart'
+        data={
+            "image": file_lg,
+            "start": datetime.date.today(),
+            "end": datetime.date.today(),
+            "student_comment": "hi123",
+        },
+        format="multipart",
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.data["code"] == ReferenceErrors.TOO_MUCH_UPLOADS_PER_DAY[0]
@@ -65,16 +70,26 @@ def test_reference_upload(
     file_lg.seek(0)
     response = client.post(
         f"/{settings.PREFIX}api/reference/upload",
-        data={"image": file_lg, "start": datetime.date.today(), "end": datetime.date.today(), "student_comment": "hi123"},
-        format='multipart'
+        data={
+            "image": file_lg,
+            "start": datetime.date.today(),
+            "end": datetime.date.today(),
+            "student_comment": "hi123",
+        },
+        format="multipart",
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.data["code"] == ReferenceErrors.TOO_MUCH_UPLOADS_PER_DAY[0]
     settings.MAX_IMAGE_SIZE = 5_000_000
     response = client.post(
         f"/{settings.PREFIX}api/reference/upload",
-        data={"image": file_md, "start": datetime.date.today(), "end": datetime.date.today(), "student_comment": "hi123"},
-        format='multipart'
+        data={
+            "image": file_md,
+            "start": datetime.date.today(),
+            "end": datetime.date.today(),
+            "student_comment": "hi123",
+        },
+        format="multipart",
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.data["code"] == ReferenceErrors.TOO_MUCH_UPLOADS_PER_DAY[0]
@@ -113,8 +128,13 @@ def test_reference_upload(
     file_md.seek(0)
     response = client.post(
         f"/{settings.PREFIX}api/reference/upload",
-        data={"image": file_md, "start": datetime.date.today(), "end": datetime.date.today(), "student_comment": "hi123"},
-        format='multipart'
+        data={
+            "image": file_md,
+            "start": datetime.date.today(),
+            "end": datetime.date.today(),
+            "student_comment": "hi123",
+        },
+        format="multipart",
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.data["code"] == ReferenceErrors.TOO_MUCH_UPLOADS_PER_DAY[0]
@@ -125,8 +145,13 @@ def test_reference_upload(
     file_md.seek(0)
     response = client.post(
         f"/{settings.PREFIX}api/reference/upload",
-        data={"image": file_md, "start": datetime.date.today(), "end": datetime.date.today(), "student_comment": "hi123"},
-        format='multipart'
+        data={
+            "image": file_md,
+            "start": datetime.date.today(),
+            "end": datetime.date.today(),
+            "student_comment": "hi123",
+        },
+        format="multipart",
     )
     assert response.status_code == status.HTTP_200_OK
     assert Attendance.objects.count() == 1

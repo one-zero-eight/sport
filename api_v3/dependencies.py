@@ -2,11 +2,11 @@ from typing import Annotated
 
 import rest_framework.exceptions
 from fastapi import Depends
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from accounts.models import User
-from config.authentication import innohassle_settings, InNoHassleAccounts
 from api_v3.exceptions import IncorrectCredentialsException
+from config.authentication import InNoHassleAccounts, innohassle_settings
 
 bearer_scheme = HTTPBearer(
     scheme_name="Bearer",
@@ -32,9 +32,9 @@ async def verify_user(
         raise IncorrectCredentialsException(no_credentials=False)
 
     try:
-        user = await User.objects.prefetch_related("student", "student__student_status", "trainer").aget(**{
-            User.USERNAME_FIELD: claims[innohassle_settings['USERNAME_CLAIM']]
-        })
+        user = await User.objects.prefetch_related("student", "student__student_status", "trainer").aget(
+            **{User.USERNAME_FIELD: claims[innohassle_settings["USERNAME_CLAIM"]]}
+        )
         return user
     except User.DoesNotExist:
         raise IncorrectCredentialsException(no_credentials=False)

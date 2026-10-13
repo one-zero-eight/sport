@@ -1,5 +1,4 @@
-from datetime import datetime, time, date
-from typing import Optional, List
+from datetime import date, datetime, time
 
 import pytest
 
@@ -7,6 +6,7 @@ from sport.models import (
     Attendance,
     Enroll,
     Group,
+    MedicalGroups,
     Schedule,
     Semester,
     Sport,
@@ -14,7 +14,6 @@ from sport.models import (
     Trainer,
     Training,
     TrainingClass,
-    MedicalGroups,
 )
 
 
@@ -22,16 +21,16 @@ from sport.models import (
 @pytest.mark.django_db
 def semester_factory():
     def create_semester(
-            name: str,
-            start: date,
-            end: date,
+        name: str,
+        start: date,
+        end: date,
     ) -> Semester:
         obj, _ = Semester.objects.get_or_create(
             name=name,
             defaults={
                 "start": start,
                 "end": end,
-            }
+            },
         )
         return obj
 
@@ -42,14 +41,14 @@ def semester_factory():
 @pytest.mark.django_db
 def sport_factory():
     def create_sport(
-            name: str,
-            special: bool = False,
+        name: str,
+        special: bool = False,
     ) -> Sport:
         obj, _ = Sport.objects.get_or_create(
             name=name,
             defaults={
                 "special": special,
-            }
+            },
         )
         return obj
 
@@ -60,16 +59,15 @@ def sport_factory():
 @pytest.mark.django_db
 def group_factory():
     def create_group(
-            name: str,
-            capacity: int,
-            sport: Sport,
-            semester: Semester,
-
-            trainer: Optional[Trainer] = None,
-            description: Optional[str] = None,
-            is_club: bool = False,
-            is_paid: bool = False,
-            allowed_medical_groups: Optional[List[MedicalGroups]] = None,
+        name: str,
+        capacity: int,
+        sport: Sport,
+        semester: Semester,
+        trainer: Trainer | None = None,
+        description: str | None = None,
+        is_club: bool = False,
+        is_paid: bool = False,
+        allowed_medical_groups: list[MedicalGroups] | None = None,
     ) -> Group:
         if allowed_medical_groups is None:
             allowed_medical_groups = [
@@ -86,7 +84,7 @@ def group_factory():
                 "sport": sport,
                 "is_club": is_club,
                 "is_paid": is_paid,
-            }
+            },
         )
 
         if created is True:
@@ -104,11 +102,11 @@ def group_factory():
 @pytest.mark.django_db
 def schedule_factory():
     def create_schedule(
-            group: Group,
-            weekday: Schedule.Weekday,
-            start: time,
-            end: time,
-            training_class: Optional[TrainingClass] = None,
+        group: Group,
+        weekday: Schedule.Weekday,
+        start: time,
+        end: time,
+        training_class: TrainingClass | None = None,
     ) -> Schedule:
         obj, _ = Schedule.objects.get_or_create(
             group=group,
@@ -117,7 +115,7 @@ def schedule_factory():
             end=end,
             defaults={
                 "training_class": training_class,
-            }
+            },
         )
         return obj
 
@@ -127,9 +125,7 @@ def schedule_factory():
 @pytest.fixture
 @pytest.mark.django_db
 def training_class_factory():
-    def create_training_class(
-            name: str
-    ) -> TrainingClass:
+    def create_training_class(name: str) -> TrainingClass:
         obj, _ = TrainingClass.objects.get_or_create(
             name=name,
         )
@@ -142,11 +138,11 @@ def training_class_factory():
 @pytest.mark.django_db
 def training_factory():
     def create_training(
-            group: Group,
-            start: datetime,
-            end: datetime,
-            schedule: Optional[Schedule] = None,
-            training_class: Optional[TrainingClass] = None
+        group: Group,
+        start: datetime,
+        end: datetime,
+        schedule: Schedule | None = None,
+        training_class: TrainingClass | None = None,
     ) -> Training:
         obj, _ = Training.objects.get_or_create(
             group=group,
@@ -163,14 +159,8 @@ def training_factory():
 @pytest.fixture
 @pytest.mark.django_db
 def enroll_factory():
-    def create_enroll(
-            student: Student,
-            group: Group
-    ):
-        obj, _ = Enroll.objects.get_or_create(
-            student=student,
-            group=group
-        )
+    def create_enroll(student: Student, group: Group):
+        obj, _ = Enroll.objects.get_or_create(student=student, group=group)
         return obj
 
     return create_enroll
@@ -180,9 +170,9 @@ def enroll_factory():
 @pytest.mark.django_db
 def attendance_factory():
     def create_attendance(
-            student: Student,
-            training: Training,
-            hours: float,
+        student: Student,
+        training: Training,
+        hours: float,
     ):
         obj, _ = Attendance.objects.get_or_create(
             student=student,

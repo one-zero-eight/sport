@@ -2,19 +2,19 @@ from datetime import datetime, time
 
 from django.utils import timezone
 
-from sport.models import Training, Attendance, Group
+from sport.models import Attendance, Training
 
 
 def create_attendance_record(
-        group,
-        upload_date,
-        student,
-        hours,
-        start=None,
-        end=None,
-        training_name=None,
-        cause_report=None,
-        cause_reference=None,
+    group,
+    upload_date,
+    student,
+    hours,
+    start=None,
+    end=None,
+    training_name=None,
+    cause_report=None,
+    cause_reference=None,
 ):
     tz = timezone.localtime().tzinfo
     if start is None:
@@ -28,9 +28,5 @@ def create_attendance_record(
         custom_name=training_name,
     )
     return Attendance.objects.create(
-        training=training,
-        student=student,
-        hours=hours,
-        cause_report=cause_report,
-        cause_reference=cause_reference
+        training=training, student=student, hours=hours, cause_report=cause_report, cause_reference=cause_reference
     )

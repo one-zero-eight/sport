@@ -1,37 +1,40 @@
+import datetime
 import operator
-from typing import List, Dict, Tuple
 
+from django import forms
 from django.contrib import admin
-from django.contrib.admin.widgets import AdminTimeWidget, AdminSplitDateTime
+from django.contrib.admin.widgets import AdminSplitDateTime, AdminTimeWidget
 from django.db.models.expressions import F
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-
-from django import forms
-import datetime
-
 from api.crud import get_ongoing_semester
-from sport.signals.schedule import create_trainings_current_semester
-from sport.models import Schedule, Semester, Group
 from config.settings import NOT_COPYABLE_GROUPS
+from sport.models import Group, Schedule, Semester
+from sport.signals.schedule import create_trainings_current_semester
 
 
 class DurationWidget(forms.TimeInput):
     class Media:
         js = [
-            'admin/js/calendar.js',
-            'admin/js/admin/DateTimeShortcuts.js',
+            "admin/js/calendar.js",
+            "admin/js/admin/DateTimeShortcuts.js",
         ]
 
     def __init__(self, attrs=None, format=None):
-        attrs = {'class': 'vDurationField', 'size': '8', 'data-format': format, 'data-mask': "99:99:99", **(attrs or {})}
+        attrs = {
+            "class": "vDurationField",
+            "size": "8",
+            "data-format": format,
+            "data-mask": "99:99:99",
+            **(attrs or {}),
+        }
         super().__init__(attrs=attrs, format=format)
 
 
 class TimeWidget(AdminTimeWidget):
     def __init__(self, attrs=None, format=None):
-        attrs = {'data-mask': "99:99:99", **(attrs or {})}
+        attrs = {"data-mask": "99:99:99", **(attrs or {})}
         super().__init__(attrs=attrs, format=format)
 
 
@@ -40,41 +43,42 @@ class DateTimeWidget(AdminSplitDateTime):
         context = super().get_context(name, value, attrs)
         for widget in context["widget"]["subwidgets"]:
             if widget["name"].endswith("_0"):  # BaseAdminDateWidget
-                widget["attrs"] = {'data-mask': "9999-99-99", **(widget["attrs"] or {})}
+                widget["attrs"] = {"data-mask": "9999-99-99", **(widget["attrs"] or {})}
             elif widget["name"].endswith("_1"):  # BaseAdminTimeWidget
-                widget["attrs"] = {'data-mask': "99:99:99", **(widget["attrs"] or {})}
+                widget["attrs"] = {"data-mask": "99:99:99", **(widget["attrs"] or {})}
         return context
 
 
 class YourModelForm(forms.ModelForm):
-    duration = forms.DurationField(widget=DurationWidget(format='%H:%M:%S'), required=True)
+    duration = forms.DurationField(widget=DurationWidget(format="%H:%M:%S"), required=True)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.instance.pk is not None:
-            self.fields['duration'].initial = datetime.datetime.combine(datetime.date.today(), self.instance.end) - \
-                                              datetime.datetime.combine(datetime.date.today(), self.instance.start)
+            self.fields["duration"].initial = datetime.datetime.combine(
+                datetime.date.today(), self.instance.end
+            ) - datetime.datetime.combine(datetime.date.today(), self.instance.start)
         else:
-            self.fields['duration'].initial = datetime.timedelta(hours=1, minutes=30)
+            self.fields["duration"].initial = datetime.timedelta(hours=1, minutes=30)
 
     def save(self, commit=True):
-        duration = self.cleaned_data.get('duration', None)
+        duration = self.cleaned_data.get("duration", None)
         self.instance.end = (datetime.datetime.combine(datetime.date.today(), self.instance.start) + duration).time()
-        return super(YourModelForm, self).save(commit=commit)
+        return super().save(commit=commit)
 
     class Meta:
         model = Schedule
         # fields = '__all__'  # will be overridden by ModelAdmin
         widgets = {
-            'start': TimeWidget(),
+            "start": TimeWidget(),
         }
-        exclude = ('end',)
+        exclude = ("end",)
 
 
 class ScheduleInline(admin.TabularInline):
     model = Schedule
     form = YourModelForm
-    fields = ('weekday', 'start', 'duration', "training_class")
+    fields = ("weekday", "start", "duration", "training_class")
 
     extra = 0
     min_num = 1
@@ -84,49 +88,49 @@ class ScheduleInline(admin.TabularInline):
     def get_queryset(self, request):
         return super().get_queryset(request).select_related("group__semester", "training_class")
 
+
 class DefaultFilterMixIn(admin.ModelAdmin):
     def changelist_view(self, request, *args, **kwargs):
         from django.http import HttpResponseRedirect
-        default_filters = list(getattr(self, 'default_filters', None) or [])
-        semester_filter = getattr(self, 'semester_filter', None)
+
+        default_filters = list(getattr(self, "default_filters", None) or [])
+        semester_filter = getattr(self, "semester_filter", None)
         if semester_filter:
             if not isinstance(semester_filter, tuple):
                 semester_filter = (semester_filter, get_ongoing_semester)
-            default_filters.append(
-                F'{semester_filter[0]}={semester_filter[1]().pk}'
-            )
+            default_filters.append(f"{semester_filter[0]}={semester_filter[1]().pk}")
         if default_filters:
             try:
-                test = request.META['HTTP_REFERER'].split(request.META['PATH_INFO'])
-                if test and test[-1] and not test[-1].startswith('?'):
-                    url = reverse('admin:%s_%s_changelist' % (self.opts.app_label, self.opts.model_name))
+                test = request.META["HTTP_REFERER"].split(request.META["PATH_INFO"])
+                if test and test[-1] and not test[-1].startswith("?"):
+                    url = reverse("admin:%s_%s_changelist" % (self.opts.app_label, self.opts.model_name))
                     filters = []
                     for default_filter in default_filters:
-                        key = default_filter.split('=')[0]
+                        key = default_filter.split("=")[0]
                         if key not in request.GET and default_filter not in filters:
                             filters.append(default_filter)
                     if filters:
                         return HttpResponseRedirect("%s?%s" % (url, "&".join(filters)))
             except:
                 pass
-        return super(DefaultFilterMixIn, self).changelist_view(request, *args, **kwargs)
+        return super().changelist_view(request, *args, **kwargs)
 
 
 def user__email(obj):
     return obj.user.email
 
 
-user__email.short_description = 'user email'
+user__email.short_description = "user email"
 
 
 def user__role(obj):
     return obj.user.role
 
 
-user__role.short_description = 'group'
+user__role.short_description = "group"
 
 
-def custom_order_filter(ordering: Tuple, cls=admin.RelatedFieldListFilter):
+def custom_order_filter(ordering: tuple, cls=admin.RelatedFieldListFilter):
     class Wrapper(cls):
         def field_admin_ordering(self, field, request, model_admin):
             return ordering
@@ -144,7 +148,7 @@ def custom_titled_filter(title, filter_class=admin.RelatedFieldListFilter):
     return Wrapper
 
 
-def cache_filter(cls, clear_list: List[str]):
+def cache_filter(cls, clear_list: list[str]):
     """
     Overrides filter methods, so that chosen filter value will be available to other filters
     @param cls: used filter class
@@ -191,7 +195,7 @@ def cache_filter(cls, clear_list: List[str]):
     return CacheAwareFilter
 
 
-def cache_dependent_filter(translation: Dict[str, str], order=None, select_related: List[str] = None):
+def cache_dependent_filter(translation: dict[str, str], order=None, select_related: list[str] = None):
     """
     Creates foreign key list filter, that can use cached values from other filters
     @param translation: rules for translating cached keys, if 'key' is cached,
@@ -214,15 +218,13 @@ def cache_dependent_filter(translation: Dict[str, str], order=None, select_relat
             rel_model = field.remote_field.model
             choice_func = operator.attrgetter(
                 field.remote_field.get_related_field().attname
-                if hasattr(field.remote_field, 'get_related_field')
-                else 'pk'
+                if hasattr(field.remote_field, "get_related_field")
+                else "pk"
             )
             qs = rel_model._default_manager.complex_filter(additional_filter).order_by(*ordering)
             if select_related is not None:
                 qs = qs.select_related(*select_related)
-            return [
-                (choice_func(x), str(x)) for x in qs
-            ]
+            return [(choice_func(x), str(x)) for x in qs]
 
         def has_output(self):
             return not self.no_output
@@ -230,7 +232,7 @@ def cache_dependent_filter(translation: Dict[str, str], order=None, select_relat
     return CacheRelatedFieldListFilter
 
 
-def cache_alternative_filter(cls, cache_keys: List[str]):
+def cache_alternative_filter(cls, cache_keys: list[str]):
     """
     Creates foreign key list filter, that will be used when one of the cache value is empty
     @param cache_keys: used cached keys, if an associated value for some given 'key' is None,
@@ -250,21 +252,21 @@ def cache_alternative_filter(cls, cache_keys: List[str]):
 
 def has_free_places_filter():
     class Wrapper(admin.SimpleListFilter):
-        title = 'free places'
-        parameter_name = 'has_free_places'
+        title = "free places"
+        parameter_name = "has_free_places"
 
         def lookups(self, request, model_admin):
             return (
-                ('1', _('Has free places')),
-                ('0', _('Group is full')),
+                ("1", _("Has free places")),
+                ("0", _("Group is full")),
             )
 
         def queryset(self, request, queryset):
             # enroll_count field was added using qs.annotate, see get_queryset() in groupAdmin
-            if self.value() == '1':
-                return queryset.filter(capacity__gt=F('enroll_count'))
-            if self.value() == '0':
-                return queryset.filter(capacity__lte=F('enroll_count'))
+            if self.value() == "1":
+                return queryset.filter(capacity__gt=F("enroll_count"))
+            if self.value() == "0":
+                return queryset.filter(capacity__lte=F("enroll_count"))
             return queryset
 
     return Wrapper
@@ -307,12 +309,17 @@ def get_new_schedule_for_sport_group(sport_group: Group, new_sport_group: Group)
 
 def copy_sport_groups_and_schedule_from_semester(semester: Semester, prev_semester: Semester) -> None:
     semester.save()
-    sport_groups = Group.objects.filter(semester__pk=prev_semester.pk).prefetch_related('trainers', 'allowed_medical_groups', 'schedule').select_related('trainer').order_by('pk')
+    sport_groups = (
+        Group.objects.filter(semester__pk=prev_semester.pk)
+        .prefetch_related("trainers", "allowed_medical_groups", "schedule")
+        .select_related("trainer")
+        .order_by("pk")
+    )
     new_sport_groups = get_new_sport_groups(semester, sport_groups)
     Group.objects.bulk_create(new_sport_groups)
 
     new_schedule_timeslots = []
-    new_sport_groups = Group.objects.filter(semester__pk=semester.pk).order_by('pk')
+    new_sport_groups = Group.objects.filter(semester__pk=semester.pk).order_by("pk")
     for old_group, new_group in zip(sport_groups, new_sport_groups):
         for trainer in old_group.trainers.all():
             new_group.trainers.add(trainer)

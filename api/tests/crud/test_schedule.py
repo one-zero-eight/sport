@@ -1,21 +1,21 @@
 import unittest
+from datetime import date, time
 
 import pytest
-from datetime import time, date
 
-from api.crud import get_sport_schedule, enroll_student
-from sport.models import Schedule, Training, MedicalGroups
+from api.crud import enroll_student, get_sport_schedule
+from sport.models import MedicalGroups, Schedule, Training
 
 assertMembers = unittest.TestCase().assertCountEqual
 
 
 @pytest.mark.django_db
-@pytest.mark.freeze_time('2020-01-20 10:03')
+@pytest.mark.freeze_time("2020-01-20 10:03")
 def test_training_creation_on_schedule(
-        semester_factory,
-        sport_factory,
-        group_factory,
-        schedule_factory,
+    semester_factory,
+    sport_factory,
+    group_factory,
+    schedule_factory,
 ):
     start = date(2020, 1, 20)
     end = date(2020, 1, 27)
@@ -35,7 +35,6 @@ def test_training_creation_on_schedule(
         capacity=30,
         sport=sport,
         semester=sem,
-
     )
 
     schedule_start = time(14, 0, 0)
@@ -55,12 +54,12 @@ def test_training_creation_on_schedule(
 
 @pytest.mark.django_db
 def test_get_sport_schedule(
-        student_factory,
-        semester_factory,
-        sport_factory,
-        group_factory,
-        training_class_factory,
-        schedule_factory,
+    student_factory,
+    semester_factory,
+    sport_factory,
+    group_factory,
+    training_class_factory,
+    schedule_factory,
 ):
     student = student_factory("A@foo.bar").student
     start = date(2020, 1, 20)
@@ -86,9 +85,9 @@ def test_get_sport_schedule(
         capacity=30,
         sport=sport,
         semester=sem,
-        allowed_medical_groups = [
+        allowed_medical_groups=[
             MedicalGroups.SPECIAL1,
-        ]
+        ],
     )
 
     group2 = group_factory(
@@ -96,14 +95,14 @@ def test_get_sport_schedule(
         capacity=30,
         sport=sport,
         semester=sem,
-        allowed_medical_groups = [
+        allowed_medical_groups=[
             MedicalGroups.GENERAL,
-        ]
+        ],
     )
 
     schedule_start = time(14, 0, 0)
     schedule_end = time(18, 30, 0)
-    training_class = training_class_factory('football field')
+    training_class = training_class_factory("football field")
     schedule11 = schedule_factory(
         group=group1,
         weekday=Schedule.Weekday.MONDAY,
@@ -121,7 +120,7 @@ def test_get_sport_schedule(
         weekday=Schedule.Weekday.WEDNESDAY,
         start=schedule_start,
         end=schedule_end,
-        training_class=training_class
+        training_class=training_class,
     )
     schedule22 = schedule_factory(
         group=group2,
@@ -135,55 +134,61 @@ def test_get_sport_schedule(
     assert get_sport_schedule(sport.pk, student) == []
     student.medical_group_id = MedicalGroups.SPECIAL1
     student.save()
-    assertMembers(get_sport_schedule(sport.pk, student), [
-        {
-            'group_id': group1.pk,
-            'group_name': group1.name,
-            'current_load': 0,
-            'capacity': group1.capacity,
-            'is_paid': group1.is_paid,
-            'weekday': schedule11.weekday,
-            'start': schedule_start,
-            'end': schedule_end,
-            'training_class': None
-        },
-        {
-            'group_id': group1.pk,
-            'group_name': group1.name,
-            'current_load': 0,
-            'capacity': group1.capacity,
-            'is_paid': group1.is_paid,
-            'weekday': schedule12.weekday,
-            'start': schedule_start,
-            'end': schedule_end,
-            'training_class': None
-        }
-    ])
+    assertMembers(
+        get_sport_schedule(sport.pk, student),
+        [
+            {
+                "group_id": group1.pk,
+                "group_name": group1.name,
+                "current_load": 0,
+                "capacity": group1.capacity,
+                "is_paid": group1.is_paid,
+                "weekday": schedule11.weekday,
+                "start": schedule_start,
+                "end": schedule_end,
+                "training_class": None,
+            },
+            {
+                "group_id": group1.pk,
+                "group_name": group1.name,
+                "current_load": 0,
+                "capacity": group1.capacity,
+                "is_paid": group1.is_paid,
+                "weekday": schedule12.weekday,
+                "start": schedule_start,
+                "end": schedule_end,
+                "training_class": None,
+            },
+        ],
+    )
     assert get_sport_schedule(other_sport.pk, student) == []
     student.medical_group_id = MedicalGroups.GENERAL
     student.save()
     enroll_student(group2, student)
-    assertMembers(get_sport_schedule(sport.pk, student), [
-        {
-            'group_id': group2.pk,
-            'group_name': group2.name,
-            'current_load': 1,
-            'capacity': group2.capacity,
-            'is_paid': group2.is_paid,
-            'weekday': schedule21.weekday,
-            'start': schedule_start,
-            'end': schedule_end,
-            'training_class': training_class.name
-        },
-        {
-            'group_id': group2.pk,
-            'group_name': group2.name,
-            'current_load': 1,
-            'capacity': group2.capacity,
-            'is_paid': group2.is_paid,
-            'weekday': schedule22.weekday,
-            'start': schedule_start,
-            'end': schedule_end,
-            'training_class': None
-        }
-    ])
+    assertMembers(
+        get_sport_schedule(sport.pk, student),
+        [
+            {
+                "group_id": group2.pk,
+                "group_name": group2.name,
+                "current_load": 1,
+                "capacity": group2.capacity,
+                "is_paid": group2.is_paid,
+                "weekday": schedule21.weekday,
+                "start": schedule_start,
+                "end": schedule_end,
+                "training_class": training_class.name,
+            },
+            {
+                "group_id": group2.pk,
+                "group_name": group2.name,
+                "current_load": 1,
+                "capacity": group2.capacity,
+                "is_paid": group2.is_paid,
+                "weekday": schedule22.weekday,
+                "start": schedule_start,
+                "end": schedule_end,
+                "training_class": None,
+            },
+        ],
+    )

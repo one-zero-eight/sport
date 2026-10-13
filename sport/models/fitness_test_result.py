@@ -10,23 +10,15 @@ class FitnessTestResult(models.Model):
     )
 
     exercise = models.ForeignKey(
-        'FitnessTestExercise',
+        "FitnessTestExercise",
         on_delete=models.CASCADE,
         null=False,
         blank=False,
     )
 
-    session = models.ForeignKey(
-        'FitnessTestSession',
-        on_delete=models.CASCADE,
-        null=False,
-        blank=False
-    )
+    session = models.ForeignKey("FitnessTestSession", on_delete=models.CASCADE, null=False, blank=False)
 
-    value = models.IntegerField(
-        null=True,
-        blank=True
-    )
+    value = models.IntegerField(null=True, blank=True)
 
     # TODO: think about constarints
     # class Meta:

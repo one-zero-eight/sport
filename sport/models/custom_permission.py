@@ -7,7 +7,7 @@ class CustomPermission(models.Model):
 
     class Meta:
         permissions = [
-            ('choose_sport', "Can choose type of sport"),
+            ("choose_sport", "Can choose type of sport"),
             ("go_to_another_sport", "Can go to group of the another type of sport"),
             ("see_calendar", "Can see calendar"),
             ("go_to_another_group", "Can go to another group in the same type of sport"),

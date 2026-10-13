@@ -1,36 +1,32 @@
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.db import models
-from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
 from tinymce.models import HTMLField
 
-from sport.models import MedicalGroupHistory, Gender
+from sport.models import Gender, MedicalGroupHistory
 from sport.utils import get_current_study_year
 
 
 def validate_course(course):
-    if course is None:
-        pass
     if course < 1 or course > 4:
-        raise ValidationError('Course is bounded by 1 and 4')
+        raise ValidationError("Course is bounded by 1 and 4")
 
 
 class Student(models.Model):
     user = models.OneToOneField(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
         null=False,
-        limit_choices_to=Q(groups__verbose_name=settings.STUDENT_AUTH_GROUP_VERBOSE_NAME) |
-                         Q(groups__verbose_name=settings.COLLEGE_AUTH_GROUP_VERBOSE_NAME),
+        limit_choices_to=Q(groups__verbose_name=settings.STUDENT_AUTH_GROUP_VERBOSE_NAME)
+        | Q(groups__verbose_name=settings.COLLEGE_AUTH_GROUP_VERBOSE_NAME),
         primary_key=True,
     )
 
-    gender = models.IntegerField(
-        choices=Gender.choices,
-        default=-1
-    )
+    gender = models.IntegerField(choices=Gender.choices, default=-1)
 
     has_QR = models.BooleanField(
         default=False,
@@ -44,15 +40,10 @@ class Student(models.Model):
         default=False,
     )
 
-    course = models.PositiveSmallIntegerField(
-        default=1,
-        validators=[validate_course],
-        null=True,
-        blank=True
-    )
+    course = models.PositiveSmallIntegerField(default=1, validators=[validate_course], null=True, blank=True)
 
     medical_group = models.ForeignKey(
-        'MedicalGroup',
+        "MedicalGroup",
         on_delete=models.DO_NOTHING,
         default=-2,
     )
@@ -61,26 +52,13 @@ class Student(models.Model):
         default=get_current_study_year,
     )
 
-    telegram = models.CharField(
-        max_length=50,
-        null=True,
-        blank=True
-    )
+    telegram = models.CharField(max_length=50, null=True, blank=True)
 
-    student_status = models.ForeignKey(
-        'StudentStatus',
-        on_delete=models.DO_NOTHING,
-        default=0
-    )
+    student_status = models.ForeignKey("StudentStatus", on_delete=models.DO_NOTHING, default=0)
 
-    sport = models.ForeignKey(
-        'Sport',
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True
-    )
+    sport = models.ForeignKey("Sport", on_delete=models.SET_NULL, null=True, blank=True)
 
-    comment = HTMLField(null=True, blank=True, default='')
+    comment = HTMLField(null=True, blank=True, default="")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -97,11 +75,10 @@ class Student(models.Model):
         )
 
     def save(self, *args, **kwargs):
-        if self.telegram is not None and self.telegram[0] != '@':
-            self.telegram = '@' + self.telegram
+        if self.telegram is not None and self.telegram[0] != "@":
+            self.telegram = "@" + self.telegram
         if self.medical_group_id != self.__original_medical_group_id:
-            MedicalGroupHistory.objects.create(student=self,
-                                               medical_group_id=self.medical_group_id)
+            MedicalGroupHistory.objects.create(student=self, medical_group_id=self.medical_group_id)
 
         super().save(*args, **kwargs)
 
@@ -113,8 +90,7 @@ class Student(models.Model):
         return f"{self.user.first_name} {self.user.last_name}"
 
     def __str__(self):
-        return f"{self.user.first_name} {self.user.last_name} " \
-               f"({self.user.email})"
+        return f"{self.user.first_name} {self.user.last_name} ({self.user.email})"
 
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)

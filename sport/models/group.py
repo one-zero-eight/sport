@@ -1,66 +1,64 @@
 from django.db import models
 from django.db.models import Q
 
-from sport.models.enums import GroupQR, GenderInFTGrading, EducationLevelChoice
+from sport.models.enums import EducationLevelChoice, GenderInFTGrading, GroupQR
 from sport.utils import str_or_empty
 
 
 class Group(models.Model):
-    semester = models.ForeignKey('Semester', on_delete=models.CASCADE, null=False)
-    sport = models.ForeignKey('Sport', on_delete=models.CASCADE, null=True, blank=True)
+    semester = models.ForeignKey("Semester", on_delete=models.CASCADE, null=False)
+    sport = models.ForeignKey("Sport", on_delete=models.CASCADE, null=True, blank=True)
     name = models.CharField(max_length=50, blank=True, null=True)
     capacity = models.PositiveIntegerField(default=20, null=False)
     is_club = models.BooleanField(default=False, null=False)
-    trainer = models.ForeignKey('Trainer', on_delete=models.SET_NULL, null=True, blank=True, verbose_name='teacher')
-    trainers = models.ManyToManyField('Trainer', related_name='m2m', blank=True, verbose_name='teachers')
+    trainer = models.ForeignKey("Trainer", on_delete=models.SET_NULL, null=True, blank=True, verbose_name="teacher")
+    trainers = models.ManyToManyField("Trainer", related_name="m2m", blank=True, verbose_name="teachers")
     accredited = models.BooleanField(default=True, null=False)
     is_paid = models.BooleanField(default=False, null=False)
     # minimum_medical_group = models.ForeignKey('MedicalGroup', on_delete=models.DO_NOTHING, null=True, blank=True)
     allowed_education_level = models.IntegerField(
         choices=EducationLevelChoice.choices,
         default=EducationLevelChoice.STUDENTS,
-        help_text='Is the training for college, higher education students, or both?'
+        help_text="Is the training for college, higher education students, or both?",
     )
     allowed_medical_groups = models.ManyToManyField(
-        'MedicalGroup',
+        "MedicalGroup",
         blank=True,
-        help_text='Select medical groups required to attend the trainings. If this is empty, nobody will see the training (except students in "Allowed students" list, they always see the training).'
+        help_text='Select medical groups required to attend the trainings. If this is empty, nobody will see the training (except students in "Allowed students" list, they always see the training).',
     )
     allowed_gender = models.IntegerField(
         choices=GenderInFTGrading.choices,
         default=GenderInFTGrading.BOTH,
-        help_text='Select genders that are allowed to attend the trainings (works with "Allowed medical groups" filter).'
+        help_text='Select genders that are allowed to attend the trainings (works with "Allowed medical groups" filter).',
     )
-    allowed_qr = models.IntegerField(
-        choices=GroupQR.choices,
-        default=-1,
-        verbose_name="Is a QR required?"
-    )
+    allowed_qr = models.IntegerField(choices=GroupQR.choices, default=-1, verbose_name="Is a QR required?")
     allowed_students = models.ManyToManyField(
-        'Student',
-        related_name='allowed_groups',
+        "Student",
+        related_name="allowed_groups",
         blank=True,
-        help_text='List of students that are allowed to attend classes (in addition to "Allowed medical groups" filter).'
+        help_text='List of students that are allowed to attend classes (in addition to "Allowed medical groups" filter).',
     )
     banned_students = models.ManyToManyField(
-        'Student',
-        related_name='banned_groups',
+        "Student",
+        related_name="banned_groups",
         blank=True,
-        help_text='List of students that can not attend classes. The students will not see the training, and the teacher will not be able to set hours for these students.'
+        help_text="List of students that can not attend classes. The students will not see the training, and the teacher will not be able to set hours for these students.",
     )
     always_allow_students = models.ManyToManyField(
-        'Student',
-        related_name='always_allow_groups',
+        "Student",
+        related_name="always_allow_groups",
         blank=True,
-        help_text='List of students that are always included in sport complex access lists on top of general checkins list. Useful for specifying main team members.'
+        help_text="List of students that are always included in sport complex access lists on top of general checkins list. Useful for specifying main team members.",
     )
 
     class Meta:
         db_table = "group"
         verbose_name_plural = "groups"
         constraints = [
-            models.CheckConstraint(condition=Q(Q(sport__isnull=False) | (Q(name__isnull=False) & (~Q(name__exact="")))),
-                                   name='sport_or_name'),
+            models.CheckConstraint(
+                condition=Q(Q(sport__isnull=False) | (Q(name__isnull=False) & (~Q(name__exact="")))),
+                name="sport_or_name",
+            ),
         ]
         indexes = [
             models.Index(fields=("name",)),

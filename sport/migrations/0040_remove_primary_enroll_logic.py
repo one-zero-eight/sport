@@ -4,9 +4,7 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-    dependencies = [
-        ('sport', '0039_auto_20200830_1221')
-    ]
+    dependencies = [("sport", "0039_auto_20200830_1221")]
 
     operations = [
         migrations.RunSQL(
@@ -59,6 +57,6 @@ class Migration(migrations.Migration):
             RETURN NULL;
         END ;
         $$ LANGUAGE plpgsql;
-            """
+            """,
         )
     ]

@@ -4,11 +4,9 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sport', '0048_remove_limit_on_user_for_trainer'),
-        ('sport', '0049_selfsportreport_comment'),
+        ("sport", "0048_remove_limit_on_user_for_trainer"),
+        ("sport", "0049_selfsportreport_comment"),
     ]
 
-    operations = [
-    ]
+    operations = []

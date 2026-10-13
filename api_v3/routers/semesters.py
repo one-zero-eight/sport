@@ -77,4 +77,3 @@ def get_semester_by_id(_user: VerifiedDep, semester_id: int) -> SemesterSchema:
             detail="Semester not found",
         )
     return SemesterSchema.model_validate(semester, from_attributes=True)
-

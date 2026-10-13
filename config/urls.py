@@ -13,9 +13,11 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.conf import settings
 from django.conf.urls.static import static
-from django.urls import path, include
+from django.urls import include, path
+
 from sport.admin.site import site
 
 # TODO: remove when not needed
@@ -35,16 +37,19 @@ handler404 = "sport.views.errors.handler404"
 handler500 = "sport.views.errors.handler500"
 
 urlpatterns = [
-    path(settings.PREFIX, include([
-        path("", include("sport.urls")),
-        # only /metrics
-        path('', include('django_prometheus.urls')),
-        path('admin/', site.urls),
-        path('oauth2/', include('django_auth_adfs.urls')),
-
-        path("api/", include("api.urls")),
-        path("media/", include('media.urls')),
-        path('hijack/', include('hijack.urls')),
-    ]))
-] \
-    + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    path(
+        settings.PREFIX,
+        include(
+            [
+                path("", include("sport.urls")),
+                # only /metrics
+                path("", include("django_prometheus.urls")),
+                path("admin/", site.urls),
+                path("oauth2/", include("django_auth_adfs.urls")),
+                path("api/", include("api.urls")),
+                path("media/", include("media.urls")),
+                path("hijack/", include("hijack.urls")),
+            ]
+        ),
+    )
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

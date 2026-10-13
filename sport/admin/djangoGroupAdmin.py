@@ -8,6 +8,6 @@ from .site import site
 @admin.register(DjangoGroup, site=site)
 class DjangoGroupAdmin(GroupAdmin):
     list_display = (
-        'verbose_name',
-        'name',
+        "verbose_name",
+        "name",
     )

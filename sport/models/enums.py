@@ -7,6 +7,7 @@ class MedicalGroups(models.IntegerChoices):
     SPECIAL1 - can attend special groups
     PREPARATIVE, GENERAL - can attend everything
     """
+
     NO_CHECKUP = -2, "Medical checkup not passed"
     SPECIAL2 = -1, "Special 2"
     SPECIAL1 = 0, "Special 1"

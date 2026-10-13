@@ -1,8 +1,8 @@
-from typing import Type, Optional, Union, Iterable
+from collections.abc import Iterable
 
 from rest_framework import serializers
 
-SerializerClass = Type[serializers.Serializer]
+SerializerClass = type[serializers.Serializer]
 
 
 class EmptySerializer(serializers.Serializer):
@@ -23,11 +23,11 @@ class ErrorSerializer(serializers.Serializer):
 
 
 def get_error_serializer(
-        reference_name: str,
-        error_code: Optional[int] = None,
-        error_description: str = "",
-        additional_data: SerializerClass = EmptySerializer,
-        additional_data_many: bool = False,
+    reference_name: str,
+    error_code: int | None = None,
+    error_description: str = "",
+    additional_data: SerializerClass = EmptySerializer,
+    additional_data_many: bool = False,
 ) -> SerializerClass:
     class ErrorResponseSerializer(serializers.Serializer):
         code = serializers.ReadOnlyField(default=error_code)
@@ -41,9 +41,9 @@ def get_error_serializer(
 
 
 def error_detail(
-        error_code: int,
-        error_description: str,
-        data: Optional[Union[dict, Iterable]] = None,
+    error_code: int,
+    error_description: str,
+    data: dict | Iterable | None = None,
 ) -> dict:
     detail = {
         "code": error_code,

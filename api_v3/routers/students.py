@@ -6,11 +6,11 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from starlette import status
 
-from api_v3.utils.semester import get_current_semester
 from api_v3.dependencies import VerifiedDep
 from api_v3.permissions import is_student
 from api_v3.routers.fitness_test import FitnessTestSessionSchema
-from sport.models import Semester, Group, FitnessTestResult, FitnessTestSession, Student, FitnessTestGrading
+from api_v3.utils.semester import get_current_semester
+from sport.models import FitnessTestGrading, FitnessTestResult, FitnessTestSession, Group, Semester, Student
 
 router = APIRouter(
     tags=["Students"],
@@ -83,15 +83,8 @@ def build_fitness_test_session_result(
     ]
     total_score = sum(result.score for result in exercise_results)
     max_score = sum(result.max_score for result in exercise_results)
-    grade = all(
-        exercise.score >= result.exercise.threshold
-        for exercise, result in zip(exercise_results, results)
-    )
-    if (
-        session.semester_id == ongoing_semester_id
-        and student.medical_group_id == 0
-        and results
-    ):
+    grade = all(exercise.score >= result.exercise.threshold for exercise, result in zip(exercise_results, results))
+    if session.semester_id == ongoing_semester_id and student.medical_group_id == 0 and results:
         grade = True
     else:
         grade = grade and total_score >= session.semester.points_fitness_test
@@ -146,9 +139,10 @@ def get_student_specific_semester_history(
         )
 
     student = user.student_or_none
-    from django.db.models import BooleanField, IntegerField, F, Value, Case, When, CharField
+    from django.db.models import BooleanField, Case, CharField, F, IntegerField, Value, When
     from django.db.models.functions import Concat
-    from sport.models import Attendance, SelfSportReport, Reference
+
+    from sport.models import Attendance, Reference, SelfSportReport
 
     VTrue = Value(True, output_field=BooleanField())
     VFalse = Value(False, output_field=BooleanField())
@@ -168,15 +162,11 @@ def get_student_specific_semester_history(
         .values("group_id", "group", "custom_name", "timestamp", "hours", "approved")
     )
     self_qs = (
-        SelfSportReport.objects.filter(
-            semester=semester, student=student, attendance=None
-        )
+        SelfSportReport.objects.filter(semester=semester, student=student, attendance=None)
         .annotate(
             group=Value("Self training", output_field=CharField()),
             group_id=Value(-1, output_field=IntegerField()),
-            custom_name=Concat(
-                Value("[Self] ", output_field=CharField()), F("training_type__name")
-            ),
+            custom_name=Concat(Value("[Self] ", output_field=CharField()), F("training_type__name")),
             timestamp=F("uploaded"),
             approved=F("approval"),
         )
@@ -198,9 +188,7 @@ def get_student_specific_semester_history(
     for row in att.union(self_qs).union(ref_qs).order_by("timestamp"):
         training = TrainingHistoryRowSchema.model_validate(row)
         group_name = (
-            training.group
-            if training.group_id < 0
-            else Group.objects.get(pk=training.group_id).to_frontend_name()
+            training.group if training.group_id < 0 else Group.objects.get(pk=training.group_id).to_frontend_name()
         )
         trainings.append(
             TrainingHistorySchema(
@@ -216,9 +204,7 @@ def get_student_specific_semester_history(
         )
 
     sessions = list(
-        FitnessTestSession.objects.filter(semester=semester)
-        .select_related("semester")
-        .order_by("-date", "-id")
+        FitnessTestSession.objects.filter(semester=semester).select_related("semester").order_by("-date", "-id")
     )
     by_session_id: dict[int, list[FitnessTestResult]] = defaultdict(list)
     if sessions:
@@ -232,9 +218,7 @@ def get_student_specific_semester_history(
 
     ongoing_semester_id = get_current_semester().id if sessions else None
     fitness_tests = [
-        build_fitness_test_session_result(
-            session, by_session_id[session.id], student, ongoing_semester_id
-        )
+        build_fitness_test_session_result(session, by_session_id[session.id], student, ongoing_semester_id)
         for session in sessions
     ]
 
@@ -273,20 +257,19 @@ def get_student_all_semesters_history(
 
     student = user.student_or_none
     from django.db.models import Q, Sum
+
     from sport.models import Attendance
 
-    semesters = Semester.objects.filter(
-        start__year__gte=student.enrollment_year
-    ).exclude(
-        Q(start__year=student.enrollment_year) & Q(start__month__lte=7)
-    ).order_by("start")
+    semesters = (
+        Semester.objects.filter(start__year__gte=student.enrollment_year)
+        .exclude(Q(start__year=student.enrollment_year) & Q(start__month__lte=7))
+        .order_by("start")
+    )
 
     history: list[SemesterHistorySchema] = []
     for semester in semesters:
         attendances = (
-            Attendance.objects.filter(
-                student=student, training__group__semester=semester
-            )
+            Attendance.objects.filter(student=student, training__group__semester=semester)
             .select_related(
                 "training",
                 "training__group",
@@ -350,9 +333,7 @@ def get_student_all_semesters_history(
     fitness_by_semester: dict[int, list[FitnessTestStudentSessionResultSchema]] = defaultdict(list)
     for session in sessions:
         fitness_by_semester[session.semester_id].append(
-            build_fitness_test_session_result(
-                session, by_session_id[session.id], student, ongoing_semester_id
-            )
+            build_fitness_test_session_result(session, by_session_id[session.id], student, ongoing_semester_id)
         )
 
     for semester in history:
@@ -362,8 +343,9 @@ def get_student_all_semesters_history(
 
 
 def get_grading_scheme(student: Student, result: FitnessTestResult):
-    return FitnessTestGrading.objects.filter(Q(gender__exact=-1) | Q(gender__exact=student.gender),
-                                             exercise=result.exercise)
+    return FitnessTestGrading.objects.filter(
+        Q(gender__exact=-1) | Q(gender__exact=student.gender), exercise=result.exercise
+    )
 
 
 def get_score(student: Student, result: FitnessTestResult):
@@ -371,4 +353,4 @@ def get_score(student: Student, result: FitnessTestResult):
 
 
 def get_max_score(student: Student, result: FitnessTestResult):
-    return max(map(lambda x: x[0], get_grading_scheme(student, result).values_list('score')))
+    return max(map(lambda x: x[0], get_grading_scheme(student, result).values_list("score")))

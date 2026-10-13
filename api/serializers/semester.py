@@ -1,4 +1,5 @@
 from rest_framework import serializers
+
 from sport.models import Semester
 
 
@@ -9,4 +10,4 @@ class SemesterInSerializer(serializers.Serializer):
 class SemesterSerializer(serializers.ModelSerializer[Semester]):
     class Meta:
         model = Semester
-        fields = ('id', 'name', 'start', 'end')
+        fields = ("id", "name", "start", "end")

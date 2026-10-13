@@ -5,7 +5,7 @@ from accounts.models import User
 
 
 def is_student(user: User) -> bool:
-    return user.student_or_none and user.student_or_none.student_status.name == 'Normal'
+    return user.student_or_none and user.student_or_none.student_status.name == "Normal"
 
 
 def is_trainer(user: User) -> bool:

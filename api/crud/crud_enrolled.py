@@ -1,9 +1,7 @@
-from typing import List, Dict
-
-from django.db import transaction, connection
+from django.db import connection, transaction
 
 from api.crud import dictfetchall
-from sport.models import Student, Enroll, Group
+from sport.models import Enroll, Group, Student
 
 
 @transaction.atomic
@@ -26,18 +24,20 @@ def unenroll_student(group: Group, student: Student) -> int:
     return removed_count
 
 
-def get_primary_groups(semester_id: int) -> Dict[int, int]:
+def get_primary_groups(semester_id: int) -> dict[int, int]:
     if semester_id is None or not isinstance(semester_id, int):
         raise ValueError("semester_id must be int")
     with connection.cursor() as cursor:
         cursor.execute(
-            'select * from get_primary_groups_in_semester(%s);',
+            "select * from get_primary_groups_in_semester(%s);",
             [semester_id],
         )
         primary_groups_list = dictfetchall(cursor)
     result = {}
     for row in primary_groups_list:
-        result.update({
-            row['student_id']: row['group_id'],
-        })
+        result.update(
+            {
+                row["student_id"]: row["group_id"],
+            }
+        )
     return result

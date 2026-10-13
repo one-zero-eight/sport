@@ -1,5 +1,5 @@
-from collections import defaultdict
 import datetime
+from collections import defaultdict
 from typing import Any
 
 from django.db.models import Q
@@ -11,11 +11,10 @@ from api_v3.dependencies import VerifiedDep
 from api_v3.permissions import is_admin, is_trainer
 from api_v3.utils.search import search_students
 from api_v3.utils.semester import get_current_semester
-
 from sport.models import (
-    FitnessTestSession,
-    FitnessTestResult,
     FitnessTestExercise,
+    FitnessTestResult,
+    FitnessTestSession,
     Semester,
 )
 
@@ -134,10 +133,7 @@ def get_exercises(
         semester_id = semester.id
 
     exercises = FitnessTestExercise.objects.filter(semester=semester_id)
-    return [
-        FitnessTestExerciseSchema.model_validate(e, from_attributes=True)
-        for e in exercises
-    ]
+    return [FitnessTestExerciseSchema.model_validate(e, from_attributes=True) for e in exercises]
 
 
 @router.get(
@@ -167,10 +163,7 @@ def get_sessions(
     else:
         sessions = FitnessTestSession.objects.filter(semester_id=semester_id)
 
-    return [
-        FitnessTestSessionSchema.model_validate(s, from_attributes=True)
-        for s in sessions
-    ]
+    return [FitnessTestSessionSchema.model_validate(s, from_attributes=True) for s in sessions]
 
 
 @router.get(
@@ -193,9 +186,7 @@ def get_fitness_test_session(
             detail="You are not allowed to view fitness test results",
         )
 
-    results_qs = FitnessTestResult.objects.filter(
-        session_id=session_id
-    ).select_related("student__user", "exercise")
+    results_qs = FitnessTestResult.objects.filter(session_id=session_id).select_related("student__user", "exercise")
     if not results_qs.exists():
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -237,19 +228,12 @@ def get_fitness_test_session(
         )
 
     exercises = FitnessTestExercise.objects.filter(
-        id__in=FitnessTestResult.objects.filter(session_id=session_id)
-        .values_list("exercise")
-        .distinct()
+        id__in=FitnessTestResult.objects.filter(session_id=session_id).values_list("exercise").distinct()
     )
 
     return FitnessTestSessionWithGroupedResultsSchema(
-        session=FitnessTestSessionSchema.model_validate(
-            session, from_attributes=True
-        ),
-        exercises=[
-            FitnessTestExerciseSchema.model_validate(e, from_attributes=True)
-            for e in exercises
-        ],
+        session=FitnessTestSessionSchema.model_validate(session, from_attributes=True),
+        exercises=[FitnessTestExerciseSchema.model_validate(e, from_attributes=True) for e in exercises],
         results=results_dict,
     )
 
@@ -295,10 +279,7 @@ def upload_fitness_test_results(
                 detail=f"No semester with id={semester_id}",
             )
 
-    results = [
-        {"student_id": r.student_id, "exercise_id": r.exercise_id, "value": r.value}
-        for r in body.results
-    ]
+    results = [{"student_id": r.student_id, "exercise_id": r.exercise_id, "value": r.value} for r in body.results]
 
     try:
         import logging
@@ -325,17 +306,13 @@ def upload_fitness_test_results(
             try:
                 student = Student.objects.get(user__id=res["student_id"])
             except Student.DoesNotExist:
-                errors.append(
-                    f"Student with user_id={res['student_id']} does not exist"
-                )
+                errors.append(f"Student with user_id={res['student_id']} does not exist")
                 continue
 
             try:
                 exercise = FitnessTestExercise.objects.get(id=res["exercise_id"])
             except FitnessTestExercise.DoesNotExist:
-                errors.append(
-                    f"Exercise with id={res['exercise_id']} does not exist"
-                )
+                errors.append(f"Exercise with id={res['exercise_id']} does not exist")
                 continue
 
             FitnessTestResult.objects.update_or_create(
@@ -390,4 +367,3 @@ def suggest_fitness_test_student(
         )
         for s in suggested_students
     ]
-

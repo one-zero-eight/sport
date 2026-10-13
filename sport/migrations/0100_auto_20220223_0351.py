@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sport', '0099_auto_20220117_0025'),
+        ("sport", "0099_auto_20220117_0025"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='sport',
-            name='visible',
+            model_name="sport",
+            name="visible",
             field=models.BooleanField(default=True),
         ),
         migrations.AlterField(
-            model_name='sport',
-            name='special',
-            field=models.BooleanField(default=False, verbose_name='Technical'),
+            model_name="sport",
+            name="special",
+            field=models.BooleanField(default=False, verbose_name="Technical"),
         ),
     ]

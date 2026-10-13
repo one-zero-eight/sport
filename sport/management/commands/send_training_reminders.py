@@ -24,21 +24,13 @@ class Command(BaseCommand):
         local_tz = timezone.get_current_timezone()
 
         if 6 <= now.hour < 14:
-            window_start = timezone.make_aware(
-                datetime.combine(today, time(14, 0)), local_tz
-            )
-            window_end = timezone.make_aware(
-                datetime.combine(today + timedelta(days=1), time(0, 0)), local_tz
-            )
+            window_start = timezone.make_aware(datetime.combine(today, time(14, 0)), local_tz)
+            window_end = timezone.make_aware(datetime.combine(today + timedelta(days=1), time(0, 0)), local_tz)
             self.stdout.write("Morning run: reminding about evening trainings today")
         elif 18 <= now.hour < 24:
             tomorrow = today + timedelta(days=1)
-            window_start = timezone.make_aware(
-                datetime.combine(tomorrow, time(0, 0)), local_tz
-            )
-            window_end = timezone.make_aware(
-                datetime.combine(tomorrow, time(14, 0)), local_tz
-            )
+            window_start = timezone.make_aware(datetime.combine(tomorrow, time(0, 0)), local_tz)
+            window_end = timezone.make_aware(datetime.combine(tomorrow, time(14, 0)), local_tz)
             self.stdout.write("Evening run: reminding about morning trainings tomorrow")
         else:
             self.stdout.write("Outside reminder windows (06-14 and 18-24), nothing to do.")
@@ -53,9 +45,7 @@ class Command(BaseCommand):
         ).select_related("group", "training_class")
 
         already_reminded = set(
-            TrainingReminder.objects.filter(training__in=trainings).values_list(
-                "training_id", "student_id"
-            )
+            TrainingReminder.objects.filter(training__in=trainings).values_list("training_id", "student_id")
         )
 
         subject, message = settings.EMAIL_TEMPLATES["training_reminder"]
@@ -63,10 +53,7 @@ class Command(BaseCommand):
         sent_count = 0
 
         for training in trainings:
-            students = [
-                s for s in training.checked_in_students
-                if (training.pk, s.pk) not in already_reminded
-            ]
+            students = [s for s in training.checked_in_students if (training.pk, s.pk) not in already_reminded]
             if not students:
                 continue
 
@@ -86,13 +73,9 @@ class Command(BaseCommand):
                     location=location,
                     location_url=f"https://innohassle.ru/maps?q={urllib.parse.quote(location)}",
                 )
-                reminders_to_create.append(
-                    TrainingReminder(training=training, student=student)
-                )
+                reminders_to_create.append(TrainingReminder(training=training, student=student))
                 sent_count += 1
 
         TrainingReminder.objects.bulk_create(reminders_to_create, ignore_conflicts=True)
 
-        self.stdout.write(
-            self.style.SUCCESS(f"Done: sent {sent_count} reminder emails.")
-        )
+        self.stdout.write(self.style.SUCCESS(f"Done: sent {sent_count} reminder emails."))

@@ -1,11 +1,7 @@
-from typing import Optional, Tuple
-
 import pytest
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import (
-    Group
-)
+from django.contrib.auth.models import Group
 
 
 @pytest.fixture
@@ -15,7 +11,7 @@ def student_group() -> Group:
         verbose_name=settings.STUDENT_AUTH_GROUP_VERBOSE_NAME,
         defaults={
             "name": settings.STUDENT_AUTH_GROUP_NAME,
-        }
+        },
     )
     return group
 
@@ -27,7 +23,7 @@ def college_group() -> Group:
         verbose_name=settings.COLLEGE_AUTH_GROUP_VERBOSE_NAME,
         defaults={
             "name": settings.COLLEGE_AUTH_GROUP_NAME,
-        }
+        },
     )
     return group
 
@@ -39,23 +35,23 @@ def trainer_group() -> Group:
         verbose_name=settings.TRAINER_AUTH_GROUP_VERBOSE_NAME,
         defaults={
             "name": settings.TRAINER_AUTH_GROUP_NAME,
-        }
+        },
     )
     return group
 
 
 def create_user_in_groups(
-        predefined_groups: Tuple[Group] = (),
+    predefined_groups: tuple[Group] = (),
 ):
     def create_app_user(
-            email: str,
-            password: Optional[str] = None,
-            first_name: Optional[str] = "first name",
-            last_name: Optional[str] = "last name",
-            is_staff: str = False,
-            is_superuser: str = False,
-            is_active: str = True,
-            groups: Tuple[Group] = (),
+        email: str,
+        password: str | None = None,
+        first_name: str | None = "first name",
+        last_name: str | None = "last name",
+        is_staff: str = False,
+        is_superuser: str = False,
+        is_active: str = True,
+        groups: tuple[Group] = (),
     ):
         user = get_user_model().objects.create_user(
             password=password,
@@ -80,20 +76,14 @@ def user_factory():
 
 @pytest.fixture
 def student_factory(student_group):
-    return create_user_in_groups(
-        predefined_groups=(student_group,)
-    )
+    return create_user_in_groups(predefined_groups=(student_group,))
 
 
 @pytest.fixture
 def college_factory(college_group):
-    return create_user_in_groups(
-        predefined_groups=(college_group,)
-    )
+    return create_user_in_groups(predefined_groups=(college_group,))
 
 
 @pytest.fixture
 def trainer_factory(trainer_group):
-    return create_user_in_groups(
-        predefined_groups=(trainer_group,)
-    )
+    return create_user_in_groups(predefined_groups=(trainer_group,))

@@ -1,25 +1,21 @@
 from django.contrib import admin
-from django.forms import ModelForm, CheckboxSelectMultiple, ModelChoiceField
+from django.forms import CheckboxSelectMultiple, ModelChoiceField, ModelForm
 
 from sport.models import Semester
+
 from .site import site
 from .utils import copy_sport_groups_and_schedule_from_semester
 
 
 class SemesterAdminForm(ModelForm):
     semester_to_copy = ModelChoiceField(
-        queryset=Semester.objects.all(),
-        required=False,
-        label='Semester to copy groups and schedule from'
+        queryset=Semester.objects.all(), required=False, label="Semester to copy groups and schedule from"
     )
 
     class Meta:
         model = Semester
-        fields = '__all__'  # will be overridden by ModelAdmin
-        widgets = {
-            'nullify_groups': CheckboxSelectMultiple(),
-            'participating_courses': CheckboxSelectMultiple()
-        }
+        fields = "__all__"  # will be overridden by ModelAdmin
+        widgets = {"nullify_groups": CheckboxSelectMultiple(), "participating_courses": CheckboxSelectMultiple()}
 
 
 @admin.register(Semester, site=site)
@@ -30,9 +26,7 @@ class SemesterAdmin(admin.ModelAdmin):
         "start",
     )
 
-    ordering = (
-        "-start",
-    )
+    ordering = ("-start",)
     list_display = (
         "name",
         "start",
@@ -42,12 +36,9 @@ class SemesterAdmin(admin.ModelAdmin):
     )
 
     def save_model(self, request, obj, form, change):
-        source_semester = form.cleaned_data.get('semester_to_copy')
+        source_semester = form.cleaned_data.get("semester_to_copy")
         if source_semester and not change:
-            copy_sport_groups_and_schedule_from_semester(
-                obj,
-                source_semester
-            )
+            copy_sport_groups_and_schedule_from_semester(obj, source_semester)
         else:
             super().save_model(request, obj, form, change)
 
@@ -78,4 +69,4 @@ class SemesterAdmin(admin.ModelAdmin):
             "semester_to_copy",
         )
 
-    autocomplete_fields = ('academic_leave_students',)
+    autocomplete_fields = ("academic_leave_students",)

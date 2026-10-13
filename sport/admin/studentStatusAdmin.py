@@ -1,10 +1,9 @@
-from typing import Optional
-
 from django.contrib import admin
 from django.db.models import Model
 from django.http import HttpRequest
 
 from sport.models import StudentStatus
+
 from .site import site
 
 
@@ -16,5 +15,5 @@ class StudentStatusAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         return False
 
-    def has_delete_permission(self, request: HttpRequest, obj: Optional[Model] = ...) -> bool:
+    def has_delete_permission(self, request: HttpRequest, obj: Model | None = ...) -> bool:
         return False

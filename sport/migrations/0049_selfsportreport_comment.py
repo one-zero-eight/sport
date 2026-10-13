@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sport', '0048_merge_20210116_1924'),
+        ("sport", "0048_merge_20210116_1924"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='selfsportreport',
-            name='comment',
+            model_name="selfsportreport",
+            name="comment",
             field=models.TextField(blank=True, max_length=1024, null=True),
         ),
     ]

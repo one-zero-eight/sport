@@ -4,15 +4,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sport', '0130_student_is_college_alter_student_user'),
+        ("sport", "0130_student_is_college_alter_student_user"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='group',
-            name='allowed_education_level',
-            field=models.IntegerField(choices=[(-1, 'both'), (1, 'students'), (2, 'college')], default=1, help_text='Is the training for college, higher education students, or both?'),
+            model_name="group",
+            name="allowed_education_level",
+            field=models.IntegerField(
+                choices=[(-1, "both"), (1, "students"), (2, "college")],
+                default=1,
+                help_text="Is the training for college, higher education students, or both?",
+            ),
         ),
     ]

@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sport', '0083_fitnesstestexercise_fitnesstestgrading_fitnesstestresult'),
+        ("sport", "0083_fitnesstestexercise_fitnesstestgrading_fitnesstestresult"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='fitnesstestresult',
-            name='value',
+            model_name="fitnesstestresult",
+            name="value",
             field=models.IntegerField(blank=True, null=True),
         ),
     ]

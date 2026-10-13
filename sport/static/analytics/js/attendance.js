@@ -147,5 +147,3 @@ disciplineAll.addEventListener('click', async function () {
         attendance_chart.update();
     }
 });
-
-

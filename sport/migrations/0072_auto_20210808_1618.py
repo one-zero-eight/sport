@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sport', '0071_add_parsed_data_student_comment_fields'),
+        ("sport", "0071_add_parsed_data_student_comment_fields"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='selfsportreport',
-            name='parsed_data',
-            field=models.JSONField(blank=True, null=True, verbose_name='Data from the Strava link'),
+            model_name="selfsportreport",
+            name="parsed_data",
+            field=models.JSONField(blank=True, null=True, verbose_name="Data from the Strava link"),
         ),
     ]

@@ -4,15 +4,14 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sport', '0128_remove_medicalgroupreference_image_and_more'),
+        ("sport", "0128_remove_medicalgroupreference_image_and_more"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='medicalgroupreferenceimage',
-            old_name='medical_reference',
-            new_name='reference',
+            model_name="medicalgroupreferenceimage",
+            old_name="medical_reference",
+            new_name="reference",
         ),
     ]

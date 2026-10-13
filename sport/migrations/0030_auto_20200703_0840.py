@@ -4,28 +4,27 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sport', '0029_add_user_text_index'),
+        ("sport", "0029_add_user_text_index"),
     ]
 
     operations = [
         migrations.RemoveConstraint(
-            model_name='attendance',
-            name='positive_hours',
+            model_name="attendance",
+            name="positive_hours",
         ),
         migrations.AddField(
-            model_name='reference',
-            name='approval',
+            model_name="reference",
+            name="approval",
             field=models.BooleanField(null=True),
         ),
         migrations.AlterField(
-            model_name='reference',
-            name='hours',
+            model_name="reference",
+            name="hours",
             field=models.DecimalField(decimal_places=2, default=0, max_digits=3),
         ),
         migrations.AddConstraint(
-            model_name='attendance',
-            constraint=models.CheckConstraint(condition=models.Q(hours__gte=0), name='positive_hours'),
+            model_name="attendance",
+            constraint=models.CheckConstraint(condition=models.Q(hours__gte=0), name="positive_hours"),
         ),
     ]

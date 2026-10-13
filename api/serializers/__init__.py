@@ -1,69 +1,116 @@
 from .attendance import (
-    SuggestionQuerySerializer,
-    SuggestionSerializer,
-    StudentInfoSerializer,
-    GradeReportSerializer,
-    TrainingGradesSerializer,
-    LastAttendedStat,
-    LastAttendedDatesSerializer,
-    BadGradeReportGradeSerializer,
-    BadGradeReport,
-    AttendanceMarkSerializer,
-    HoursInfoSerializer,
-    HoursInfoFullSerializer,
-    AttendanceSerializer,
+    AttendanceMarkSerializer as AttendanceMarkSerializer,
+)
+from .attendance import (
+    AttendanceSerializer as AttendanceSerializer,
+)
+from .attendance import (
+    BadGradeReport as BadGradeReport,
+)
+from .attendance import (
+    BadGradeReportGradeSerializer as BadGradeReportGradeSerializer,
+)
+from .attendance import (
+    GradeReportSerializer as GradeReportSerializer,
+)
+from .attendance import (
+    HoursInfoFullSerializer as HoursInfoFullSerializer,
+)
+from .attendance import (
+    HoursInfoSerializer as HoursInfoSerializer,
+)
+from .attendance import (
+    LastAttendedDatesSerializer as LastAttendedDatesSerializer,
+)
+from .attendance import (
+    LastAttendedStat as LastAttendedStat,
+)
+from .attendance import (
+    StudentInfoSerializer as StudentInfoSerializer,
+)
+from .attendance import (
+    SuggestionQuerySerializer as SuggestionQuerySerializer,
+)
+from .attendance import (
+    SuggestionSerializer as SuggestionSerializer,
+)
+from .attendance import (
+    TrainingGradesSerializer as TrainingGradesSerializer,
 )
 from .calendar import (
-    CalendarRequestSerializer,
-    ScheduleExtendedPropsSerializer,
-    CalendarSerializer,
+    CalendarRequestSerializer as CalendarRequestSerializer,
+)
+from .calendar import (
+    CalendarSerializer as CalendarSerializer,
+)
+from .calendar import (
+    ScheduleExtendedPropsSerializer as ScheduleExtendedPropsSerializer,
 )
 from .common import (
-    EmptySerializer,
-    NotFoundSerializer,
-    ErrorSerializer,
-    InbuiltErrorSerializer,
-    get_error_serializer,
-    error_detail,
+    EmptySerializer as EmptySerializer,
+)
+from .common import (
+    ErrorSerializer as ErrorSerializer,
+)
+from .common import (
+    InbuiltErrorSerializer as InbuiltErrorSerializer,
+)
+from .common import (
+    NotFoundSerializer as NotFoundSerializer,
+)
+from .common import (
+    error_detail as error_detail,
+)
+from .common import (
+    get_error_serializer as get_error_serializer,
 )
 from .enroll import (
-    EnrollSerializer,
-    UnenrollStudentSerializer,
+    EnrollSerializer as EnrollSerializer,
+)
+from .enroll import (
+    UnenrollStudentSerializer as UnenrollStudentSerializer,
+)
+from .fitness_test import FitnessTestResults as FitnessTestResults
+from .fitness_test import FitnessTestResultSerializer as FitnessTestResultSerializer
+from .group import (
+    GroupInfoSerializer as GroupInfoSerializer,
 )
 from .group import (
-    ScheduleSerializer,
-    SportSerializer,
-    SportsSerializer,
-    GroupInfoSerializer,
+    ScheduleSerializer as ScheduleSerializer,
 )
-from .profile import (
-    HasQRSerializer,
-    TrainingHourSerializer,
+from .group import (
+    SportSerializer as SportSerializer,
 )
-from .reference import (
-    ReferenceUploadSerializer,
-)
-from .self_sport_report import (
-    SelfSportReportUploadSerializer,
-)
-from .training import (
-    TrainingInfoSerializer,
-)
-from .fitness_test import (
-    FitnessTestResultSerializer,
-    FitnessTestResults
+from .group import (
+    SportsSerializer as SportsSerializer,
 )
 from .measurement import (
-    MeasurementSerializer,
-    MeasurementPostSerializer,
-    MeasurementResultSerializer,
-    MeasurementResultsSerializer
+    MeasurementPostSerializer as MeasurementPostSerializer,
 )
-from .medical_groups import (
-    MedicalGroupSerializer,
-    MedicalGroupsSerializer
+from .measurement import (
+    MeasurementResultSerializer as MeasurementResultSerializer,
 )
-
-from .training_class import (
-    TrainingClassSerializer
+from .measurement import (
+    MeasurementResultsSerializer as MeasurementResultsSerializer,
 )
+from .measurement import (
+    MeasurementSerializer as MeasurementSerializer,
+)
+from .medical_groups import MedicalGroupSerializer as MedicalGroupSerializer
+from .medical_groups import MedicalGroupsSerializer as MedicalGroupsSerializer
+from .profile import (
+    HasQRSerializer as HasQRSerializer,
+)
+from .profile import (
+    TrainingHourSerializer as TrainingHourSerializer,
+)
+from .reference import (
+    ReferenceUploadSerializer as ReferenceUploadSerializer,
+)
+from .self_sport_report import (
+    SelfSportReportUploadSerializer as SelfSportReportUploadSerializer,
+)
+from .training import (
+    TrainingInfoSerializer as TrainingInfoSerializer,
+)
+from .training_class import TrainingClassSerializer as TrainingClassSerializer

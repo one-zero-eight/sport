@@ -1,4 +1,4 @@
-from typing import Iterable
+from collections.abc import Iterable
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
@@ -6,7 +6,7 @@ from starlette import status
 
 from accounts.models import User
 from api_v3.dependencies import VerifiedDep
-from api_v3.permissions import is_student, is_trainer, is_admin
+from api_v3.permissions import is_admin, is_student, is_trainer
 from api_v3.utils.semester import get_current_semester
 from sport.models import Group
 
@@ -62,10 +62,13 @@ class UserSchema(BaseModel):
                 trainers__pk=user.id,
             )
             trainer_info = TrainerInfoSchema(
-                groups=[GroupInfoSchema(
-                    id=group.id,
-                    display_name=group.to_frontend_name(),
-                ) for group in training_groups]
+                groups=[
+                    GroupInfoSchema(
+                        id=group.id,
+                        display_name=group.to_frontend_name(),
+                    )
+                    for group in training_groups
+                ]
             )
 
         return UserSchema(
@@ -96,7 +99,7 @@ def get_me(user: VerifiedDep) -> UserSchema:
     responses={
         200: {"description": "Get user information by ID"},
         404: {"description": "No such user found"},
-    }
+    },
 )
 def get_user_by_id(current_user: VerifiedDep, user_id: int) -> UserSchema:
     """
@@ -117,7 +120,7 @@ def get_user_by_id(current_user: VerifiedDep, user_id: int) -> UserSchema:
     "/users/batch",
     responses={
         200: {"description": "Get many user information by ID"},
-    }
+    },
 )
 def get_many_users(current_user: VerifiedDep, user_ids: list[int]) -> list[UserSchema]:
     """

@@ -3,18 +3,16 @@ import datetime
 import pglock
 from django.db import IntegrityError
 from django.db.models import Count
+from django.utils import timezone
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 from starlette import status
 
-from django.utils import timezone
-
 from api.crud.crud_training import can_check_in
-
 from api_v3.dependencies import VerifiedDep
-from api_v3.permissions import is_student, is_trainer, is_admin
+from api_v3.permissions import is_admin, is_student, is_trainer
 from api_v3.routers.info import TrainingLocationSchema
-from sport.models import Training, TrainingCheckIn, Student, CheckoutHistory
+from sport.models import CheckoutHistory, Student, Training, TrainingCheckIn
 
 router = APIRouter(
     tags=["Trainings"],
@@ -55,23 +53,19 @@ class TrainingInfoSchema(BaseModel):
             id=obj.id,
             start=obj.start,
             end=obj.end,
-            is_all_day=(
-                obj.start.time() == datetime.time(0, 0, 0)
-                and obj.end.time() == datetime.time(23, 59, 59)
-            ),
-            training_location=TrainingLocationSchema.model_validate(obj.training_class, from_attributes=True) if obj.training_class else None,
-
+            is_all_day=(obj.start.time() == datetime.time(0, 0, 0) and obj.end.time() == datetime.time(23, 59, 59)),
+            training_location=TrainingLocationSchema.model_validate(obj.training_class, from_attributes=True)
+            if obj.training_class
+            else None,
             display_name=obj.custom_name or obj.group.to_frontend_name(),
             sport_name=obj.group.sport.name if obj.group.sport else None,
             group_name=obj.group.name,
             training_custom_name=obj.custom_name,
-
             is_accredited=obj.group.accredited,
             is_club=obj.group.is_club,
             is_paid=obj.group.is_paid,
             sport_id=obj.group.sport_id,
             group_id=obj.group_id,
-
             checkins_count=obj.load,
             max_checkins=obj.group.capacity,
         )
@@ -104,8 +98,7 @@ def get_training_info(user: VerifiedDep, training_id: int) -> TrainingInfoSchema
 
     try:
         training = (
-            Training.objects
-            .select_related("group", "group__sport", "training_class")
+            Training.objects.select_related("group", "group__sport", "training_class")
             .annotate(
                 load=Count("checkins", distinct=True),
             )
@@ -150,9 +143,7 @@ def training_checkin(
         )
 
     try:
-        training = Training.objects.select_related("group", "group__sport").get(
-            pk=training_id
-        )
+        training = Training.objects.select_related("group", "group__sport").get(pk=training_id)
     except Training.DoesNotExist:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -160,9 +151,7 @@ def training_checkin(
         )
     student: Student = user.student_or_none
 
-    already_checked_in = TrainingCheckIn.objects.filter(
-        student=student, training=training
-    ).exists()
+    already_checked_in = TrainingCheckIn.objects.filter(student=student, training=training).exists()
 
     if not checkin:
         if not already_checked_in:
@@ -179,7 +168,7 @@ def training_checkin(
             checkin_obj = TrainingCheckIn.objects.get(student=student, training=training)
             CheckoutHistory.from_checkin(checkin_obj, CheckoutHistory.Reason.STUDENT_CANCEL)
             checkin_obj.delete()
-        return None
+        return
 
     if already_checked_in:
         raise HTTPException(
@@ -201,4 +190,4 @@ def training_checkin(
                 detail="You have already checked in at this training",
             )
 
-    return None
+    return

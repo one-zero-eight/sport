@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 
-from sport.models import Attendance, Schedule, Enroll, Group, Training, MedicalGroupHistory, TrainingCheckIn
+from sport.models import Attendance, Enroll, Group, MedicalGroupHistory, Training, TrainingCheckIn
 
 
 class ViewMedicalGroupHistoryInline(admin.TabularInline):
@@ -16,8 +16,9 @@ class ViewMedicalGroupHistoryInline(admin.TabularInline):
     readonly_fields = fields
 
     def medical_group_reference_link(self, obj: MedicalGroupHistory):
-        change_url = reverse('admin:sport_medicalgroupreference_change', args=(obj.medical_group_reference.pk,))
+        change_url = reverse("admin:sport_medicalgroupreference_change", args=(obj.medical_group_reference.pk,))
         return mark_safe('<a href="%s">%s</a>' % (change_url, obj.medical_group_reference))
+
     medical_group_reference_link.short_description = "medical group reference"
 
     def has_add_permission(self, request, obj):
@@ -42,10 +43,10 @@ class ViewAttendanceInline(admin.TabularInline):
         return False
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related(
-            "training__group__semester",
-            "student__user",
-            "training__training_class"
+        return (
+            super()
+            .get_queryset(request)
+            .select_related("training__group__semester", "student__user", "training__training_class")
         )
 
 
@@ -62,15 +63,11 @@ class AddAttendanceInline(ViewAttendanceInline):
 
 
 class HackAttendanceForm(forms.ModelForm):
-    date = forms.DateField(
-        label='Day',
-        initial=timezone.now().date(),
-        widget=AdminDateWidget(attrs={'size': 16})
-    )
+    date = forms.DateField(label="Day", initial=timezone.now().date(), widget=AdminDateWidget(attrs={"size": 16}))
 
     class Meta:
         model = Attendance
-        fields = ('hours',)
+        fields = ("hours",)
 
 
 class HackAttendanceInline(ViewAttendanceInline):
@@ -88,8 +85,10 @@ class HackAttendanceInline(ViewAttendanceInline):
         return False
 
     form = HackAttendanceForm
-    fields = ('date', 'hours',)
-
+    fields = (
+        "date",
+        "hours",
+    )
 
 
 class EnrollInline(admin.TabularInline):
@@ -135,15 +134,14 @@ class ViewTrainingInline(TrainingInline):
     exclude = ("group",)
     extra = 0
 
-    def has_add_permission(
-            self, request: HttpRequest, *args, **kwargs
-    ) -> bool:
+    def has_add_permission(self, request: HttpRequest, *args, **kwargs) -> bool:
         return False
+
 
 class ViewTrainingCheckInInline(admin.TabularInline):
     model = TrainingCheckIn
     fields = ("date", "student")
-    readonly_fields = ("date", )
+    readonly_fields = ("date",)
     autocomplete_fields = ("student",)
     extra = 0
 

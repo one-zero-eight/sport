@@ -4,13 +4,13 @@ from typing import Any
 from django.core.files.base import ContentFile
 from django.db import transaction
 from django.utils.timezone import make_naive
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from pydantic import BaseModel, Field
 from starlette import status
 
 from api_v3.dependencies import VerifiedDep
-from api_v3.utils.semester import get_current_semester
 from api_v3.permissions import is_student
+from api_v3.utils.semester import get_current_semester
 from sport.models import (
     MedicalGroupReference,
     MedicalGroupReferenceImage,
@@ -84,10 +84,7 @@ def reference_upload(
                 student_comment=student_comment or "",
                 semester=semester,
                 student_id=user.pk,
-                hours=(
-                    (end - start).days // 7
-                    * semester.number_hours_one_week_ill
-                ),
+                hours=((end - start).days // 7 * semester.number_hours_one_week_ill),
             )
             ref.image.save(image.filename, ContentFile(image.file.read()), save=True)
 
@@ -170,7 +167,4 @@ def medical_group_upload(
             detail=str(e),
         )
 
-    return MedicalGroupReferenceUploadResponseSchema.model_validate(
-        reference, from_attributes=True
-    )
-
+    return MedicalGroupReferenceUploadResponseSchema.model_validate(reference, from_attributes=True)

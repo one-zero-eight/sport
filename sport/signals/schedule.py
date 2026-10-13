@@ -1,5 +1,5 @@
-from datetime import date, timedelta, datetime
-from typing import Iterator
+from collections.abc import Iterator
+from datetime import date, datetime, timedelta
 
 from django.conf import settings
 from django.db.models.signals import post_save, pre_delete, pre_save
@@ -7,7 +7,7 @@ from django.dispatch.dispatcher import receiver
 from django.forms.utils import to_current_timezone
 from django.utils import timezone
 
-from sport.models import Schedule, Training, CheckoutHistory
+from sport.models import CheckoutHistory, Schedule, Training
 from sport.utils import notify_students
 
 
@@ -44,10 +44,11 @@ def remove_future_trainings_from_schedule(instance: Schedule, **kwargs):
     # semester_end_datetime = datetime.combine(date=semester.end,
     #                                          time=timezone.make_aware(time(23, 59, 59))
     #                                          )
-    Training.objects.filter(group=instance.group,  # trainings belong to group
-                            start__gt=timezone.now(),  # end__lte=semester_end_datetime,  # are within semester
-                            schedule=instance,  # and
-                            ).delete()
+    Training.objects.filter(
+        group=instance.group,  # trainings belong to group
+        start__gt=timezone.now(),  # end__lte=semester_end_datetime,  # are within semester
+        schedule=instance,  # and
+    ).delete()
 
 
 @receiver(pre_save, sender=Training)
@@ -57,28 +58,25 @@ def notify_about_changed_time(instance: Training, **kwargs):
         print(old.start, instance.start, old.end, instance.end)
         if old.start != instance.start or old.end != instance.end:
             for student in instance.checked_in_students:
-                student.notify(*settings.EMAIL_TEMPLATES['training_changed'],
-                               student_name=student.user.first_name,
-                               group_name=instance.group.to_frontend_name(),
-                               previous_time=to_current_timezone(old.start).strftime('%d.%m.%Y %H:%M'),
-                               new_time=to_current_timezone(instance.start).strftime('%d.%m.%Y %H:%M'))
-            CheckoutHistory.bulk_from_checkins(
-                instance.checkins.all(), CheckoutHistory.Reason.TRAINING_TIME_CHANGED
-            )
+                student.notify(
+                    *settings.EMAIL_TEMPLATES["training_changed"],
+                    student_name=student.user.first_name,
+                    group_name=instance.group.to_frontend_name(),
+                    previous_time=to_current_timezone(old.start).strftime("%d.%m.%Y %H:%M"),
+                    new_time=to_current_timezone(instance.start).strftime("%d.%m.%Y %H:%M"),
+                )
+            CheckoutHistory.bulk_from_checkins(instance.checkins.all(), CheckoutHistory.Reason.TRAINING_TIME_CHANGED)
             instance.checkins.all().delete()
-
 
 
 @receiver(pre_delete, sender=Training)
 def notify_about_removed_training(instance: Training, **kwargs):
-    CheckoutHistory.bulk_from_checkins(
-        instance.checkins.all(), CheckoutHistory.Reason.TRAINING_CANCELLED
-    )
+    CheckoutHistory.bulk_from_checkins(instance.checkins.all(), CheckoutHistory.Reason.TRAINING_CANCELLED)
     notify_students(
         instance.checked_in_students,
-        *settings.EMAIL_TEMPLATES['training_deleted'],
+        *settings.EMAIL_TEMPLATES["training_deleted"],
         group_name=instance.group.to_frontend_name(),
-        time=to_current_timezone(instance.start).strftime('%d.%m.%Y %H:%M'),
+        time=to_current_timezone(instance.start).strftime("%d.%m.%Y %H:%M"),
     )
 
 
@@ -97,22 +95,16 @@ def create_trainings_current_semester(instance: Schedule, created, **kwargs):
     for week_start in week_generator(max(get_current_monday(), semester.start), semester.end):
         training_date = week_start + timedelta(days=instance.weekday)
         if today <= training_date <= semester.end:
-            training_start = datetime.combine(
-                date=training_date,
-                time=instance.start,
-                tzinfo=server_timezone
-            )
+            training_start = datetime.combine(date=training_date, time=instance.start, tzinfo=server_timezone)
             if server_time < training_start:
-                training_end = datetime.combine(
-                    date=training_date,
-                    time=instance.end,
-                    tzinfo=server_timezone
+                training_end = datetime.combine(date=training_date, time=instance.end, tzinfo=server_timezone)
+                trainings.append(
+                    Training(
+                        group=instance.group,
+                        schedule=instance,
+                        start=training_start,
+                        end=training_end,
+                        training_class=instance.training_class,
+                    )
                 )
-                trainings.append(Training(
-                    group=instance.group,
-                    schedule=instance,
-                    start=training_start,
-                    end=training_end,
-                    training_class=instance.training_class,
-                ))
     Training.objects.bulk_create(trainings)

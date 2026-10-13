@@ -8,24 +8,16 @@ from sport.utils import format_submission_html
 
 
 @receiver(post_save, sender=SelfSportReport)
-def update_hours_for_self_sport(
-        sender,
-        instance: SelfSportReport,
-        created,
-        **kwargs
-):
+def update_hours_for_self_sport(sender, instance: SelfSportReport, created, **kwargs):
     if created:
         return
 
-    group = Group.objects.get(
-        semester=instance.semester,
-        name=settings.SELF_TRAINING_GROUP_NAME
-    )
+    group = Group.objects.get(semester=instance.semester, name=settings.SELF_TRAINING_GROUP_NAME)
     training_custom_name = None
     if instance.training_type is not None:
-        training_custom_name = f'[Self] {instance.training_type.name}'
+        training_custom_name = f"[Self] {instance.training_type.name}"
 
-    if not hasattr(instance, 'attendance'):
+    if not hasattr(instance, "attendance"):
         instance.attendance = create_attendance_record(
             group=group,
             upload_date=instance.uploaded.date(),
@@ -40,22 +32,18 @@ def update_hours_for_self_sport(
 
     if instance.hours > 0:
         instance.student.notify(
-            *settings.EMAIL_TEMPLATES['self_sport_success'],
+            *settings.EMAIL_TEMPLATES["self_sport_success"],
             training_type=instance.training_type.name,
             date=instance.uploaded.date(),
             hours=instance.hours,
-            submission=format_submission_html(
-                *instance.get_submission_url()
-            )
+            submission=format_submission_html(*instance.get_submission_url()),
         )
     else:
         instance.attendance.delete()
         instance.student.notify(
-            *settings.EMAIL_TEMPLATES['self_sport_reject'],
+            *settings.EMAIL_TEMPLATES["self_sport_reject"],
             training_type=instance.training_type.name,
             date=instance.uploaded.date(),
             comment=instance.comment,
-            submission=format_submission_html(
-                *instance.get_submission_url()
-            )
+            submission=format_submission_html(*instance.get_submission_url()),
         )

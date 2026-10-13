@@ -4,19 +4,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sport', '0040_auto_20210109_1259'),
+        ("sport", "0040_auto_20210109_1259"),
     ]
 
     operations = [
         migrations.RemoveConstraint(
-            model_name='training',
-            name='unique_training',
+            model_name="training",
+            name="unique_training",
         ),
         migrations.AddField(
-            model_name='training',
-            name='custom_name',
+            model_name="training",
+            name="custom_name",
             field=models.CharField(blank=True, max_length=100, null=True),
         ),
     ]

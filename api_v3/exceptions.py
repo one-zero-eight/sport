@@ -1,6 +1,6 @@
 __all__ = [
-    "IncorrectCredentialsException",
     "ForbiddenException",
+    "IncorrectCredentialsException",
     "InvalidRedirectUri",
     "ObjectNotFound",
 ]

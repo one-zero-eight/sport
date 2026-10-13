@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sport', '0101_auto_20220301_0105'),
+        ("sport", "0101_auto_20220301_0105"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='fitnesstestexercise',
-            name='threshold',
+            model_name="fitnesstestexercise",
+            name="threshold",
             field=models.IntegerField(default=0),
         ),
     ]

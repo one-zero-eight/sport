@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sport', '0076_add_nullify_groups'),
+        ("sport", "0076_add_nullify_groups"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='semester',
-            name='increase_course',
+            model_name="semester",
+            name="increase_course",
             field=models.BooleanField(default=False),
         ),
     ]

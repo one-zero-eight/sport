@@ -2,7 +2,7 @@ import datetime
 
 from django.db.models import Q
 from django.forms.utils import to_current_timezone
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect, render
 
 from config.settings import SPORT_COMPLEX_EMAIL
 from sport.models import Training
@@ -12,8 +12,8 @@ def sport_complex_view(request, **kwargs):
     if not (request.user.is_authenticated and (request.user.is_staff or request.user.email == SPORT_COMPLEX_EMAIL)):
         return redirect("/admin/login/?next=/sport-complex/")
 
-    now = datetime.datetime.now(tz=datetime.timezone.utc)
-    today_end = datetime.datetime(now.year, now.month, now.day, 23, 59, 59, tzinfo=datetime.timezone.utc)
+    now = datetime.datetime.now(tz=datetime.UTC)
+    today_end = datetime.datetime(now.year, now.month, now.day, 23, 59, 59, tzinfo=datetime.UTC)
 
     today_trainings = (
         Training.objects.filter(
@@ -40,16 +40,21 @@ def sport_complex_view(request, **kwargs):
             "title": training.group.to_frontend_name(),
             "location": training.training_class.name if training.training_class else "",
             "formatted_timerange": f"{to_current_timezone(training.start).time().strftime('%H:%M')}-{to_current_timezone(training.end).time().strftime('%H:%M')}",
-            "trainers": sorted([
-                f"{trainer.user.get_full_name()} ({trainer.user.email})" for trainer in training.group.trainers.all()
-            ]),
-            "always_allow": sorted([
-                f"{student.user.get_full_name()} ({student.user.email})" for student in
-                training.group.always_allow_students.all()
-            ]),
-            "checkins": sorted([
-                f"{checkin.student.user.get_full_name()} ({checkin.student.user.email})" for checkin in training.checkins.all()
-            ]),
+            "trainers": sorted(
+                [f"{trainer.user.get_full_name()} ({trainer.user.email})" for trainer in training.group.trainers.all()]
+            ),
+            "always_allow": sorted(
+                [
+                    f"{student.user.get_full_name()} ({student.user.email})"
+                    for student in training.group.always_allow_students.all()
+                ]
+            ),
+            "checkins": sorted(
+                [
+                    f"{checkin.student.user.get_full_name()} ({checkin.student.user.email})"
+                    for checkin in training.checkins.all()
+                ]
+            ),
         }
         for training in today_trainings
     ]
@@ -60,5 +65,5 @@ def sport_complex_view(request, **kwargs):
         context={
             "formatted_now": to_current_timezone(now).strftime("%Y-%m-%d %H:%M:%S"),
             "today_schedule_with_checkins": today_schedule_with_checkins,
-        }
+        },
     )

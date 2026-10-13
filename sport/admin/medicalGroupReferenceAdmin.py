@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 
 from sport.admin import site
-from sport.models import MedicalGroupReference, MedicalGroupReferenceImage, MedicalGroup, MedicalGroupHistory
+from sport.models import MedicalGroup, MedicalGroupHistory, MedicalGroupReference, MedicalGroupReferenceImage
 
 
 class StudentTextFilter(AutocompleteFilter):
@@ -30,27 +30,28 @@ class MedicalGroupReferenceForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if self.instance.student_id is not None:
             if MedicalGroupHistory.objects.filter(medical_group_reference=self.instance).exists():
-                self.fields['medical_group'].initial = MedicalGroupHistory.objects.filter(medical_group_reference=self.instance).last().medical_group
+                self.fields["medical_group"].initial = (
+                    MedicalGroupHistory.objects.filter(medical_group_reference=self.instance).last().medical_group
+                )
             else:
-                self.fields['medical_group'].initial = self.instance.student.medical_group_id
+                self.fields["medical_group"].initial = self.instance.student.medical_group_id
 
     medical_group = forms.ModelChoiceField(MedicalGroup.objects.all(), initial=-2)
 
     def clean_comment(self):
-        if self.cleaned_data['medical_group'].pk == -2 and \
-                self.cleaned_data['comment'] == '':
-            raise forms.ValidationError('Please, specify reject reason in the comment field')
-        return self.cleaned_data['comment']
+        if self.cleaned_data["medical_group"].pk == -2 and self.cleaned_data["comment"] == "":
+            raise forms.ValidationError("Please, specify reject reason in the comment field")
+        return self.cleaned_data["comment"]
 
     def save(self, commit=True):
         instance = super().save(commit)
-        instance.student.medical_group_id = self.cleaned_data['medical_group'].pk
+        instance.student.medical_group_id = self.cleaned_data["medical_group"].pk
         instance.student.save()
 
         # FIXME: Подумать как сделать менее костыльно
         student_history = MedicalGroupHistory.objects.filter(student=instance.student)
         if student_history:
-            last_med_hist = student_history.latest('changed')
+            last_med_hist = student_history.latest("changed")
             last_med_hist.medical_group_reference = instance
             last_med_hist.save()
 
@@ -58,10 +59,7 @@ class MedicalGroupReferenceForm(forms.ModelForm):
 
     class Meta:
         model = MedicalGroupReference
-        fields = (
-            'student',
-            'comment'
-        )
+        fields = ("student", "comment")
 
 
 @admin.register(MedicalGroupReference, site=site)
@@ -95,13 +93,11 @@ class MedicalGroupReferenceAdmin(admin.ModelAdmin):
         "student_comment",
     )
 
-    inlines = (
-        MedicalGroupReferenceAdminImage,
-    )
+    inlines = (MedicalGroupReferenceAdminImage,)
 
     def save_model(self, request, obj, form, change):
-        if obj.resolved is None or 'comment' in form.changed_data or 'medical_group' in form.changed_data:
-            obj.resolved = form.cleaned_data['medical_group'].pk > -2
+        if obj.resolved is None or "comment" in form.changed_data or "medical_group" in form.changed_data:
+            obj.resolved = form.cleaned_data["medical_group"].pk > -2
             super().save_model(request, obj, form, change)
 
     def has_add_permission(self, request):

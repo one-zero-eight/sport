@@ -1,11 +1,10 @@
 from django.contrib import admin
-from .site import site
+
 from sport.models import Measurement
+
+from .site import site
 
 
 @admin.register(Measurement, site=site)
 class Measurement(admin.ModelAdmin):
-    list_display = (
-        "name",
-        "value_unit"
-    )
+    list_display = ("name", "value_unit")

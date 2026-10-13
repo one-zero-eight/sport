@@ -2,9 +2,13 @@ import datetime
 
 from django.db.models import Q
 
-from api.crud import get_ongoing_semester
-from sport.models import FitnessTestResult, FitnessTestExercise, FitnessTestGrading, Student, FitnessTestSession, \
-    Semester
+from sport.models import (
+    FitnessTestExercise,
+    FitnessTestGrading,
+    FitnessTestResult,
+    FitnessTestSession,
+    Student,
+)
 
 
 def get_exercises_crud(semester_id):
@@ -18,30 +22,28 @@ def post_student_exercises_result_crud(semester, retake, results, session_id, te
     session, created = FitnessTestSession.objects.get_or_create(
         id=session_id,
         defaults={
-            'semester': semester,
-            'teacher_id': teacher.id,
-            'retake': retake,
-            'date': datetime.datetime.now(),
-        }
+            "semester": semester,
+            "teacher_id": teacher.id,
+            "retake": retake,
+            "date": datetime.datetime.now(),
+        },
     )
 
     for res in results:
-        student = Student.objects.get(user__id=res['student_id'])
-        exercise = FitnessTestExercise.objects.get(id=res['exercise_id'])
+        student = Student.objects.get(user__id=res["student_id"])
+        exercise = FitnessTestExercise.objects.get(id=res["exercise_id"])
 
         FitnessTestResult.objects.update_or_create(
-            exercise=exercise,
-            student=student,
-            defaults={'value': res['value']},
-            session=session
+            exercise=exercise, student=student, defaults={"value": res["value"]}, session=session
         )
 
     return session.id
 
 
 def get_grading_scheme(student: Student, result: FitnessTestResult):
-    return FitnessTestGrading.objects.filter(Q(gender__exact=-1) | Q(gender__exact=student.gender),
-                                             exercise=result.exercise)
+    return FitnessTestGrading.objects.filter(
+        Q(gender__exact=-1) | Q(gender__exact=student.gender), exercise=result.exercise
+    )
 
 
 def get_score(student: Student, result: FitnessTestResult):
@@ -49,4 +51,4 @@ def get_score(student: Student, result: FitnessTestResult):
 
 
 def get_max_score(student: Student, result: FitnessTestResult):
-    return max(map(lambda x: x[0], get_grading_scheme(student, result).values_list('score')))
+    return max(map(lambda x: x[0], get_grading_scheme(student, result).values_list("score")))

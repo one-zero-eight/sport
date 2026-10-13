@@ -5,21 +5,37 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sport', '0132_group_always_allow_students_alter_attendance_student_and_more'),
+        ("sport", "0132_group_always_allow_students_alter_attendance_student_and_more"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='CheckoutHistory',
+            name="CheckoutHistory",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('checkin_date', models.DateTimeField()),
-                ('checkout_date', models.DateTimeField(auto_now_add=True)),
-                ('checkout_reason', models.CharField(choices=[('The recording was deleted by the student.', 'Student Cancel'), ('The recording was deleted by the coach.', 'Trainer Cancel'), ('Cancellation of training', 'Training Cancelled'), ('Change training time', 'Training Time Changed')], max_length=50)),
-                ('student', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='sport.student')),
-                ('training', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='sport.training')),
+                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("checkin_date", models.DateTimeField()),
+                ("checkout_date", models.DateTimeField(auto_now_add=True)),
+                (
+                    "checkout_reason",
+                    models.CharField(
+                        choices=[
+                            ("The recording was deleted by the student.", "Student Cancel"),
+                            ("The recording was deleted by the coach.", "Trainer Cancel"),
+                            ("Cancellation of training", "Training Cancelled"),
+                            ("Change training time", "Training Time Changed"),
+                        ],
+                        max_length=50,
+                    ),
+                ),
+                (
+                    "student",
+                    models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to="sport.student"),
+                ),
+                (
+                    "training",
+                    models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to="sport.training"),
+                ),
             ],
         ),
     ]

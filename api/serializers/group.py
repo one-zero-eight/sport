@@ -13,13 +13,16 @@ class ScheduleSerializer(serializers.ModelSerializer[Schedule]):
             "training_class",
         )
 
+
 class SportEnrollSerializer(serializers.Serializer):
     sport_id = serializers.IntegerField()
+
 
 class SportSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     name = serializers.CharField()
     special = serializers.BooleanField()
+
 
 class SportsSerializer(serializers.Serializer):
     sports = serializers.ListField(child=SportSerializer())

@@ -4,27 +4,32 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sport', '0113_auto_20220825_1721'),
+        ("sport", "0113_auto_20220825_1721"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='group',
-            name='capacity',
+            model_name="group",
+            name="capacity",
             field=models.PositiveIntegerField(default=20),
         ),
         migrations.AlterField(
-            model_name='group',
-            name='name',
+            model_name="group",
+            name="name",
             field=models.CharField(blank=True, max_length=50, null=True),
         ),
         migrations.AddConstraint(
-            model_name='group',
-            constraint=models.CheckConstraint(condition=models.Q(models.Q(('sport__isnull', False),
-                                                                      models.Q(('name__isnull', False),
-                                                                               models.Q(_negated=True, name__exact='')),
-                                                                      _connector='OR')), name='sport_or_name'),
+            model_name="group",
+            constraint=models.CheckConstraint(
+                condition=models.Q(
+                    models.Q(
+                        ("sport__isnull", False),
+                        models.Q(("name__isnull", False), models.Q(_negated=True, name__exact="")),
+                        _connector="OR",
+                    )
+                ),
+                name="sport_or_name",
+            ),
         ),
     ]

@@ -4,19 +4,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sport', '0068_auto_20210802_1649'),
+        ("sport", "0068_auto_20210802_1649"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='semester',
-            name='number_hours_one_day_ill',
+            model_name="semester",
+            name="number_hours_one_day_ill",
         ),
         migrations.AddField(
-            model_name='semester',
-            name='number_hours_one_week_ill',
+            model_name="semester",
+            name="number_hours_one_week_ill",
             field=models.IntegerField(default=2),
         ),
     ]

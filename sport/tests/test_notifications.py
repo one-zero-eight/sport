@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from types import SimpleNamespace
 
 from django.core import mail
@@ -55,7 +55,7 @@ def test_removed_training_uses_bulk_notification(monkeypatch):
         checkins=SimpleNamespace(all=lambda: checkins),
         checked_in_students=students,
         group=SimpleNamespace(to_frontend_name=lambda: "Football"),
-        start=datetime(2026, 9, 9, 15, tzinfo=timezone.utc),
+        start=datetime(2026, 9, 9, 15, tzinfo=UTC),
     )
     history_calls = []
     notification_calls = []
@@ -72,9 +72,7 @@ def test_removed_training_uses_bulk_notification(monkeypatch):
 
     schedule.notify_about_removed_training(instance)
 
-    assert history_calls == [
-        (checkins, schedule.CheckoutHistory.Reason.TRAINING_CANCELLED)
-    ]
+    assert history_calls == [(checkins, schedule.CheckoutHistory.Reason.TRAINING_CANCELLED)]
     assert len(notification_calls) == 1
     args, kwargs = notification_calls[0]
     assert args == (students, *schedule.settings.EMAIL_TEMPLATES["training_deleted"])

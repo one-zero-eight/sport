@@ -4,25 +4,24 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sport', '0022_change_pk'),
+        ("sport", "0022_change_pk"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='attendance',
-            old_name='student',
-            new_name='student_old',
+            model_name="attendance",
+            old_name="student",
+            new_name="student_old",
         ),
         migrations.RenameField(
-            model_name='group',
-            old_name='trainer',
-            new_name='trainer_old',
+            model_name="group",
+            old_name="trainer",
+            new_name="trainer_old",
         ),
         migrations.RenameField(
-            model_name='reference',
-            old_name='student',
-            new_name='student_old',
+            model_name="reference",
+            old_name="student",
+            new_name="student_old",
         ),
     ]

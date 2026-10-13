@@ -1,12 +1,9 @@
-from django.db import migrations, models
+from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sport', '0095_auto_20211209_2132'),
+        ("sport", "0095_auto_20211209_2132"),
     ]
 
-    operations = [
-        migrations.RunSQL(sql="CREATE EXTENSION tablefunc")
-    ]
+    operations = [migrations.RunSQL(sql="CREATE EXTENSION tablefunc")]

@@ -1,5 +1,5 @@
-from django.shortcuts import redirect
 from django.conf import settings
+from django.shortcuts import redirect
 
 
 def login_redirect(request):
@@ -11,4 +11,4 @@ def login_redirect(request):
     elif settings.OAUTH_CLIENT_ID == "?":
         return redirect("/admin/login/?next=/")
     else:
-        return redirect('django_auth_adfs:login')
+        return redirect("django_auth_adfs:login")

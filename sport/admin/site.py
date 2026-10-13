@@ -12,12 +12,22 @@ SIDEBAR_SECTIONS = {
     "Schedule": ["sport.Sport", "sport.Group", "sport.Training", "sport.Semester", "sport.Schedule"],
     "Review": ["sport.SelfSportReport", "sport.MedicalGroupReference", "sport.Reference"],
     "Fitness test": [
-        "sport.FitnessTestExercise", "sport.FitnessTestGrading", "sport.FitnessTestResult",
-        "sport.FitnessTestSession", "sport.Measurement", "sport.MeasurementResult", "sport.MeasurementSession",
+        "sport.FitnessTestExercise",
+        "sport.FitnessTestGrading",
+        "sport.FitnessTestResult",
+        "sport.FitnessTestSession",
+        "sport.Measurement",
+        "sport.MeasurementResult",
+        "sport.MeasurementSession",
     ],
     "Info": [
-        "sport.FAQCategory", "sport.FAQElement", "sport.MedicalGroup",
-        "sport.StudentStatus", "sport.Course", "sport.TrainingClass", "sport.SelfSportType",
+        "sport.FAQCategory",
+        "sport.FAQElement",
+        "sport.MedicalGroup",
+        "sport.StudentStatus",
+        "sport.Course",
+        "sport.TrainingClass",
+        "sport.SelfSportType",
     ],
     "Sport": [],  # All other registered models
 }
@@ -47,14 +57,13 @@ class SportAdminSite(admin.AdminSite):
             }
 
         model_sections = {
-            model: f"section-{slugify(name)}"
-            for name, models in SIDEBAR_SECTIONS.items()
-            for model in models
+            model: f"section-{slugify(name)}" for name, models in SIDEBAR_SECTIONS.items() for model in models
         }
         for app in app_list:
             for model in app["models"]:
                 section = model_sections.get(
-                    f"{app['app_label']}.{model['object_name']}", app["app_label"],
+                    f"{app['app_label']}.{model['object_name']}",
+                    app["app_label"],
                 )
                 sections.setdefault(section, {**app, "models": []})["models"].append(model)
 

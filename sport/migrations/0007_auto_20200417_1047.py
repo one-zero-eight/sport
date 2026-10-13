@@ -4,14 +4,13 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sport', '0006_auto_20200414_1851'),
+        ("sport", "0006_auto_20200414_1851"),
     ]
 
     operations = [
         migrations.AddConstraint(
-            model_name='training',
-            constraint=models.UniqueConstraint(fields=('group', 'start', 'end'), name='unique_training'),
+            model_name="training",
+            constraint=models.UniqueConstraint(fields=("group", "start", "end"), name="unique_training"),
         ),
     ]

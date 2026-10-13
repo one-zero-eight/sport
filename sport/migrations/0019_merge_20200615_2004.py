@@ -4,11 +4,9 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sport', '0016_schedule_backref_weekday_fix'),
-        ('sport', '0018_extend_attendance_hour_limit'),
+        ("sport", "0016_schedule_backref_weekday_fix"),
+        ("sport", "0018_extend_attendance_hour_limit"),
     ]
 
-    operations = [
-    ]
+    operations = []

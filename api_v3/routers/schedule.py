@@ -7,10 +7,9 @@ from fastapi import APIRouter, HTTPException, Query
 from starlette import status
 
 from api.crud.crud_training import can_check_in
-
 from api_v3.dependencies import VerifiedDep
-from api_v3.permissions import is_student, is_trainer, is_admin
-from api_v3.routers.trainings import TrainingInfoSchema, TrainingInfoPersonalSchema
+from api_v3.permissions import is_admin, is_student, is_trainer
+from api_v3.routers.trainings import TrainingInfoPersonalSchema, TrainingInfoSchema
 from api_v3.utils.semester import get_current_semester
 from api_v3.utils.student_group_access import education_level_q_for_training_group
 from sport.models import Training, TrainingCheckIn
@@ -62,11 +61,7 @@ def get_personal_schedule(
                 group__semester__id=semester.id,
                 group__trainers=trainer,
             )
-            .filter(
-                Q(start__gt=start, start__lt=end)
-                | Q(end__gt=start, end__lt=end)
-                | Q(start__lt=start, end__gt=end)
-            )
+            .filter(Q(start__gt=start, start__lt=end) | Q(end__gt=start, end__lt=end) | Q(start__lt=start, end__gt=end))
         )
         for t in trainings:
             start_dt = timezone.localtime(t.start)
@@ -88,17 +83,10 @@ def get_personal_schedule(
             .prefetch_related("group__allowed_medical_groups", "checkins")
             .annotate(load=Count("checkins"))
             .filter(
-                (
-                    Q(start__range=(start, end))
-                    | Q(end__range=(start, end))
-                    | (Q(start__lte=start) & Q(end__gte=end))
-                ),
+                (Q(start__range=(start, end)) | Q(end__range=(start, end)) | (Q(start__lte=start) & Q(end__gte=end))),
                 ~Q(group__sport=None),
                 education_level_q_for_training_group(student),
-                (
-                    Q(group__allowed_medical_groups=student.medical_group)
-                    | Q(group__allowed_students=student.pk)
-                ),
+                (Q(group__allowed_medical_groups=student.medical_group) | Q(group__allowed_students=student.pk)),
                 group__semester=semester.id,
             )
             .exclude(group__banned_students=student.pk)
@@ -173,7 +161,4 @@ def get_sport_schedule(
     )
     query = query.order_by("start")
 
-    return [
-        TrainingInfoSchema.from_model(t)
-        for t in query
-    ]
+    return [TrainingInfoSchema.from_model(t) for t in query]

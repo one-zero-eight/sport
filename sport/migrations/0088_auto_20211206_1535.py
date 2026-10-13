@@ -4,14 +4,24 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sport', '0087_auto_20211206_1519'),
+        ("sport", "0087_auto_20211206_1519"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='custompermission',
-            options={'permissions': [('choose_sport', 'Can choose type of sport'), ('go_to_another_sport', 'Can go to group of the another type of sport'), ('see_calendar', 'Can see calendar'), ('go_to_another_group', 'Can go to another group in the same type of sport'), ('choose_group', 'Can choose group'), ('more_than_10_hours_of_self_sport', 'Can have more then 10 hours of self sport'), ('change_fitness_test', 'Can change fitness test results')], 'verbose_name_plural': 'custom permissions'},
+            name="custompermission",
+            options={
+                "permissions": [
+                    ("choose_sport", "Can choose type of sport"),
+                    ("go_to_another_sport", "Can go to group of the another type of sport"),
+                    ("see_calendar", "Can see calendar"),
+                    ("go_to_another_group", "Can go to another group in the same type of sport"),
+                    ("choose_group", "Can choose group"),
+                    ("more_than_10_hours_of_self_sport", "Can have more then 10 hours of self sport"),
+                    ("change_fitness_test", "Can change fitness test results"),
+                ],
+                "verbose_name_plural": "custom permissions",
+            },
         ),
     ]

@@ -1,28 +1,26 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
 
 from datetime import date
 from enum import IntEnum
+from typing import TYPE_CHECKING
 
-from django.core.mail import EmailMultiAlternatives, send_mail
 from django.conf import settings
+from django.core.mail import EmailMultiAlternatives
 from django.db.models import QuerySet
+from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from django.utils import timezone
 
 if TYPE_CHECKING:
     from sport.models import Student
+
 
 class SubmissionType(IntEnum):
     LINK = 1
     IMAGE = 0
 
 
-def format_submission_html(
-        submission_type: SubmissionType,
-        submission_url: str
-) -> str:
+def format_submission_html(submission_type: SubmissionType, submission_url: str) -> str:
     if submission_type == SubmissionType.LINK:
         return format_html('<a href="{}">link</a>', submission_url)
     elif submission_type == SubmissionType.IMAGE:
@@ -48,12 +46,14 @@ def get_current_study_year() -> int:
 def set_session_notification(request, msg: str, msg_type: str):
     request.session["notify"] = (msg_type, msg)
 
+
 def today() -> date:
     return timezone.now().date()
 
 
 def str_or_empty(field) -> str:
     return str(field) if field else ""
+
 
 def notify_students(students: QuerySet[Student], subject, message, **kwargs):
     msg = message.format(**kwargs)

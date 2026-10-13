@@ -57,7 +57,7 @@ django-smartfields = { git = "https://github.com/ViniciusBernardo/django-smartfi
 pytest-freezegun = { git = "https://github.com/oizik/pytest-freezegun.git", branch = "master" }
 
 [tool.ruff]
-extend-exclude = [".agents/skills"]
+extend-exclude = [".agents/skills", "sport/static/third-party"]
 line-length = 120
 lint.preview = true
 lint.extend-select = [
@@ -82,7 +82,7 @@ lint.extend-ignore = [
 lint.unfixable = ["F401"] # unused-import — report only, do not remove on fix
 target-version = "py312"
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["S101"] # assert is standard in pytest
+"**/tests/**" = ["S101"] # assert is standard in pytest
 [tool.ruff.lint.flake8-builtins]
 ignorelist = ["id"]
 [tool.ruff.lint.flake8-import-conventions]

@@ -1,26 +1,24 @@
 import datetime
 
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import status
-
-from api.permissions import IsStaff, IsSuperUser
-
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
+from api.permissions import IsStaff, IsSuperUser
 from sport.models import Attendance
 
 
 @extend_schema(
     methods=["GET"],
     parameters=[
-        OpenApiParameter(name='sport_id', type=OpenApiTypes.INT),
-        OpenApiParameter(name='medical_group_id', type=OpenApiTypes.INT),
+        OpenApiParameter(name="sport_id", type=OpenApiTypes.INT),
+        OpenApiParameter(name="medical_group_id", type=OpenApiTypes.INT),
     ],
     responses={
         status.HTTP_200_OK: dict[str, int],
-    }
+    },
 )
 @api_view(["GET"])
 @permission_classes([IsStaff | IsSuperUser])
@@ -37,7 +35,7 @@ def attendance_analytics(request, **kwargs):
     query = sorted(query, key=lambda x: x.training.start)
     for obj in query:
         time_key = obj.training.start.strftime("%Y-%m-%d")
-        if time_key not in result.keys():
+        if time_key not in result:
             result.update({time_key: 1})
         else:
             result[time_key] += 1

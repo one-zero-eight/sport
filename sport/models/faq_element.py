@@ -3,7 +3,7 @@ from tinymce.models import HTMLField
 
 
 class FAQElement(models.Model):
-    category = models.ForeignKey('FAQCategory', on_delete=models.DO_NOTHING, null=False)
+    category = models.ForeignKey("FAQCategory", on_delete=models.DO_NOTHING, null=False)
     question = models.CharField(max_length=1000, null=False)
     answer = HTMLField()
 

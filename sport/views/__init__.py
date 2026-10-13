@@ -1,8 +1,12 @@
-from .profile import profile_view, process_med_group_form
-from .category import category_view
-from .fitness_test import fitness_test_session_view, fitness_test_view, fitness_test_session_new_view
-from .calendar import calendar_view, calendar_view_without_sport
-from .grafana_proxy import GrafanaProxyView
-from .login import login_redirect
-from .analytics import analytics_view
-from .sport_complex import sport_complex_view
+from .analytics import analytics_view as analytics_view
+from .calendar import calendar_view as calendar_view
+from .calendar import calendar_view_without_sport as calendar_view_without_sport
+from .category import category_view as category_view
+from .fitness_test import fitness_test_session_new_view as fitness_test_session_new_view
+from .fitness_test import fitness_test_session_view as fitness_test_session_view
+from .fitness_test import fitness_test_view as fitness_test_view
+from .grafana_proxy import GrafanaProxyView as GrafanaProxyView
+from .login import login_redirect as login_redirect
+from .profile import process_med_group_form as process_med_group_form
+from .profile import profile_view as profile_view
+from .sport_complex import sport_complex_view as sport_complex_view

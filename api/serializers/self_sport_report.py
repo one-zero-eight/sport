@@ -7,9 +7,9 @@ class SelfSportTypes(serializers.ModelSerializer[SelfSportType]):
     class Meta:
         model = SelfSportType
         fields = (
-            'pk',
-            'name',
-            'application_rule',
+            "pk",
+            "name",
+            "application_rule",
         )
 
 
@@ -29,16 +29,12 @@ class SelfSportReportUploadSerializer(serializers.ModelSerializer[SelfSportRepor
 
     class Meta:
         model = SelfSportReport
-        fields = (
-            'link',
-            'hours',
-            'training_type',
-            'student_comment',
-            'parsed_data'
-        )
+        fields = ("link", "hours", "training_type", "student_comment", "parsed_data")
+
 
 class ParseStrava(serializers.Serializer):
     link = serializers.URLField(required=True)
+
 
 class ParsedStravaSerializer(serializers.Serializer):
     training_type = serializers.CharField()

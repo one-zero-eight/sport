@@ -1,12 +1,7 @@
-from datetime import date
-
 import pytest
 from django.contrib.auth import get_user_model
 
-from sport.models import Student, Group
-from sport.models import MedicalGroups
-from api.crud import get_email_name_like_students_filtered_by_group
-
+from sport.models import Student
 
 User = get_user_model()
 

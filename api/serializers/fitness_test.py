@@ -3,26 +3,26 @@ from rest_framework import serializers
 
 from api.serializers.semester import SemesterSerializer
 from api.serializers.student import StudentSerializer
-from sport.models import FitnessTestExercise, FitnessTestSession, FitnessTestResult
+from sport.models import FitnessTestExercise, FitnessTestResult, FitnessTestSession
 
 
 class FitnessTestExerciseSelectSerializer(serializers.ListSerializer):
     def to_internal_value(self, data):
-        return ','.join(data)
+        return ",".join(data)
 
     def to_representation(self, data):
-        return data.split(',')
+        return data.split(",")
 
 
 class FitnessTestExerciseSerializer(serializers.ModelSerializer[FitnessTestExercise]):
-    name = serializers.CharField(source='exercise_name')
+    name = serializers.CharField(source="exercise_name")
     semester = SemesterSerializer()
-    unit = serializers.CharField(source='value_unit')
+    unit = serializers.CharField(source="value_unit")
     select = FitnessTestExerciseSelectSerializer(child=serializers.CharField())
 
     class Meta:
         model = FitnessTestExercise
-        fields = ('id', 'semester', 'name', 'unit', 'select')
+        fields = ("id", "semester", "name", "unit", "select")
 
 
 class FitnessTestResultSerializer(serializers.ModelSerializer[FitnessTestResult]):
@@ -30,7 +30,7 @@ class FitnessTestResultSerializer(serializers.ModelSerializer[FitnessTestResult]
 
     class Meta:
         model = FitnessTestResult
-        fields = ('student', 'value')
+        fields = ("student", "value")
 
 
 @extend_schema_field(int | str)  # NOQA: UnionType is supported
@@ -73,11 +73,11 @@ class FitnessTestUpload(serializers.Serializer):
 class FitnessTestSessionSerializer(serializers.ModelSerializer[FitnessTestSession]):
     semester = SemesterSerializer()
     retake = serializers.BooleanField()
-    teacher = serializers.CharField(source='teacher.__str__')  # TODO: return object
+    teacher = serializers.CharField(source="teacher.__str__")  # TODO: return object
 
     class Meta:
         model = FitnessTestSession
-        fields = ('id', 'semester', 'retake', 'date', 'teacher')
+        fields = ("id", "semester", "retake", "date", "teacher")
 
 
 class FitnessTestSessionWithResult(serializers.Serializer):

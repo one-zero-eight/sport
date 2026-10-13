@@ -10,9 +10,7 @@ class SelfSportType(models.Model):
 
     application_rule = models.TextField()
 
-    is_active = models.BooleanField(
-        default=True
-    )
+    is_active = models.BooleanField(default=True)
 
     def __repr__(self):
         return self.name

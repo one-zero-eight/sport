@@ -4,20 +4,37 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sport', '0019_merge_20200615_2004'),
+        ("sport", "0019_merge_20200615_2004"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='group',
-            name='minimum_medical_group',
-            field=models.IntegerField(choices=[(-2, 'Medical checkup not passed'), (-1, 'Special 2'), (0, 'Special 1'), (1, 'Preparative'), (2, 'General')], default=1),
+            model_name="group",
+            name="minimum_medical_group",
+            field=models.IntegerField(
+                choices=[
+                    (-2, "Medical checkup not passed"),
+                    (-1, "Special 2"),
+                    (0, "Special 1"),
+                    (1, "Preparative"),
+                    (2, "General"),
+                ],
+                default=1,
+            ),
         ),
         migrations.AddField(
-            model_name='student',
-            name='medical_group',
-            field=models.IntegerField(choices=[(-2, 'Medical checkup not passed'), (-1, 'Special 2'), (0, 'Special 1'), (1, 'Preparative'), (2, 'General')], default=-2),
+            model_name="student",
+            name="medical_group",
+            field=models.IntegerField(
+                choices=[
+                    (-2, "Medical checkup not passed"),
+                    (-1, "Special 2"),
+                    (0, "Special 1"),
+                    (1, "Preparative"),
+                    (2, "General"),
+                ],
+                default=-2,
+            ),
         ),
     ]

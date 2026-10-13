@@ -2,13 +2,13 @@ import uuid
 
 from django.conf import settings
 from django.db import models
-from sport.utils import format_submission_html, SubmissionType
+
+from sport.utils import SubmissionType, format_submission_html
 
 
 def get_reference_path(instance, filename):
-    ext = filename.split('.')[-1]
-    return f'{settings.MEDICAL_GROUP_REFERENCE_FOLDER}/' \
-           f'{instance.reference.student.pk}/{uuid.uuid4()}.{ext}'
+    ext = filename.split(".")[-1]
+    return f"{settings.MEDICAL_GROUP_REFERENCE_FOLDER}/{instance.reference.student.pk}/{uuid.uuid4()}.{ext}"
 
 
 class MedicalGroupReference(models.Model):
@@ -25,22 +25,17 @@ class MedicalGroupReference(models.Model):
     )
 
     comment = models.TextField(max_length=1024, null=True, blank=True)
-    uploaded = models.DateTimeField(
-        auto_now_add=True,
-        null=False
-    )
+    uploaded = models.DateTimeField(auto_now_add=True, null=False)
     student_comment = models.TextField(max_length=1024, null=True, blank=True, verbose_name="Student's comment")
-    
+
     def __str__(self):
         return f"{self.student} {self.uploaded.strftime('%Y-%m-%d %H:%M:%S')} for {self.semester}"
 
     def get_submission_url(self):
-        return '\n'.join(
+        return "\n".join(
             [
                 format_submission_html(SubmissionType.IMAGE, image.image.path)
-                for image in MedicalGroupReferenceImage.objects.filter(
-                    reference_id=self.pk
-                )
+                for image in MedicalGroupReferenceImage.objects.filter(reference_id=self.pk)
             ]
         )
 

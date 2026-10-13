@@ -11,4 +11,4 @@ class ReferenceUploadSerializer(serializers.ModelSerializer[Reference]):
 
     class Meta:
         model = Reference
-        fields = ['image', 'start', 'end', 'student_comment']
+        fields = ["image", "start", "end", "student_comment"]

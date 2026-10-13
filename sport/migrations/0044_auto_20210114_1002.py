@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sport', '0043_merge_20210113_1103'),
+        ("sport", "0043_merge_20210113_1103"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='group',
-            name='link',
+            model_name="group",
+            name="link",
             field=models.URLField(blank=True, max_length=256, null=True),
         ),
         migrations.AddField(
-            model_name='group',
-            name='link_name',
+            model_name="group",
+            name="link_name",
             field=models.CharField(blank=True, max_length=100, null=True),
         ),
     ]

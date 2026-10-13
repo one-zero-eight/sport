@@ -1,8 +1,9 @@
 from datetime import timedelta
 
 from django.db import models
-from django.db.models import Q, F
+from django.db.models import F, Q
 from django.utils import timezone
+
 from sport.utils import today
 
 from . import MedicalGroup, StudentStatuses
@@ -26,8 +27,9 @@ class Semester(models.Model):
     name = models.CharField(max_length=50, null=False, unique=True)
     start = models.DateField(null=False, default=today)
     end = models.DateField(null=False, default=today)
-    academic_leave_students = models.ManyToManyField(Student, blank=True, default=academic_leave_students,
-                                                     related_name="academic_leave_semesters")
+    academic_leave_students = models.ManyToManyField(
+        Student, blank=True, default=academic_leave_students, related_name="academic_leave_semesters"
+    )
     hours = models.IntegerField(default=30)
     points_fitness_test = models.IntegerField(default=40)
     number_hours_one_week_ill = models.IntegerField(default=2)
@@ -38,9 +40,7 @@ class Semester(models.Model):
     class Meta:
         db_table = "semester"
         verbose_name_plural = "semesters"
-        constraints = [
-            models.CheckConstraint(condition=Q(start__lte=F('end')), name='semester_start_before_end')
-        ]
+        constraints = [models.CheckConstraint(condition=Q(start__lte=F("end")), name="semester_start_before_end")]
         indexes = [
             models.Index(fields=("start",)),
         ]

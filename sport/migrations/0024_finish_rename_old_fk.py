@@ -4,19 +4,18 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sport', '0023_rename_old_fk'),
+        ("sport", "0023_rename_old_fk"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='enroll',
-            old_name='student',
-            new_name='student_old',
+            model_name="enroll",
+            old_name="student",
+            new_name="student_old",
         ),
         migrations.AlterUniqueTogether(
-            name='enroll',
+            name="enroll",
             unique_together=set(),
         ),
     ]
