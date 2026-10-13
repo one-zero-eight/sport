@@ -9,7 +9,7 @@ from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 from starlette import status
 
-from api.crud.crud_training import can_check_in
+from api_v1.crud.crud_training import can_check_in
 from api_v3.dependencies import VerifiedDep
 from api_v3.permissions import is_admin, is_student, is_trainer
 from api_v3.routers.info import TrainingLocationSchema

@@ -8,7 +8,7 @@ from django.utils import timezone
 from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext_lazy as _
 
-from api.crud import get_ongoing_semester
+from api_v1.crud import get_ongoing_semester
 from sport.models import Group, Semester
 
 from .admin_inlines import TrainingInline

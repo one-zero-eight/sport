@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from api.crud import get_ongoing_semester
+from api_v1.crud import get_ongoing_semester
 from sport.models import FitnessTestResult, FitnessTestSession
 
 from .admin_site import site

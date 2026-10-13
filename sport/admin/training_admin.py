@@ -13,7 +13,7 @@ from django.utils import timezone
 from openpyxl import load_workbook
 from rangefilter.filters import DateRangeFilter
 
-from api.crud import get_ongoing_semester, mark_hours
+from api_v1.crud import get_ongoing_semester, mark_hours
 from sport.models import Attendance, Group, Student, Training
 
 from .admin_inlines import AddAttendanceInline, HackAttendanceInline, ViewAttendanceInline, ViewTrainingCheckInInline

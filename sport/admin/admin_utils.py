@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from api.crud import get_ongoing_semester
+from api_v1.crud import get_ongoing_semester
 from config.settings import NOT_COPYABLE_GROUPS
 from sport.models import Group, Schedule, Semester
 from sport.signals.schedule import create_trainings_current_semester

@@ -7,7 +7,7 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 
 from accounts.models import User
-from api.crud import mark_hours
+from api_v1.crud import mark_hours
 from sport.models import Attendance, Semester, Training
 
 before_training = dtm.datetime(2020, 1, 15, 17, 0, 0, tzinfo=dtm.UTC)

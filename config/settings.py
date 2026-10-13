@@ -135,7 +135,7 @@ INSTALLED_APPS = [
     "django_prometheus",
     "sport.apps.SportConfig",
     "config.apps.SportAdminConfig",
-    "api",
+    "api_v1",
     "media",
     "hijack",
     "hijack.contrib.admin",

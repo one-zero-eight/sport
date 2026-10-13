@@ -10,7 +10,7 @@ from django.db.models.functions import Coalesce
 from django.urls import reverse
 from django.utils.html import format_html
 
-from api.crud import get_ongoing_semester
+from api_v1.crud import get_ongoing_semester
 from sport.models import Attendance, SelfSportReport
 
 from .admin_site import site

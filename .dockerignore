@@ -4,7 +4,7 @@
 # Except what the image needs
 !/accounts/
 !/config/
-!/api/
+!/api_v1/
 !/api_v3/
 !/media/
 !/sport/

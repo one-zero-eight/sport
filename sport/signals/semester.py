@@ -6,7 +6,7 @@ from django.db.models.functions import Coalesce
 from django.db.models.signals import m2m_changed, post_migrate, post_save, pre_save
 from django.dispatch.dispatcher import receiver
 
-from api.crud import SumSubquery, get_free_places_for_sport, get_ongoing_semester
+from api_v1.crud import SumSubquery, get_free_places_for_sport, get_ongoing_semester
 from sport.models import Attendance, Debt, Group, Semester, Student, Trainer
 
 User = get_user_model()

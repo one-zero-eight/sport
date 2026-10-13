@@ -6,8 +6,8 @@ from django.db.models.signals import m2m_changed, post_save, pre_save
 from django.dispatch.dispatcher import receiver
 from django_auth_adfs.signals import post_authenticate
 
-from api.crud import get_student_groups, unenroll_student
-from api.crud.crud_semester import get_ongoing_semester
+from api_v1.crud import get_student_groups, unenroll_student
+from api_v1.crud.crud_semester import get_ongoing_semester
 from sport.models import CustomPermission, Student, Trainer
 from sport.models import Group as Group_model
 

@@ -10,7 +10,7 @@ from import_export.admin import ExportActionMixin, ImportExportActionModelAdmin
 from import_export.results import RowResult
 from import_export.widgets import ForeignKeyWidget
 
-from api.crud import SumSubquery, get_ongoing_semester
+from api_v1.crud import SumSubquery, get_ongoing_semester
 from sport.models import (
     Attendance,
     Debt,

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.forms import BaseInlineFormSet
 
-from api.crud import get_ongoing_semester
+from api_v1.crud import get_ongoing_semester
 from sport.models import Measurement, MeasurementResult, MeasurementSession
 
 from .admin_site import site

@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from rest_framework.decorators import permission_classes
 
-from api.crud import (
+from api_v1.crud import (
     get_brief_hours,
     get_faq,
     get_negative_hours,
@@ -15,7 +15,7 @@ from api.crud import (
     get_student_hours,
     get_trainer_groups,
 )
-from api.permissions import IsStudent
+from api_v1.permissions import IsStudent
 from sport.forms.medical import MedicalGroupReferenceForm
 from sport.models import Debt, MedicalGroupReference, MedicalGroupReferenceImage, Student
 from sport.utils import set_session_notification

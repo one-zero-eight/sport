@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 
-from api.crud import get_sports, get_student_groups
+from api_v1.crud import get_sports, get_student_groups
 from sport.models import Student
 
 

@@ -4,12 +4,12 @@ from sport.models import Group, Student
 
 
 def education_level_q_for_group(student: Student) -> Q:
-    """Same rule as api.crud.crud_groups.get_sports (student branch)."""
+    """Same rule as api_v1.crud.crud_groups.get_sports (student branch)."""
     return Q(allowed_education_level__in=[-1, 2 if student.is_college else 1])
 
 
 def education_level_q_for_training_group(student: Student) -> Q:
-    """Same rule as api.crud.crud_training.get_trainings_for_student."""
+    """Same rule as api_v1.crud.crud_training.get_trainings_for_student."""
     return Q(group__allowed_education_level__in=[-1, 2 if student.is_college else 1])
 
 
